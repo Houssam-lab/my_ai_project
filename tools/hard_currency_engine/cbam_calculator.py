@@ -280,7 +280,9 @@ def generate_cbam_batch_xml(batch_res: dict, declarant_eori: str = "FR1234567890
     summary = ET.SubElement(root, "DeclarationSummary")
     ET.SubElement(summary, "TotalGoodsItems").text = str(batch_res.get("nb_lignes", 0))
     ET.SubElement(summary, "TotalMassTonnes").text = f"{batch_res.get('total_tonnes', 0.0):.2f}"
-    ET.SubElement(summary, "TotalSavingsEUR").text = f"{batch_res.get('economie_globale_eur', 0.0):.2f}"
+    ET.SubElement(
+        summary, "TotalSavingsEUR"
+    ).text = f"{batch_res.get('economie_globale_eur', 0.0):.2f}"
 
     for item in batch_res.get("lignes", []):
         goods_item = ET.SubElement(root, "ImportedGoodsItem")
@@ -301,7 +303,9 @@ def generate_cbam_batch_xml(batch_res: dict, declarant_eori: str = "FR1234567890
 
         financial = ET.SubElement(goods_item, "FinancialImpact")
         cert_p = item["prix_certificat"] if item.get("prix_certificat") else 75.0
-        ET.SubElement(financial, "TotalCertificatesRequired").text = f"{(item['cout_actual'] / cert_p):.2f}"
+        ET.SubElement(
+            financial, "TotalCertificatesRequired"
+        ).text = f"{(item['cout_actual'] / cert_p):.2f}"
         ET.SubElement(financial, "CarbonCostSavingsEUR").text = f"{item['economie_totale']:.2f}"
 
     rough_string = ET.tostring(root, "utf-8")

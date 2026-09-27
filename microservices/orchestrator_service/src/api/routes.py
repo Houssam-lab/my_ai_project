@@ -504,6 +504,11 @@ async def chat_messages_endpoint(
     _admin_payload = _jwt_payload if _is_admin_payload(_jwt_payload) else None
 
     chat_scope = "customer"
+    # The monolith compatibility facade has already persisted the user message
+    # and remains the single writer for the assistant response.  Without this
+    # handshake the StateGraph endpoint wrote both roles a second time, polluting
+    # history/checkpoints and making retries look like repeated user questions.
+    is_compatibility_facade = context.get("compatibility_facade") is True
 
     requested_conversation_id = _safe_conversation_id(payload.get("conversation_id"))
     if requested_conversation_id is None:
@@ -523,6 +528,7 @@ async def chat_messages_endpoint(
             user_id=user_id,
             question=objective,
             requested_conversation_id=requested_conversation_id,
+            skip_user_message=is_compatibility_facade,
         )
     context["conversation_id"] = conversation_id
 
@@ -567,7 +573,7 @@ async def chat_messages_endpoint(
         if not final_content and delta_parts:
             final_content = "".join(delta_parts)
 
-        if final_content:
+        if final_content and not is_compatibility_facade:
             try:
                 async with _psycopg_session_factory_proxy(
                     default_factory=async_session_factory

@@ -78,6 +78,7 @@ class TurnResult:
     content: str = ""
     components: list[str] = field(default_factory=list)
     problems: list[str] = field(default_factory=list)
+    spoken_error: str = ""
 
 
 def _latin_leak(text: str) -> str | None:
@@ -125,10 +126,14 @@ def _absorb_object(result: TurnResult, payload: dict[str, Any], now: float) -> N
         result.problems.append(f"مكوّنٌ لا تعرف الواجهة رسمه: {name!r} (ISS-145)")
 
 
-def _absorb_terminal(result: TurnResult, payload: dict[str, Any]) -> None:
+def _absorb_terminal(result: TurnResult, event_type: str, payload: dict[str, Any]) -> None:
     result.terminal_frames += 1
-    if payload.get("content"):
+    if event_type == "assistant_final" and payload.get("content"):
         result.content = result.content or str(payload["content"])
+    elif event_type in {"error", "assistant_error"}:
+        result.spoken_error = str(
+            payload.get("message") or payload.get("content") or payload.get("details") or event_type
+        )
 
 
 def _absorb_frame(result: TurnResult, event: dict[str, Any], now: float) -> bool:
@@ -141,7 +146,7 @@ def _absorb_frame(result: TurnResult, event: dict[str, Any], now: float) -> bool
     elif etype == "ui_component":
         _absorb_object(result, payload, now)
     elif etype in _TERMINAL:
-        _absorb_terminal(result, payload)
+        _absorb_terminal(result, etype, payload)
         return True
     return False
 
@@ -189,7 +194,9 @@ def _turn_violations(result: TurnResult) -> list[str]:
         problems.append(f"شظيّة لاتينية في ردٍّ عربي: {leak!r} (ISS-150)")
     if is_system_authored(result.content):
         problems.append("نصُّ نظامٍ وصل الطالب (D-117/D-229)")
-    if not result.content.strip() and not result.components:
+    if result.spoken_error:
+        problems.append(f"لم يُجَب — خطأٌ منطوق: {result.spoken_error[:120]!r}")
+    elif not result.content.strip() and not result.components:
         problems.append("دورٌ صامت: لا نصَّ ولا كائن")
     return problems
 

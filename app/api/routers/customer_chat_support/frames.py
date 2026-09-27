@@ -159,6 +159,17 @@ async def _emit_terminal_frames(
 
     D-096: يستخدم send_lock لمنع التزامن مع BKT task و stream_and_forward.
     """
+    # Preserve an explicit upstream failure as the one terminal outcome.  It is
+    # intentionally handled before persistence/success assembly: operational
+    # outage text is not an assistant answer and must not be persisted merely to
+    # make the turn look complete.
+    if pending_terminal_event is not None and pending_terminal_event.get("type") in {
+        "error",
+        "assistant_error",
+    }:
+        await _locked_send_json(websocket, send_lock, pending_terminal_event)
+        return
+
     if assistant_message_persisted:
         # بناء ui_component من النص المكتمل — لا يكسر المسار عند الفشل
         ui_component = _try_build_math_ui_component(complete_ai_response)

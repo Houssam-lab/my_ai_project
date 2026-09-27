@@ -238,7 +238,6 @@ def generate_sample_zatca_ubl_xml(inv: dict) -> str:
     total_val = float(inv.get("total", 1000.0))
     vat_val = float(inv.get("vat", total_val * 0.15))
     total_str = f"{total_val:.2f}"
-    vat_str = f"{vat_val:.2f}"
     inc_total_str = f"{(total_val + vat_val):.2f}"
 
     return f"""<?xml version="1.0" encoding="UTF-8"?>

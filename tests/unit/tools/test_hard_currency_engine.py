@@ -211,7 +211,9 @@ class TestCBAMCalculator(unittest.TestCase):
         self.assertIn("72083900", CBAM_CATALOG)
         self.assertIn("72131000", CBAM_CATALOG)
         res_coils = calculate_cbam("72083900", tonnes=20000)
-        self.assertEqual(res_coils["installation"], "Tosyali Iron Steel Industry Algerie SPA (Bethioua)")
+        self.assertEqual(
+            res_coils["installation"], "Tosyali Iron Steel Industry Algerie SPA (Bethioua)"
+        )
         self.assertGreater(res_coils["economie_totale"], 15000.0)
 
     def test_cbam_xml_generation(self):
@@ -329,7 +331,9 @@ class TestZATCAValidator(unittest.TestCase):
 
 class TestEAAScanner(unittest.TestCase):
     def test_html_audit_and_remediation(self):
-        bad_html = "<html><body><img src='logo.png'><input type='text'><button></button></body></html>"
+        bad_html = (
+            "<html><body><img src='logo.png'><input type='text'><button></button></body></html>"
+        )
         res = audit_html_content(bad_html)
         self.assertFalse(res["est_conforme"])
         self.assertTrue(res["score_accessibilite"] < 100.0)

@@ -173,7 +173,9 @@ def _check_viewport_and_landmarks(html_str: str, findings: list):
     viewport = re.search(r'<meta[^>]*name\s*=\s*["\']viewport["\'][^>]*>', html_str, re.IGNORECASE)
     if viewport:
         content = viewport.group(0)
-        if re.search(r"user-scalable\s*=\s*no|maximum-scale\s*=\s*1(\.0)?\b", content, re.IGNORECASE):
+        if re.search(
+            r"user-scalable\s*=\s*no|maximum-scale\s*=\s*1(\.0)?\b", content, re.IGNORECASE
+        ):
             findings.append(
                 (
                     "MAJEUR",
@@ -184,9 +186,7 @@ def _check_viewport_and_landmarks(html_str: str, findings: list):
 
     has_main = bool(re.search(r"<main\b|role\s*=\s*['\"]main['\"]", html_str, re.IGNORECASE))
     if not has_main:
-        findings.append(
-            ("MOYEN", "WCAG 1.3.1 / 2.4.1", "Zone de contenu principal <main> absente")
-        )
+        findings.append(("MOYEN", "WCAG 1.3.1 / 2.4.1", "Zone de contenu principal <main> absente"))
 
 
 def _check_headings_and_tables(html_str: str, findings: list):
@@ -280,31 +280,36 @@ def remediate_html_content(html_str: str) -> tuple[str, list[str]]:
             count=1,
             flags=re.IGNORECASE,
         )
-        actions.append("Ajout de l'attribut lang=\"fr\" sur <html>")
+        actions.append('Ajout de l\'attribut lang="fr" sur <html>')
 
     # 2. Injecter un alt="" sur les images sans alt
     def fix_img_alt(m):
         tag = m.group(0)
         if not re.search(r"\balt\s*=", tag, re.IGNORECASE):
-            actions.append("Ajout d'attribut alt=\"\" sur balise <img>")
+            actions.append('Ajout d\'attribut alt="" sur balise <img>')
             return tag[:-1] + ' alt="">'
         return tag
 
     remediated = re.sub(r"<img\b[^>]*>", fix_img_alt, remediated, flags=re.IGNORECASE)
 
     # 3. Corriger le blocage du zoom viewport
-    if re.search(r'user-scalable\s*=\s*no|maximum-scale\s*=\s*1(\.0)?\b', remediated, re.IGNORECASE):
+    if re.search(
+        r"user-scalable\s*=\s*no|maximum-scale\s*=\s*1(\.0)?\b", remediated, re.IGNORECASE
+    ):
         remediated = re.sub(
-            r'user-scalable\s*=\s*no', 'user-scalable=yes', remediated, flags=re.IGNORECASE
+            r"user-scalable\s*=\s*no", "user-scalable=yes", remediated, flags=re.IGNORECASE
         )
         actions.append("Déblocage du zoom utilisateur dans le viewport")
 
     # 4. Injecter balise <main> si absente
-    if not re.search(r"<main\b|role\s*=\s*['\"]main['\"]", remediated, re.IGNORECASE):
-        if "<body>" in remediated and "</body>" in remediated:
-            remediated = remediated.replace("<body>", "<body>\n<main>", 1)
-            remediated = remediated.replace("</body>", "</main>\n</body>", 1)
-            actions.append("Encapsulation du contenu du body dans une balise <main>")
+    if (
+        not re.search(r"<main\b|role\s*=\s*['\"]main['\"]", remediated, re.IGNORECASE)
+        and "<body>" in remediated
+        and "</body>" in remediated
+    ):
+        remediated = remediated.replace("<body>", "<body>\n<main>", 1)
+        remediated = remediated.replace("</body>", "</main>\n</body>", 1)
+        actions.append("Encapsulation du contenu du body dans une balise <main>")
 
     return remediated, actions
 

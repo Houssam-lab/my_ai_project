@@ -322,6 +322,7 @@ async def _stream_and_wait(
     async def _forward_event(event: dict[str, object]) -> None:
         nonlocal orchestrator_persisted
         nonlocal pending_terminal_event
+        nonlocal stream_error
 
         normalized_event = normalize_streaming_event(event)
 
@@ -346,6 +347,17 @@ async def _stream_and_wait(
             pending_terminal_event = _bind_stream_metadata(
                 normalized_event, local_conversation_id, stream_request_id
             )
+            return
+
+        if event_type in {"error", "assistant_error"}:
+            # An upstream operational error is the terminal outcome, not assistant
+            # content.  Buffer it for the single terminal-emission authority below;
+            # forwarding it now and then emitting another error in `_close_turn`
+            # produced two terminal frames for one question.
+            pending_terminal_event = _bind_stream_metadata(
+                normalized_event, local_conversation_id, stream_request_id
+            )
+            stream_error = RuntimeError(f"upstream terminal event: {event_type}")
             return
 
         # ISS-106 (D-WS-CARD-PERSIST-001): اجمع بطاقات ui_component المستقلة

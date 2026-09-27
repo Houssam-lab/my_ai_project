@@ -26,6 +26,9 @@ from microservices.orchestrator_service.src.core.prom_metrics import (
     record_streaming_chunk,
     record_streaming_session,
 )
+from microservices.orchestrator_service.src.services.llm.client import (
+    PROVIDER_UNAVAILABLE_MESSAGE,
+)
 
 from .chat_context import (
     _augment_ambiguous_objective,
@@ -193,6 +196,7 @@ async def _stream_chat_langgraph(
             # في LangGraph 1.2.0. الحل: astream(stream_mode=["custom","updates"])
             final_res = None
             ws_streamed_chars = 0
+            provider_error = False
 
             async for _stream_mode, _chunk in _graph.astream(
                 inputs,
@@ -224,6 +228,8 @@ async def _stream_chat_langgraph(
                             }
                         )
                         if isinstance(_node_output, dict):
+                            if _node_output.get("provider_error") is True:
+                                provider_error = True
                             if "final_response" in _node_output:
                                 final_res = {"final_response": _node_output["final_response"]}
                             elif _node_output.get("messages"):
@@ -253,10 +259,13 @@ async def _stream_chat_langgraph(
             if not final_res:
                 final_res = {"final_response": "لم يتم العثور على رد من النظام"}
 
-            # D-047: attach streamed chars so consumer can suppress duplicated payload
+            # D-047: attach transport metadata.  provider_error is deliberately
+            # carried out-of-band from final_response so the consumer emits an
+            # error terminal instead of persisting an outage notice as an answer.
             if isinstance(final_res, dict):
                 final_res = dict(final_res)
                 final_res["__streamed_chars"] = ws_streamed_chars
+                final_res["__provider_error"] = provider_error
 
             await _safe_put({"type": "__DONE__", "result": final_res})
         except Exception as e:
@@ -298,11 +307,26 @@ async def _stream_chat_langgraph(
     )
 
     final_content = ""
+    terminal_emitted = False
     try:
         while True:
             evt = await queue.get()
             if evt["type"] == "__DONE__":
                 run_data = evt["result"]
+
+                if run_data.get("__provider_error") is True:
+                    await websocket.send_json(
+                        {
+                            "type": "assistant_error",
+                            "payload": {
+                                "content": PROVIDER_UNAVAILABLE_MESSAGE,
+                                "code": "LLM_PROVIDER_UNAVAILABLE",
+                                "status_code": 503,
+                            },
+                        }
+                    )
+                    terminal_emitted = True
+                    break
 
                 # Extract the final response from our custom Unified Graph output
                 final_resp = run_data.get("final_response")
@@ -334,6 +358,7 @@ async def _stream_chat_langgraph(
                         },
                     }
                 )
+                terminal_emitted = True
                 break
             if evt["type"] == "__ERROR__":
                 request_id = str(uuid.uuid4())
@@ -351,6 +376,10 @@ async def _stream_chat_langgraph(
                 await websocket.send_json(
                     {"type": "assistant_error", "payload": {"content": final_content}}
                 )
+                # Operational errors are terminal but are not assistant content and
+                # must never be persisted below.
+                final_content = ""
+                terminal_emitted = True
                 break
             if evt["type"] == "phase_start":
                 phase_name = (
@@ -449,7 +478,13 @@ async def _stream_chat_langgraph(
             with suppress(asyncio.CancelledError):
                 await task
 
-    await websocket.send_json({"type": "complete", "payload": {}})
+    # `assistant_final` / `assistant_error` above is the one terminal frame for
+    # the turn.  The former unconditional `complete` produced a second terminal
+    # and allowed clients to disagree about which outcome won.
+    if not terminal_emitted:
+        await websocket.send_json(
+            {"type": "assistant_error", "payload": {"content": "تعذّر إنهاء الدور."}}
+        )
 
 
 async def _run_chat_langgraph(
@@ -514,6 +549,11 @@ async def _run_chat_langgraph(
 
     streamed_chars = 0
     final_resp = None
+    # ISS-ANSWER-E2E-001: provider exhaustion is an operational terminal state,
+    # never a successful assistant answer.  Nodes expose this bit in AgentState;
+    # the transport must preserve it instead of wrapping the canned outage text in
+    # `assistant_final(status="ok")`.
+    provider_error = False
     _stream_start = _time_mod.perf_counter()
     _active_node = "unknown"
 
@@ -556,14 +596,35 @@ async def _run_chat_langgraph(
                         "payload": {"phase": node_name, "agent": "orchestrator"},
                     }
                 )
-                # استخراج final_response من آخر node ينتجه
+                # استخراج final_response من آخر node ينتجه.  provider_error is
+                # sticky for the whole run: ValidatorNode must not accidentally
+                # turn an upstream outage back into a successful final frame.
                 if isinstance(node_output, dict):
+                    if node_output.get("provider_error") is True:
+                        provider_error = True
                     if "final_response" in node_output:
                         final_resp = node_output["final_response"]
                     elif node_output.get("messages"):
                         last_msg = node_output["messages"][-1]
                         if hasattr(last_msg, "content") and last_msg.content:
                             final_resp = last_msg.content
+
+    # ISS-ANSWER-E2E-001: the graph did run and the LLM was invoked, but every
+    # serving model failed.  Report that truth as one terminal error.  Returning
+    # PROVIDER_UNAVAILABLE_MESSAGE as assistant_final made HTTP 200 + non-empty
+    # text look like a valid answer even though the user's question was unanswered.
+    if provider_error:
+        yield await _serialize_stream_frame(
+            {
+                "type": "assistant_error",
+                "payload": {
+                    "content": PROVIDER_UNAVAILABLE_MESSAGE,
+                    "code": "LLM_PROVIDER_UNAVAILABLE",
+                    "status_code": 503,
+                },
+            }
+        )
+        return
 
     # ISS-056: never leak SynthesizerNode dict envelope as JSON to the user
     response_text = _extract_human_readable_response(final_resp)

@@ -227,12 +227,15 @@ def _absorb_frame(result: TurnResult, event: dict[str, Any]) -> bool:
     if etype not in _TERMINAL:
         return False
     result.terminal_frames += 1
-    if payload.get("content"):
+    if etype == "assistant_final" and payload.get("content"):
         result.content = result.content or str(payload["content"])
-    # إطار الخطأ يحمل رسالته في `message` لا في `content` — قراءتُه بمفتاحٍ واحد كانت
-    # تجعل فشلاً منطوقاً يُقرأ صمتاً (انظر `_delivery_problems`).
-    if payload.get("message"):
-        result.spoken_error = str(payload["message"])
+    if etype in {"error", "assistant_error"}:
+        # Non-empty outage text is still an error, not an answer.  The old probe
+        # counted assistant_error.content as successful content, exactly masking
+        # the production symptom this matrix claims to detect.
+        result.spoken_error = str(
+            payload.get("message") or payload.get("content") or payload.get("details") or etype
+        )
     return True
 
 

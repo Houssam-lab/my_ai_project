@@ -34,7 +34,6 @@ from tools.hard_currency_engine.crm_dispatcher import dispatch_campaign
 from tools.hard_currency_engine.eaa_scanner import (
     audit_html_content,
     generate_declaration_accessibilite,
-    remediate_html_content,
 )
 from tools.hard_currency_engine.france_validator import (
     audit_french_csv,
@@ -47,7 +46,6 @@ from tools.hard_currency_engine.zatca_validator import (
     encode_zatca_tlv,
     generate_sample_zatca_ubl_xml,
     repair_zatca_chain,
-    validate_zatca_invoice_type,
 )
 
 
@@ -96,7 +94,11 @@ def _print_cbam_catalog():
 
 
 def _run_cbam_manifest(
-    manifest_path: str, price: float, as_json: bool, batch_xml: str | None = None, eori: str = "FR12345678900012"
+    manifest_path: str,
+    price: float,
+    as_json: bool,
+    batch_xml: str | None = None,
+    eori: str = "FR12345678900012",
 ):
     p = Path(manifest_path)
     lines = [
@@ -137,7 +139,11 @@ def cmd_cbam(args):
 
     if args.manifest:
         _run_cbam_manifest(
-            args.manifest, args.price, args.json, args.batch_xml, getattr(args, "eori", "FR12345678900012") or "FR12345678900012"
+            args.manifest,
+            args.price,
+            args.json,
+            args.batch_xml,
+            getattr(args, "eori", "FR12345678900012") or "FR12345678900012",
         )
         return
 
@@ -304,7 +310,7 @@ def cmd_crm(args):
     )
 
 
-def main():
+def main():  # noqa: PLR0915 — CLI dispatch table; each branch delegates to a command
     parser = argparse.ArgumentParser(
         description="Hard Currency Engine — Suite d'outils d'exportation de services"
     )
@@ -348,7 +354,9 @@ def main():
     p_za.add_argument("--qr-decode", help="Décoder une chaîne QR Base64")
     p_za.add_argument("--audit-batch", help="Fichier JSON d'un lot de factures à auditer")
     p_za.add_argument("--repair-out", help="Fichier JSON de sortie pour le lot réparé")
-    p_za.add_argument("--ubl", action="store_true", help="Générer un exemple de facture XML UBL 2.1 ZATCA")
+    p_za.add_argument(
+        "--ubl", action="store_true", help="Générer un exemple de facture XML UBL 2.1 ZATCA"
+    )
     p_za.add_argument("--out", help="Fichier de sortie")
     p_za.add_argument("--json", action="store_true", help="Sortie JSON")
 

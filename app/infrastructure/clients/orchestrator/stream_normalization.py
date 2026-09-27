@@ -35,6 +35,9 @@ class StreamNormalizationMixin:
             "phase_completed",
             "RUN_STARTED",
             "context_missing",
+            # Operational terminal error.  Dropping this as `noop` converted a
+            # real upstream failure into an empty successful-looking stream.
+            "error",
             # Generative UI — يُمرَّر للواجهة لتصيير مكوّن React تفاعلي.
             "ui_component",
         }

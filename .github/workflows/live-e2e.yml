@@ -98,7 +98,13 @@ jobs:
       # fails closed if the model cannot answer the full matrix.
       OPENROUTER_PRIMARY_MODEL: google/gemma-4-31b-it:free
       OPENROUTER_EXTRA_MODELS: nvidia/nemotron-3.5-lightning:free
-      REQUIRE_ORCHESTRATOR: "0"
+      # This job is named full-stack: it must traverse monolith → orchestrator →
+      # StateGraph → LLM.  REQUIRE_ORCHESTRATOR=0 previously let every probe pass
+      # through the monolith's local fallback while the real graph could be dead.
+      REQUIRE_ORCHESTRATOR: "1"
+      ORCHESTRATOR_SERVICE_URL: http://127.0.0.1:8006
+      ORCHESTRATOR_CHAT_ENDPOINT: state_graph
+      ORCHESTRATOR_LOCAL_FALLBACK_ENABLED: "0"
       E2E_BACKEND: http://127.0.0.1:8000
     steps:
       - uses: actions/checkout@v7
@@ -168,18 +174,47 @@ jobs:
             exit "$rc"
           fi
 
+      - name: Boot the real StateGraph orchestrator against production Supabase
+        shell: bash
+        run: |
+          set -euo pipefail
+          nohup python -m uvicorn microservices.orchestrator_service.main:app \
+            --host 127.0.0.1 --port 8006 > /tmp/orchestrator.log 2>&1 &
+          ready=0
+          for _ in $(seq 1 60); do
+            if curl -sf --max-time 5 http://127.0.0.1:8006/health > /tmp/orchestrator-health.json; then
+              ready=1
+              break
+            fi
+            sleep 3
+          done
+          test "$ready" = 1 || { echo '::error::orchestrator لم يقلع'; tail -n 120 /tmp/orchestrator.log; exit 1; }
+          cat /tmp/orchestrator-health.json
+          # Import/HTTP health is insufficient: the chat endpoint requires the
+          # compiled graph stored on app.state.  Fail before the journey if absent.
+          python - <<'PY'
+          import json, sys
+          h = json.load(open('/tmp/orchestrator-health.json'))
+          if h.get('status') != 'ok' or h.get('graph_ready') is not True:
+              sys.exit(f"::error::orchestrator/graph غير صالح: {h}")
+          print('✅ orchestrator graph_ready=true؛ ستثبت الرحلة التالية graph invocation فعلياً')
+          PY
+
       - name: Boot the monolith against production Supabase
         shell: bash
         run: |
           set -euo pipefail
           nohup python -m uvicorn app.main:app --host 127.0.0.1 --port 8000 \
             > /tmp/backend.log 2>&1 &
+          ready=0
           for _ in $(seq 1 60); do
             if curl -sf --max-time 5 http://127.0.0.1:8000/health > /tmp/health.json; then
+              ready=1
               break
             fi
             sleep 3
           done
+          test "$ready" = 1 || { echo '::error::monolith لم يقلع'; tail -n 120 /tmp/backend.log; exit 1; }
           # `/health` صادقٌ أو لا شيء (D-245): نقرأ الجسم لا وجود العملية.
           cat /tmp/health.json
           python -c "import json,sys;h=json.load(open('/tmp/health.json'));bad=[k for k in ('application','database') if h.get(k)!='ok'];sys.exit('::error::/health غير صادق: '+str({k:h.get(k) for k in bad})) if bad else print('✅ /health صادق: application=ok database=ok')"
@@ -200,12 +235,18 @@ jobs:
             --base http://127.0.0.1:8000 \
             --email "$DIAG_EMAIL" --password "$DIAG_PASSWORD"
 
-      - name: "Backend log (always — a green run still owes its evidence)"
+      - name: "Runtime logs (always — a green run still owes graph evidence)"
         if: always()
         # `if: always()` تعني أنّ هذه الخطوة ستُجرى حتى بعد موت الرحلة مبكراً — فحيث
-        # لا يوجد ملفٌّ بعدُ يجب أن يقول «لا دليل» لا أن يُخرج 1 ويُضيف سبباً كاذباً
-        # إلى جانب السبب الحقيقيّ (حدث هذا في أول تشغيلٍ CIّ لهذا الملفّ).
+        # لا يوجد ملفٌّ بعدُ يجب أن يقول «لا دليل» لا أن يُخرج 1 ويُضيف سبباً كاذباً.
         run: |
+          echo '=== orchestrator ==='
+          if [ -f /tmp/orchestrator.log ]; then
+            tail -n 160 /tmp/orchestrator.log
+          else
+            echo "::warning::لا /tmp/orchestrator.log — ماتت الرحلة قبل إقلاع الرسم."
+          fi
+          echo '=== monolith ==='
           if [ -f /tmp/backend.log ]; then
             tail -n 120 /tmp/backend.log
           else

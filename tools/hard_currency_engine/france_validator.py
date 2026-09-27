@@ -69,9 +69,32 @@ def tva_fr_check(tva: str) -> tuple[bool, str, str]:
     if not t.startswith("FR"):
         eu_match = re.fullmatch(r"([A-Z]{2})([A-Z0-9]{2,12})", t)
         if eu_match and eu_match.group(1) in (
-            "AT", "BE", "BG", "CY", "CZ", "DE", "DK", "EE", "ES", "FI",
-            "GR", "HR", "HU", "IE", "IT", "LT", "LU", "LV", "MT", "NL",
-            "PL", "PT", "RO", "SE", "SI", "SK",
+            "AT",
+            "BE",
+            "BG",
+            "CY",
+            "CZ",
+            "DE",
+            "DK",
+            "EE",
+            "ES",
+            "FI",
+            "GR",
+            "HR",
+            "HU",
+            "IE",
+            "IT",
+            "LT",
+            "LU",
+            "LV",
+            "MT",
+            "NL",
+            "PL",
+            "PT",
+            "RO",
+            "SE",
+            "SI",
+            "SK",
         ):
             return True, t, f"OK (Intra-UE {eu_match.group(1)})"
         return False, t, "Format invalide (attendu FR + 2 chiffres + 9 chiffres SIREN)"
@@ -137,7 +160,7 @@ def export_cleaned_french_csv(results: dict, out_path: Path) -> Path:
     return out_path
 
 
-def _validate_french_row(
+def _validate_french_row(  # noqa: PLR0912, PLR0915 — one pass mirrors the regulatory checklist
     row: dict, cols: dict, line_no: int, seen_dedup: dict
 ) -> tuple[list[str], bool, bool, bool]:
     line_errors = []

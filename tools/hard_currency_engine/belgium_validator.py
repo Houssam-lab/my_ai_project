@@ -238,18 +238,14 @@ def audit_belgian_csv(csv_path: Path) -> dict:
         )
 
         row_ann["ANOMALIES_PEPPOL"] = "; ".join(line_errors) if line_errors else "CONFORME"
-        row_ann["PEPPOL_ID"] = (
-            format_peppol_id(clean_bce_digits) if ok_mod97 else "A_CORRIGER"
-        )
+        row_ann["PEPPOL_ID"] = format_peppol_id(clean_bce_digits) if ok_mod97 else "A_CORRIGER"
         row_ann["STATUT_PEPPOL"] = "COMPATIBLE" if not line_errors else "NON_CONFORME"
         row_ann["BCE_ASSAINI"] = formatted_bce if ok_mod97 else ""
         row_ann["TVA_BE_CALCULEE"] = f"BE{clean_bce_digits}" if ok_mod97 else ""
         row_ann["PEPPOL_DIRECTORY_URL"] = (
             get_peppol_directory_url(clean_bce_digits) if ok_mod97 else ""
         )
-        row_ann["KBO_LOOKUP_URL"] = (
-            get_kbo_public_url(clean_bce_digits) if ok_mod97 else ""
-        )
+        row_ann["KBO_LOOKUP_URL"] = get_kbo_public_url(clean_bce_digits) if ok_mod97 else ""
         if cols["cp"] and row.get(cols["cp"]):
             _, healed_cp, _ = validate_belgian_postal_code(row.get(cols["cp"], ""))
             row_ann["CP_ASSAINI"] = healed_cp
