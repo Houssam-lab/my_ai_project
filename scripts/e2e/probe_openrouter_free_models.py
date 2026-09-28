@@ -21,8 +21,17 @@ from typing import Any
 
 BASE_URL = "https://openrouter.ai/api/v1"
 EXCLUDED = (
-    "audio", "embed", "guard", "moderation", "safety", "span-", "image",
-    "recraft", "riverflow", "upscal", "search",
+    "audio",
+    "embed",
+    "guard",
+    "moderation",
+    "safety",
+    "span-",
+    "image",
+    "recraft",
+    "riverflow",
+    "upscal",
+    "search",
 )
 
 
@@ -56,8 +65,10 @@ def free_text_models(payload: dict[str, Any]) -> list[str]:
         outputs = architecture.get("output_modalities") or []
         modality = str(architecture.get("modality", ""))
         is_text = "text" in outputs or modality.endswith("->text")
-        is_free = model.endswith(":free") and _zero(pricing.get("prompt")) and _zero(
-            pricing.get("completion")
+        is_free = (
+            model.endswith(":free")
+            and _zero(pricing.get("prompt"))
+            and _zero(pricing.get("completion"))
         )
         if not is_free or not is_text or any(word in lowered for word in EXCLUDED):
             continue
@@ -176,9 +187,7 @@ def main() -> int:
         remaining = int(remaining_raw) if remaining_raw is not None else None
         used = free_quota.get("used", "unknown") if isinstance(free_quota, dict) else "unknown"
         daily_limit = (
-            free_quota.get("limit", "unknown")
-            if isinstance(free_quota, dict)
-            else "unknown"
+            free_quota.get("limit", "unknown") if isinstance(free_quota, dict) else "unknown"
         )
         print(f"free quota used={used} limit={daily_limit} remaining={remaining_raw}")
         if remaining is not None and remaining <= args.reserve:
@@ -198,8 +207,7 @@ def main() -> int:
     probe_budget = args.limit if remaining is None else min(args.limit, remaining - args.reserve)
     candidates = free_text_models(catalog)[: max(1, probe_budget)]
     print(
-        f"catalog free text candidates={len(free_text_models(catalog))}; "
-        f"probing={len(candidates)}"
+        f"catalog free text candidates={len(free_text_models(catalog))}; probing={len(candidates)}"
     )
     if not candidates:
         print("❌ no free text-generation candidates in the live catalog")
