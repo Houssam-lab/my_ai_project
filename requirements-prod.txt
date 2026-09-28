@@ -60,7 +60,7 @@ typer==0.20.0
 tenacity==8.2.3
 langgraph>=0.2.39,<2.0.0
 langchain-core>=0.3.0
-redis>=5.0.0
+redis>=8.1.0
 # D-205: `app.main` imports prometheus_client at runtime (app/telemetry) and NOTHING
 # else in the tree pulls it transitively — so a production image built from this file
 # would link fine and die on the first import. Found by resolving app.main's real

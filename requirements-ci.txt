@@ -60,7 +60,7 @@ python-multipart==0.0.32
 Jinja2==3.1.6
 typer==0.20.0
 tenacity==8.2.3
-redis>=5.0.0
+redis>=8.1.0
 websockets>=17.0.1
 beautifulsoup4==4.12.3
 numpy>=1.26.0

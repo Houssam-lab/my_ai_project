@@ -131,7 +131,7 @@ langchain-community>=0.3.0
 duckduckgo-search>=8.1.1
 tavily-python
 firecrawl-py
-redis>=5.0.0
+redis>=8.1.0
 langgraph-sdk==0.3.15
 argon2-cffi
 langgraph-checkpoint-postgres
@@ -162,7 +162,7 @@ python-dotenv==1.0.1
 python-json-logger==4.2.0
 python-multipart==0.0.32
 pyyaml==6.0.1
-redis>=5.0.0
+redis>=8.1.0
 SQLAlchemy==2.0.52
 sqlmodel==0.0.39
 tenacity==8.2.3
@@ -184,7 +184,7 @@ python-dotenv==1.0.1
 python-json-logger==4.2.0
 python-multipart==0.0.32
 pyyaml==6.0.1
-redis>=5.0.0
+redis>=8.1.0
 SQLAlchemy==2.0.52
 tenacity==8.2.3
 uvicorn==0.52.3
