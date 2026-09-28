@@ -226,7 +226,22 @@ jobs:
         run: python scripts/e2e/honcho_live_probe.py --require
 
       - name: "Universal answerability matrix (D-266 · ISS-159)"
-        run: python scripts/e2e/universal_answerability_live.py --base http://127.0.0.1:8000
+        shell: bash
+        run: |
+          # لا نكتفي بـ exit 1 مبهم: قناة سجلات Actions الخارجية غير قابلة للقراءة
+          # دائماً من بيئات التحقيق. ننشر خلاصة المصفوفة نفسها كـ check annotation
+          # قابلة للاسترجاع عبر GitHub API، من دون أسرار أو أجسام HTTP خام.
+          set -o pipefail
+          rc=0
+          python scripts/e2e/universal_answerability_live.py --base http://127.0.0.1:8000 \
+            2>&1 | tee /tmp/answerability-matrix.log || rc="${PIPESTATUS[0]}"
+          if [ "$rc" -ne 0 ]; then
+            summary="$(grep -E '^(أدوار:|   •|❌|⚠️)' /tmp/answerability-matrix.log \
+              | tail -n 20 | tr '\n' ' ' | sed 's/%/%25/g; s/\r/%0D/g; s/\n/%0A/g')"
+            [ -n "$summary" ] || summary="المصفوفة خرجت $rc بلا خلاصة مقروءة"
+            echo "::error title=E2E answerability failed::${summary:0:4000}"
+            exit "$rc"
+          fi
 
       - name: "Student journey (D-232)"
         if: ${{ !inputs.matrix_only }}
@@ -251,4 +266,16 @@ jobs:
             tail -n 120 /tmp/backend.log
           else
             echo "::warning::لا /tmp/backend.log — ماتت الرحلة قبل إقلاع الخادم؛ السبب في الخطوات أعلاه."
+          fi
+          # بصمة تشخيصية صغيرة في check annotations: تُثبت هل وصل السؤال إلى
+          # PRE-INVOKE، وهل خرج provider_error/terminal error، حتى إذا تعذّر تنزيل
+          # ملف logs من blob storage. لا نطبع tokens أو headers أو DATABASE_URL.
+          if [ -f /tmp/orchestrator.log ]; then
+            diagnostic="$(grep -E 'PRE-INVOKE|provider_error|LLM_PROVIDER_UNAVAILABLE|all models|AI stream:|served by model|LangGraph streaming failure' \
+              /tmp/orchestrator.log | tail -n 12 | tr '\n' ' ' | sed 's/%/%25/g; s/\r/%0D/g; s/\n/%0A/g')"
+            if [ -n "$diagnostic" ]; then
+              echo "::notice title=E2E graph diagnostic::${diagnostic:0:4000}"
+            else
+              echo "::warning title=E2E graph diagnostic::لا توجد بصمة PRE-INVOKE أو LLM في آخر سجل orchestrator"
+            fi
           fi

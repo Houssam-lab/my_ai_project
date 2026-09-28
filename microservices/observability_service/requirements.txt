@@ -68,32 +68,13 @@ pillow==12.3.0
 pytesseract==0.3.13
 pyyaml==6.0.1
 
-# AI & Search Stack
-# Pin huggingface-hub to a stable version compatible with the ecosystem
-# Note: Do not use [inference] extra as it is missing in 1.x versions and causes backtracking
-huggingface-hub>=0.23.0
-# sentence-transformers removed 2026-08-01 (D-205): zero `sentence_transformers`
-# imports anywhere under microservices/observability_service/. It pulled torch (~2GB) into an
-# image that never used it. research_agent is the only real consumer.
-dspy-ai==2.5.43
-openai==1.55.0
-# llama-index meta-package removed to reduce bloat/conflicts
-llama-index-core==0.14.13
-llama-index-readers-file
-llama-index-vector-stores-supabase
-llama-index-embeddings-huggingface
+# D-205 follow-through: this service has zero imports from `vecs`, DSPy,
+# LiteLLM, OpenAI, Hugging Face, or LlamaIndex.  Those copied dependencies were
+# not runtime capabilities: they made the Python 3.12 image unsatisfiable
+# (`vecs` requires <3.12; the pinned reader/core/pandas set conflicts).  Keep AI
+# libraries in the services that invoke them, not in this service image.
 zipp>=3.19.1 # not directly required, pinned by Snyk to avoid a vulnerability
 PyYAML
 passlib
 argon2-cffi
-vecs==0.4.5
 flupy==1.2.3
-# ⛔ REMOVED AS *UNSOLVABLE*, NOT RETARGETED — the D-205 remedy (ISS-202).
-# `litellm==1.50.0` is no longer published: the PyPI index jumps 1.27.1.x → 1.53.1,
-# so every image build of this service died at `pip install` (reproduced with the
-# image's own resolver, pip 25.0.1). Nothing here imports litellm — the pin was a
-# second brake on `openai==1.55.0`, not a dependency. Raising the pair to litellm
-# >=1.8x/openai 2.x is still an ADR across six services, and is NOT done here.
-# litellm still installs transitively (via dspy) wherever the runtime wants it.
-dspy==2.5.7
-llama-index-workflows==2.14.0

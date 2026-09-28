@@ -72,7 +72,10 @@
       "python -m pytest tests/regressions/test_answer_delivery_incident.py",
       "node --test frontend/tests/*.test.mjs",
       "python scripts/e2e/universal_answerability_live.py --base http://127.0.0.1:8000",
-      "python scripts/fitness/check_code_acceptance.py"
+      "python scripts/fitness/check_code_acceptance.py",
+      "pip install --dry-run --python-version 3.12 -r microservices/memory_agent/requirements.txt",
+      "pip install --dry-run --python-version 3.12 -r microservices/observability_service/requirements.txt",
+      "pip install --dry-run --python-version 3.12 -r microservices/user_service/requirements.txt"
     ]
   },
   "curriculum": {
@@ -159,8 +162,11 @@
     "app/api/routers/customer_chat_support/turn_lifecycle.py",
     "app/infrastructure/clients/orchestrator/stream_normalization.py",
     "docs/INCIDENT_SYSTEM_DOES_NOT_ANSWER_QUESTIONS_AR.md",
+    "microservices/memory_agent/requirements.txt",
+    "microservices/observability_service/requirements.txt",
     "microservices/orchestrator_service/src/api/chat_stream_engine.py",
     "microservices/orchestrator_service/src/api/routes.py",
+    "microservices/user_service/requirements.txt",
     "scripts/e2e/live_student_journey.py",
     "scripts/e2e/universal_answerability_live.py",
     "tests/regressions/test_answer_delivery_incident.py",
@@ -193,7 +199,7 @@
       "tools/hard_currency_engine/france_validator.py",
       "tools/hard_currency_engine/zatca_validator.py"
     ],
-    "content_sha256_excluding_packet": "31979d15e1e69009bc595e68f3fef8806a7c35812b912aa4f6ef2dfe02c8ef73",
+    "content_sha256_excluding_packet": "f5b7364323fa7c7c7a44dbe879146757429937d71bcf4454bc137b359a3a0270",
     "refreshed_on": "2026-09-28",
     "refresh_command": "python3 scripts/research/refresh_acceptance_diff_snapshot.py"
   }
