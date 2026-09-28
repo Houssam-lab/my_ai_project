@@ -183,7 +183,7 @@ jobs:
           set -o pipefail
           rc=0
           python scripts/e2e/probe_openrouter_free_models.py \
-            --limit 6 --timeout 35 --github-env "$GITHUB_ENV" \
+            --limit 6 --reserve 20 --timeout 35 --github-env "$GITHUB_ENV" \
             --json-output /tmp/openrouter-free-probe.json \
             2>&1 | tee /tmp/openrouter-free-probe.log || rc="${PIPESTATUS[0]}"
           summary="$(tail -n 8 /tmp/openrouter-free-probe.log | tr '\n' ' ' | sed 's/%/%25/g; s/\r/%0D/g; s/\n/%0A/g')"

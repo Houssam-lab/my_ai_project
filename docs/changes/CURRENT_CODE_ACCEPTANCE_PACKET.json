@@ -194,9 +194,12 @@
       "microservices/observability_service/requirements.txt",
       "microservices/orchestrator_service/src/api/chat_stream_engine.py",
       "microservices/orchestrator_service/src/api/routes.py",
+      "microservices/orchestrator_service/src/services/llm/client.py",
       "microservices/user_service/requirements.txt",
       "scripts/e2e/live_student_journey.py",
+      "scripts/e2e/probe_openrouter_free_models.py",
       "scripts/e2e/universal_answerability_live.py",
+      "tests/microservices/orchestrator_service/test_llm_client_model_chain.py",
       "tests/regressions/test_answer_delivery_incident.py",
       "tests/unit/tools/test_hard_currency_engine.py",
       "tools/hard_currency_engine/belgium_validator.py",
@@ -206,7 +209,7 @@
       "tools/hard_currency_engine/france_validator.py",
       "tools/hard_currency_engine/zatca_validator.py"
     ],
-    "content_sha256_excluding_packet": "a63fb34c55b368d9339a1d32b7fd891cb8eaca95112825f26265c14896f6b8d1",
+    "content_sha256_excluding_packet": "69ffb4d3e1a698d467a438b5e51ae0c84e423f48c59cf956401aaa72fd085803",
     "refreshed_on": "2026-09-28",
     "refresh_command": "python3 scripts/research/refresh_acceptance_diff_snapshot.py"
   }

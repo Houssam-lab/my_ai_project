@@ -62,18 +62,24 @@ def free_text_models(payload: dict[str, Any]) -> list[str]:
         if not is_free or not is_text or any(word in lowered for word in EXCLUDED):
             continue
         # Prefer general instruction/chat models over narrow or anonymous entries.
-        quality = sum(token in lowered for token in ("instruct", "chat", "qwen", "gemma", "nemotron"))
+        quality = sum(
+            token in lowered for token in ("instruct", "chat", "qwen", "gemma", "nemotron")
+        )
         ranked.append((quality, int(item.get("created", 0) or 0), model))
     ranked.sort(reverse=True)
     return [model for _, _, model in ranked]
 
 
-def request_json(url: str, *, key: str, body: dict[str, Any] | None, timeout: float) -> tuple[int, dict[str, Any]]:
+def request_json(
+    url: str, *, key: str, body: dict[str, Any] | None, timeout: float
+) -> tuple[int, dict[str, Any]]:
     data = json.dumps(body).encode() if body is not None else None
     headers = {"Accept": "application/json", "Authorization": f"Bearer {key}"}
     if data is not None:
         headers["Content-Type"] = "application/json"
-    request = urllib.request.Request(url, data=data, headers=headers, method="POST" if data else "GET")
+    request = urllib.request.Request(
+        url, data=data, headers=headers, method="POST" if data else "GET"
+    )
     try:
         with urllib.request.urlopen(request, timeout=timeout) as response:
             return response.status, json.loads(response.read().decode("utf-8"))
@@ -104,7 +110,12 @@ def probe(base_url: str, key: str, model: str, timeout: float) -> ProbeResult:
             timeout=timeout,
             body={
                 "model": model,
-                "messages": [{"role": "user", "content": "أجب بكلمتين فقط: ما عاصمة الجزائر؟"}],
+                "messages": [
+                    {
+                        "role": "user",
+                        "content": "أجب بكلمتين فقط: ما عاصمة الجزائر؟",
+                    }
+                ],
                 "temperature": 0,
                 "max_tokens": 32,
             },
@@ -139,6 +150,12 @@ def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--limit", type=int, default=6)
     parser.add_argument("--timeout", type=float, default=35)
+    parser.add_argument(
+        "--reserve",
+        type=int,
+        default=14,
+        help="free requests to preserve for the downstream answerability matrix",
+    )
     parser.add_argument("--base-url", default=os.getenv("OPENROUTER_BASE_URL", BASE_URL))
     parser.add_argument("--github-env", type=Path)
     parser.add_argument("--json-output", type=Path)
@@ -150,13 +167,40 @@ def main() -> int:
         return 2
 
     try:
-        _, catalog = request_json(f"{args.base_url.rstrip('/')}/models", key=key, body=None, timeout=args.timeout)
+        _, key_payload = request_json(
+            f"{args.base_url.rstrip('/')}/key", key=key, body=None, timeout=args.timeout
+        )
+        key_data = key_payload.get("data", {}) if isinstance(key_payload, dict) else {}
+        free_quota = key_data.get("free_model_daily_requests", {})
+        remaining_raw = free_quota.get("remaining") if isinstance(free_quota, dict) else None
+        remaining = int(remaining_raw) if remaining_raw is not None else None
+        used = free_quota.get("used", "unknown") if isinstance(free_quota, dict) else "unknown"
+        daily_limit = (
+            free_quota.get("limit", "unknown")
+            if isinstance(free_quota, dict)
+            else "unknown"
+        )
+        print(f"free quota used={used} limit={daily_limit} remaining={remaining_raw}")
+        if remaining is not None and remaining <= args.reserve:
+            print(
+                f"❌ free quota cannot fund E2E: remaining={remaining}, "
+                f"reserved_for_matrix={args.reserve}; resets at 00:00 UTC"
+            )
+            return 3
+
+        _, catalog = request_json(
+            f"{args.base_url.rstrip('/')}/models", key=key, body=None, timeout=args.timeout
+        )
     except Exception as exc:
-        print(f"❌ catalog unavailable: {type(exc).__name__}: {exc}")
+        print(f"❌ catalog/quota unavailable: {type(exc).__name__}: {exc}")
         return 2
 
-    candidates = free_text_models(catalog)[: max(1, args.limit)]
-    print(f"catalog free text candidates={len(free_text_models(catalog))}; probing={len(candidates)}")
+    probe_budget = args.limit if remaining is None else min(args.limit, remaining - args.reserve)
+    candidates = free_text_models(catalog)[: max(1, probe_budget)]
+    print(
+        f"catalog free text candidates={len(free_text_models(catalog))}; "
+        f"probing={len(candidates)}"
+    )
     if not candidates:
         print("❌ no free text-generation candidates in the live catalog")
         return 1
@@ -170,7 +214,11 @@ def main() -> int:
         print(f"{mark} {model} http={result.status} {result.seconds:.2f}s {detail}")
 
     working = [result.model for result in results if result.ok]
-    document = {"candidates": len(candidates), "working": working, "results": [asdict(r) for r in results]}
+    document = {
+        "candidates": len(candidates),
+        "working": working,
+        "results": [asdict(result) for result in results],
+    }
     if args.json_output:
         args.json_output.write_text(json.dumps(document, ensure_ascii=False, indent=2) + "\n")
     if working and args.github_env:
