@@ -140,7 +140,20 @@ class AIClient:
         كما يفعل المونوليث بالضبط.
         """
         chain: list[str] = []
-        candidates = [self.default_model, *get_ai_config().get_fallback_models()]
+        # Runtime-discovered candidates precede the dated static recovery chain.
+        # Previously OPENROUTER_EXTRA_MODELS was read by the registry probe only,
+        # while the actual client silently ignored it — so CI could discover a
+        # working free model and still invoke five removed/rate-limited IDs.
+        runtime_fallbacks = [
+            model.strip()
+            for model in os.getenv("OPENROUTER_EXTRA_MODELS", "").split(",")
+            if model.strip()
+        ]
+        candidates = [
+            os.getenv("OPENROUTER_PRIMARY_MODEL", "").strip() or self.default_model,
+            *runtime_fallbacks,
+            *get_ai_config().get_fallback_models(),
+        ]
         for candidate in candidates:
             cleaned = (candidate or "").strip()
             if cleaned and cleaned not in chain:

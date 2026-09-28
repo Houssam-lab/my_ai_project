@@ -116,7 +116,31 @@ class TestModelChainResolution:
             "microservices.orchestrator_service.src.services.llm.client.get_ai_config",
             lambda: fake_config,
         )
+        monkeypatch.delenv("OPENROUTER_PRIMARY_MODEL", raising=False)
+        monkeypatch.delenv("OPENROUTER_EXTRA_MODELS", raising=False)
         assert client.model_chain() == ["test/primary:free", "test/fb1:free", "test/fb2:free"]
+
+    def test_runtime_verified_models_precede_static_fallbacks(self, monkeypatch) -> None:
+        client = AIClient.__new__(AIClient)
+        client.default_model = "dated/primary:free"
+        fake_config = SimpleNamespace(
+            get_fallback_models=lambda: ["dated/fallback:free", "live/second:free"]
+        )
+        monkeypatch.setattr(
+            "microservices.orchestrator_service.src.services.llm.client.get_ai_config",
+            lambda: fake_config,
+        )
+        monkeypatch.setenv("OPENROUTER_PRIMARY_MODEL", "live/first:free")
+        monkeypatch.setenv(
+            "OPENROUTER_EXTRA_MODELS", "live/second:free,live/third:free,live/second:free"
+        )
+
+        assert client.model_chain() == [
+            "live/first:free",
+            "live/second:free",
+            "live/third:free",
+            "dated/fallback:free",
+        ]
 
     def test_client_holds_no_model_literals(self) -> None:
         """البوابة `check_model_client_literals` تحرس هذا بعينه: الحرفية في الملفّ
