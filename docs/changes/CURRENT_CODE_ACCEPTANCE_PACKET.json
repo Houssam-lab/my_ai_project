@@ -186,8 +186,11 @@
       "app/api/routers/customer_chat_support/turn_lifecycle.py",
       "app/infrastructure/clients/orchestrator/stream_normalization.py",
       "docs/INCIDENT_SYSTEM_DOES_NOT_ANSWER_QUESTIONS_AR.md",
+      "microservices/memory_agent/requirements.txt",
+      "microservices/observability_service/requirements.txt",
       "microservices/orchestrator_service/src/api/chat_stream_engine.py",
       "microservices/orchestrator_service/src/api/routes.py",
+      "microservices/user_service/requirements.txt",
       "scripts/e2e/live_student_journey.py",
       "scripts/e2e/universal_answerability_live.py",
       "tests/regressions/test_answer_delivery_incident.py",
@@ -199,7 +202,7 @@
       "tools/hard_currency_engine/france_validator.py",
       "tools/hard_currency_engine/zatca_validator.py"
     ],
-    "content_sha256_excluding_packet": "f5b7364323fa7c7c7a44dbe879146757429937d71bcf4454bc137b359a3a0270",
+    "content_sha256_excluding_packet": "7ad2684890ba6bb6787b268ae897de4c69b709fc71d72c3fc80e55608146df50",
     "refreshed_on": "2026-09-28",
     "refresh_command": "python3 scripts/research/refresh_acceptance_diff_snapshot.py"
   }

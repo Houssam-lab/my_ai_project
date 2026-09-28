@@ -173,7 +173,14 @@ async def _stream_chat_langgraph(
                 checkpointer_available=_checkpointer_available,
                 checkpoint_has_state=_checkpoint_has_state,
             )
-            inputs: dict[str, object] = {"messages": graph_messages, "query": prepared_objective}
+            # Turn-scoped terminal flags must override any value restored by the
+            # thread checkpointer.  Otherwise one exhausted-provider turn can
+            # poison every later turn in the same conversation.
+            inputs: dict[str, object] = {
+                "messages": graph_messages,
+                "query": prepared_objective,
+                "provider_error": False,
+            }
             inputs = _merge_admin_inputs(inputs, admin_payload if chat_scope == "admin" else None)
             # D-103: تمرير محتوى التمرين المحقون إلى حالة الرسم (مسار WS)
             _injected_exercise = _extract_injected_exercise(context)
@@ -526,7 +533,13 @@ async def _run_chat_langgraph(
         checkpointer_available=_checkpointer_available,
         checkpoint_has_state=_checkpoint_has_state,
     )
-    inputs: dict[str, object] = {"messages": graph_messages, "query": prepared_objective}
+    # Reset turn-scoped terminal state even when LangGraph restores this thread's
+    # prior checkpoint.  A previous provider outage is not state for a new turn.
+    inputs: dict[str, object] = {
+        "messages": graph_messages,
+        "query": prepared_objective,
+        "provider_error": False,
+    }
     inputs = _merge_admin_inputs(inputs, admin_payload)
     # D-103: تمرير محتوى التمرين المحقون إلى حالة الرسم (مسار HTTP — يستدعيه الـ monolith)
     _injected_exercise = _extract_injected_exercise(context)

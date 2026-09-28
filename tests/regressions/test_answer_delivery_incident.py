@@ -23,7 +23,11 @@ from microservices.orchestrator_service.src.services.llm.client import (
 
 
 class _ProviderFailureGraph:
-    async def astream(self, *_args, **_kwargs) -> AsyncIterator[tuple[str, dict]]:
+    def __init__(self) -> None:
+        self.inputs: dict | None = None
+
+    async def astream(self, inputs: dict, **_kwargs) -> AsyncIterator[tuple[str, dict]]:
+        self.inputs = inputs
         yield (
             "updates",
             {
@@ -45,17 +49,22 @@ async def test_http_graph_provider_failure_is_error_not_success(
 
     monkeypatch.setattr(chat_stream_engine, "_detect_checkpoint_state", no_checkpoint)
 
+    graph = _ProviderFailureGraph()
     raw_frames = [
         frame
         async for frame in chat_stream_engine._run_chat_langgraph(
             "ما هو قانون أوم؟",
             {"user_id": 7, "conversation_id": 41, "thread_id": "u7:c41"},
-            app_graph=_ProviderFailureGraph(),
+            app_graph=graph,
             history_messages=[],
         )
     ]
     frames = [json.loads(frame) for frame in raw_frames]
 
+    # `provider_error` is terminal for one invocation, not durable conversation
+    # state. Explicit False clears an outage restored from a prior checkpoint.
+    assert graph.inputs is not None
+    assert graph.inputs["provider_error"] is False
     assert [frame["type"] for frame in frames] == ["phase_start", "phase_start", "assistant_error"]
     terminal = frames[-1]
     assert terminal["payload"]["content"] == PROVIDER_UNAVAILABLE_MESSAGE

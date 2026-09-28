@@ -120,6 +120,7 @@ Frontend displays no actual answer to the question
 4. تخزين terminal upstream مؤقتًا وإصداره مرة واحدة من سلطة الإغلاق.
 5. منع حفظ رسالة الانقطاع كرسالة assistant.
 6. احترام `compatibility_facade` لمنع الكتابة المزدوجة.
+7. تصفير `provider_error=False` صراحةً عند بداية كل turn في مساري HTTP وWS؛ فالـcheckpointer يحفظ سياق المحادثة، لا نتيجة تشغيلية يجب أن تسمّم الدور التالي.
 
 ## ARCHITECTURAL FIX
 
@@ -134,11 +135,12 @@ Frontend displays no actual answer to the question
 - عملاء قدامى كانوا ينتظرون `complete` بعد `assistant_final`; العقد الحالي يوجب terminal واحدًا، لذلك أزيل التكرار في مسار WS المباشر.
 - عند فشل المزود بعد بث جزئي، سيرى المستخدم النص الجزئي ثم terminal error؛ هذا أدق من نجاح كاذب، ويجب أن تبقي الواجهة الفقاعة بحالة error.
 - تغيير سلطة persistence قد يكشف اعتمادًا خفيًا على الصفوف المكررة؛ التاريخ الصحيح يجب أن يحوي user واحدًا وassistant واحدًا لكل دور.
+- إذا لم يُصفّر علم العطل عند إدخال الدور، فقد يستعيد checkpoint قيمة `provider_error=True` القديمة؛ لذلك يوجد invariant واختبار بأن كل invocation يبدأ بـFalse ثم تصبح True فقط من update في التشغيل الجاري.
 - بوابة E2E الحقيقية أبطأ وأكثر حساسية لتوافر الخدمات الخارجية، لكنها تفشل بسبب العطل الحقيقي بدل إعطاء خضرة وهمية.
 
 ## REGRESSION TESTS
 
-- provider exhaustion عبر HTTP graph ⇒ `assistant_error` واحد، صفر `assistant_final`.
+- provider exhaustion عبر HTTP graph ⇒ `assistant_error` واحد، صفر `assistant_final`، ومدخل `provider_error=False` يمنع تسرّب عطل الدور السابق من checkpoint.
 - transport normalization يحافظ على `error`.
 - terminal assembly يرسل explicit upstream error مرة واحدة.
 - E2E يعتبر `error/assistant_error` فشلًا حتى إن كان النص غير فارغ.
