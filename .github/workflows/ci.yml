@@ -185,6 +185,12 @@ jobs:
           # catalog, and may not restate a readiness status the catalog does not carry.
           # Two ladders for one commercial truth is how ISS-139 started.
           python scripts/fitness/check_commercial_offers_parity.py
+          # D-297 (owner decision 2026-09-28): research freeze. 17 "#1 wedges" in 43
+          # days, 12 truth appendices repeating GATE_C=ABSENT, and exactly one email
+          # ever sent to a buyer. A research/commercial document may enter the repo
+          # only in the same diff as a new outbound row in CONTACT_LEDGER.csv; the
+          # ledger obeys a closed schema and the scorecard must equal its derivation.
+          python scripts/fitness/check_outbound_before_research.py
           # D-279: engineering evidence and foreign-currency production evidence
           # must meet before a capability can advance.
           python scripts/fitness/check_dual_track_alignment.py

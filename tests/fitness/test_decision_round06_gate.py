@@ -184,11 +184,12 @@ def test_fee_transfer_in_artifact_fails(tmp_path: Path) -> None:
     assert code == 1
 
 
-def test_eighth_offer_fails(tmp_path: Path) -> None:
+def test_duplicate_offer_id_fails(tmp_path: Path) -> None:
+    """بعد D-296 لا حصرَ عددياً (D-297) — لكنّ مُعرِّفاً مكرَّراً يُحجب."""
     paths = _tree(tmp_path)
     catalog = Path(str(paths["CATALOG"]))
     payload = json.loads(catalog.read_text(encoding="utf-8"))
-    payload["offers"].append({"id": "eighth-line", "status": "PROPOSED"})
+    payload["offers"].append({"id": payload["offers"][0]["id"], "status": "PROPOSED"})
     catalog.write_text(json.dumps(payload, ensure_ascii=False), encoding="utf-8")
     code, _ = _run(**paths)
     assert code == 1

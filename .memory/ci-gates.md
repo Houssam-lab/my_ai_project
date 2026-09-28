@@ -16,7 +16,8 @@
 > them. All seven are wired now and `check_governance_registry.py` makes an
 > eighth impossible. Total gates on disk (derived, verified in CI):
 >
-> <!-- derived:gates_total=100 -->
+> <!-- derived:gates_total=101 -->
+> **101** on disk in `scripts/fitness/` + `tools/ci/` — 100 executed, 1 declared debt
 > **100** on disk in `scripts/fitness/` + `tools/ci/` — 99 executed, 1 declared debt
 > **98** on disk in `scripts/fitness/` + `tools/ci/` — 97 executed, 1 declared debt
 > (`check_pocock_gates.py`, see `unenforced_debt` in `CONSTITUTION_REGISTRY.json`).
@@ -210,6 +211,7 @@ proves the block is bounded: R&D work stays green while the legal gate is `ABSEN
 | `check_reference_backbone.py` | Pinned reference backbone remains additive, non-runtime, and represented by the declared source files. | يمنع استبدال مصدر مرجعي أو إدخاله إلى runtime بصمت. |
 | `check_source_adoption_matrix.py` | Every discovered source has status, purpose, local application, enforcer, and owner. | يمنع استخدام مصدر خارجي كسلطة غير معلنة أو تبعية غير مراجعة. |
 | `check_asset_license_clearance.py` | Licence clearance per upstream source, per production dependency and per tracked binary; blocks promotion of any offer citing a source that forbids commercial use. | يمنع بيعَ أصلٍ لا يملكه البائع — الحراسةُ التي غابت فبُنيت كلُّ عروض الكتالوج على NC/ND وshare-alike ومصادر بلا رخصة. |
+| `check_outbound_before_research.py` | Research freeze (D-297): a research/commercial document may enter the repo only in the same diff as a new outbound row in `docs/commercial/outreach/CONTACT_LEDGER.csv`; the ledger obeys a closed schema and `HARD_CURRENCY_SCORECARD.json` must equal its derivation byte for byte. | وُلدت من 17 «فرصةً أولى» في 43 يوماً ورسالةٍ واحدة مُرسَلة: البحثُ لا يدخل بلا كتابةٍ للسوق، والأرقامُ تُشتقّ لا تُكتب. |
 | `check_commercial_offers_parity.py` | Every `docs/commercial/*_OFFER.md` declares its relation to the canonical catalog and may not restate a readiness status the catalog does not carry. | يمنع سُلَّمين لحقيقةٍ تجاريةٍ واحدة، ويُغلق وعدَ الخارطة السيادية بنفسها (W-13). |
 
 `check_documentation_contract.py` is deliberately executed in both `.github/workflows/doc_integrity.yml` and the `guardrails` job in `.github/workflows/ci.yml`; a documentation-only PR therefore cannot bypass the required path.

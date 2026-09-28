@@ -1,0 +1,101 @@
+{
+  "$schema_version": 1,
+  "decision": "D-297",
+  "purpose_ar": "لوحة العملة الصعبة (التوجيه §35): كلّ رقمٍ مُشتقٌّ من سجلّ الاتصال الخارجي، والغائبُ null بسببٍ لا صفرٌ يُقرأ خسارة.",
+  "source": "docs/commercial/outreach/CONTACT_LEDGER.csv",
+  "source_sha256": "1bb6974d07f8de89e6657b6ce4f8d7c6c4cf7ce346fb14b4e56a7921c818f285",
+  "as_of": "2026-09-22",
+  "rows": 1,
+  "funnel": {
+    "contacts_sent": 1,
+    "entities_contacted": 1,
+    "replies_received": 0,
+    "samples_delivered": 0,
+    "quotes_sent": 0,
+    "deposits_received": 0,
+    "payments_settled": 0,
+    "closed_no_reply": 0,
+    "closed_declined": 0
+  },
+  "conversion": {
+    "reply_rate": {
+      "value": 0.0,
+      "basis": "كياناتٌ ردّت / كياناتٌ اتُّصل بها: 0/1"
+    },
+    "sample_rate": {
+      "value": 0.0,
+      "basis": "كياناتٌ تسلّمت عيّنة / اتُّصل بها: 0/1"
+    },
+    "quote_rate": {
+      "value": null,
+      "basis": "كياناتٌ تلقّت عرضاً / تسلّمت عيّنة: المقام صفر — لا نسبة بلا مقام (D-212)"
+    },
+    "payment_rate": {
+      "value": null,
+      "basis": "كياناتٌ دفعت / تلقّت عرضاً: المقام صفر — لا نسبة بلا مقام (D-212)"
+    }
+  },
+  "hard_currency_scorecard": {
+    "foreign_customers": {
+      "value": 0,
+      "basis": "كياناتٌ خارج DZ لها PAYMENT_SETTLED واحد على الأقل"
+    },
+    "paid_customers": {
+      "value": 0,
+      "basis": "كياناتٌ لها PAYMENT_SETTLED"
+    },
+    "settled_revenue_eur": {
+      "value": 0,
+      "basis": "مجموع amount_eur لأفعال PAYMENT_SETTLED"
+    },
+    "recurring_revenue_eur": {
+      "value": null,
+      "basis": "لا كيانٌ دفع مرّتين — لا إيرادَ متكرّر يُعلَن"
+    },
+    "average_revenue_per_customer_eur": {
+      "value": null,
+      "basis": "صفر عملاء دافعين"
+    },
+    "gross_margin": {
+      "value": null,
+      "basis": "لا سجلَّ كلفةٍ على القرص — لا هامش يُحسب"
+    },
+    "customer_retention": {
+      "value": null,
+      "basis": "يتطلّب فترتَي فوترةٍ لكيانٍ واحد على الأقل"
+    },
+    "repeat_purchase_customers": {
+      "value": 0,
+      "basis": "كياناتٌ لها ≥ 2 PAYMENT_SETTLED"
+    },
+    "time_to_first_value_days": {
+      "value": null,
+      "basis": "أوّل اتصال → أوّل عيّنة: لم يحدث بعد"
+    },
+    "time_to_first_payment_days": {
+      "value": null,
+      "basis": "أوّل اتصال → أوّل دفعة: لم يحدث بعد"
+    },
+    "sales_cycle_days": {
+      "value": null,
+      "basis": "يتطلّب دفعةً واحدة على الأقل"
+    },
+    "delivery_cost_eur": {
+      "value": null,
+      "basis": "لا سجلَّ ساعاتٍ على القرص — يُقاس على أوّل مهمّة"
+    },
+    "ai_cost_per_customer_eur": {
+      "value": 0.0,
+      "basis": "أدواتُ التسليم حتمية stdlib — لا نداءَ نموذجٍ لغوي في مسار التسليم"
+    },
+    "support_cost_eur": {
+      "value": null,
+      "basis": "لا عميلٌ يُدعَم بعد"
+    },
+    "refund_rate": {
+      "value": null,
+      "basis": "استرجاعات / دفعات: المقام صفر — لا نسبة بلا مقام (D-212)"
+    }
+  },
+  "gate_c": "ABSENT"
+}

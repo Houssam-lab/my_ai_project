@@ -1,0 +1,4 @@
+STATUS: WITHDRAWN — NE PAS ENVOYER.
+DESTINATAIRE: Bollore Logistics / CMA CGM Logistics
+CORRIDOR: EU_CBAM
+RAISON: corridor EU_CBAM retiré le 2026-09-28 : outil retiré du parcours client (CBAM/ZATCA/EAA) ou hors du périmètre unique (dossier §11)

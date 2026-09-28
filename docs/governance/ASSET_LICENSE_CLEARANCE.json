@@ -2054,6 +2054,17 @@
       ],
       "unblock_ar": "إبدالُ المرجعِ المحجوب بمرجعٍ مُرخَّصٍ للاستخدام التجاري أو باقتباسٍ أصليٍّ كاملٍ من عمل المشروع، ثم تُعاد الترقيةُ وتُسجَّل في سجلّ البوابة.",
       "reviewed_on": "2026-09-16"
+    },
+    {
+      "offer_id": "fr-be-einvoicing-referential-cleansing",
+      "offer_status": "PROPOSED",
+      "backbone_refs": [
+        "the-algorithms-python"
+      ],
+      "clearance": "CLEARED",
+      "blockers": [],
+      "unblock_ar": "لا حجوب: المرجع الوحيد `the-algorithms-python` (MIT · ALLOWED) مصدر خوارزميات التحقّق الحتمية (Luhn · Modulo 97)؛ الخدمة تُسلَّم بأدوات المستودع نفسه (stdlib · MIT) وبقواعد بياناتٍ عمومية (SIRENE عبر recherche-entreprises.api.gouv.fr — بيانات مفتوحة · KBO/Peppol Directory روابط تحقّق فقط)؛ لا مرجعَ محجوباً يدخل في المُخرَج المُباع.",
+      "reviewed_on": "2026-09-28"
     }
   ],
   "findings_ar": [

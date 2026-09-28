@@ -1343,17 +1343,18 @@ def test_dropping_the_no_eighth_offer_line_statement_is_blocked(tmp_path: Path) 
     assert "L6 · L3" in output
 
 
-def test_an_eighth_offer_line_is_blocked(tmp_path: Path) -> None:
+def test_a_duplicate_offer_id_is_blocked(tmp_path: Path) -> None:
+    """بعد D-296 لا حصرَ عددياً (D-297 أزال عدّ السبعة من هذا الفارض) — لكنّ مُعرِّفاً مكرَّراً يُحجب."""
     paths = _tree(tmp_path)
     catalog = json.loads(Path(paths["CATALOG"]).read_text(encoding="utf-8"))
     key = "offer_lines" if "offer_lines" in catalog else "offers"
-    catalog[key].append({"id": "OFFER-8", "status": "PROPOSED"})
+    catalog[key].append({"id": catalog[key][0]["id"], "status": "PROPOSED"})
     Path(paths["CATALOG"]).write_text(
         json.dumps(catalog, ensure_ascii=False, indent=2), encoding="utf-8"
     )
     code, output = _run(**paths)
     assert code == 1
-    assert "8 خطّاً" in output
+    assert "مكرَّر" in output
 
 
 # --------------------------------------------------------------------------- #

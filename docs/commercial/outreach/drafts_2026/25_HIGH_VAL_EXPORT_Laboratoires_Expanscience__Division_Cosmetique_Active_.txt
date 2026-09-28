@@ -1,0 +1,4 @@
+STATUS: WITHDRAWN — NE PAS ENVOYER.
+DESTINATAIRE: Laboratoires Expanscience (Division Cosmetique Active)
+CORRIDOR: HIGH_VAL_EXPORT
+RAISON: corridor HIGH_VAL_EXPORT retiré le 2026-09-28 : outil retiré du parcours client (CBAM/ZATCA/EAA) ou hors du périmètre unique (dossier §11)

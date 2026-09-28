@@ -1,0 +1,4 @@
+STATUS: WITHDRAWN — NE PAS ENVOYER.
+DESTINATAIRE: Theodo (Groupe M33)
+CORRIDOR: FR_DEV_AGENCY
+RAISON: corridor FR_DEV_AGENCY retiré le 2026-09-28 : outil retiré du parcours client (CBAM/ZATCA/EAA) ou hors du périmètre unique (dossier §11)

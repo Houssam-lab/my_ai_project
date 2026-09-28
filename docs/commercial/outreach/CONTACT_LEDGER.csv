@@ -1,0 +1,2 @@
+date,target_ref,entity,country,channel,action,amount_eur,evidence_ref,note
+2026-09-22,FR_EINVOICING_TARGETS_2026-09-21.csv#id=7,Balagué Expertise,FR,email,EMAIL_SENT,,docs/commercial/FR_EINVOICING_TARGETS_2026-09-21.csv:8,"Première prise de contact (offre d'un diagnostic gratuit de 20 fiches). Aucune réponse au 2026-09-28 ; la relance téléphonique prévue le 2026-09-24 n'a pas été effectuée (confirmé par le propriétaire le 2026-09-28)."

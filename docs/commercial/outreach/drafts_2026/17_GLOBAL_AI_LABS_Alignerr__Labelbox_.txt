@@ -1,0 +1,18 @@
+STATUS: DRAFT — NOT SENT. Lorsque ce message part réellement, ajoutez une ligne EMAIL_SENT (ou FORM_SUBMITTED / LINKEDIN_SENT) dans docs/commercial/outreach/CONTACT_LEDGER.csv.
+TO: community@alignerr.com
+SUBJECT: Multilingual AI Evaluation Specialist Application — Alignerr (Labelbox)
+DESTINATAIRE: Alignerr (Labelbox) (Lead Evaluator Community Manager)
+CORRIDOR: GLOBAL_AI_LABS
+================================================================================
+Dear Hiring Team at Alignerr (Labelbox),
+
+I am submitting my profile as a multilingual AI evaluation engineer (Arabic, French, Darija, Python).
+
+Value proposition: Candidature directe d'evaluateur certifie : maitrise native Arabe/Francais/Darija et code deterministe.
+
+Available 20-30h/week with daily availability on CET/UTC timezones. Ready for skill assessments immediately.
+
+Best regards,
+
+Houssam Benmerah
+h.benmerah@univ-eltarf.dz

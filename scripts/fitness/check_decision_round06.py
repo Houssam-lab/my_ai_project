@@ -411,15 +411,23 @@ def check_knowledge_pins(knowledge_text: str, artifact: dict, failures: list[str
 
 
 def check_offer_lines(failures: list[str]) -> None:
-    """L6 · D-273: سبعةُ خطوطٍ لا ثامنَ لها — وكلُّها `PROPOSED`."""
+    """الكتالوج بعد D-296: عضويةٌ مفتوحة (لا حصرَ عددياً) — وكلُّ خطٍّ `PROPOSED` حتى معاملةٍ مُسوّاة.
+
+    حصرُ السبعة (L6 · D-273) ألغاه المالك في D-296 وبقي هنا يعدّ حتى D-297. الشرطان
+    الباقيان: مُعرِّفٌ فريد لكلّ خطّ، ولا ترقيةَ فوق `PROPOSED` بلا معاملةٍ مُسوّاة.
+    """
     try:
         catalog = json.loads(CATALOG.read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError) as exc:
         failures.append(f"الكتالوج لا يُقرأ: {exc}")
         return
     offers = catalog.get("offers", [])
-    if len(offers) != 7:
-        failures.append(f"الكتالوج يحوي {len(offers)} خطوطاً — ⛔ ولا ثامنَ بلا قرار حوكمة")
+    if not offers:
+        failures.append("الكتالوج بلا خطوط — كتالوجٌ فارغ ليس عضويةً مفتوحة بل غياباً")
+    ids = [str(offer.get("id") or "") for offer in offers]
+    duplicates = sorted({identifier for identifier in ids if ids.count(identifier) > 1})
+    if duplicates or "" in ids:
+        failures.append(f"الكتالوج: مُعرِّفُ خطٍّ مكرَّر أو فارغ {duplicates or ['']} — خطٌّ واحد لكلّ مُعرِّف")
     for offer in offers:
         if offer.get("status") != "PROPOSED":
             failures.append(f"خطُّ {offer.get('id')}: ترقيةٌ بلا معاملةٍ مُسوّاة")

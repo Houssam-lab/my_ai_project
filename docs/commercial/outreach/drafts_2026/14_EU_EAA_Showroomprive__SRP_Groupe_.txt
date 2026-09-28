@@ -1,0 +1,4 @@
+STATUS: WITHDRAWN — NE PAS ENVOYER.
+DESTINATAIRE: Showroomprive (SRP Groupe)
+CORRIDOR: EU_EAA
+RAISON: corridor EU_EAA retiré le 2026-09-28 : outil retiré du parcours client (CBAM/ZATCA/EAA) ou hors du périmètre unique (dossier §11)

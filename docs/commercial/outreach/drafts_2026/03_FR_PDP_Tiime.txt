@@ -1,0 +1,26 @@
+STATUS: DRAFT — NOT SENT. Lorsque ce message part réellement, ajoutez une ligne EMAIL_SENT (ou FORM_SUBMITTED / LINKEDIN_SENT) dans docs/commercial/outreach/CONTACT_LEDGER.csv.
+TO: contact@tiime.fr
+SUBJECT: Vos rejets Factur-X : fiabilisation référentiels — Tiime
+DESTINATAIRE: Tiime (Responsable Relations Experts-Comptables)
+CORRIDOR: FR_PDP
+================================================================================
+Bonjour,
+
+Votre structure Tiime prépare activement l'échéance de la facturation électronique.
+
+Constat terrain : Vos 100 000 utilisateurs TPE ont des bases clients heterogenes : je prends en charge la fiabilisation pre-emission.
+
+Je prends en charge la fiabilisation de vos fichiers clients/fournisseurs :
+- Contrôle des SIREN/SIRET (clé Luhn) et des numéros de TVA intracommunautaire (clé de contrôle).
+- Rapprochement avec la base SIRENE publique : entreprises radiées, SIREN inconnus.
+- Dédoublonnage et normalisation des codes postaux ; livraison d'un fichier prêt à importer.
+
+Test gratuit : vous m'adressez un export de 20 fiches (CSV), je vous livre le diagnostic sous 24 h.
+
+Puis-je vous adresser ce premier rapport ?
+
+Bien cordialement,
+
+Houssam Benmerah
+h.benmerah@univ-eltarf.dz
+Consultant Référentiels Données & Facturation Électronique

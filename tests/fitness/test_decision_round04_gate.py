@@ -706,19 +706,18 @@ def test_an_unstated_row_carrying_a_link_is_blocked(tmp_path: Path) -> None:
 # --------------------------------------------------------------------------- #
 # 8) الكتالوج وبنية الوثيقة
 # --------------------------------------------------------------------------- #
-def test_adding_an_eighth_offer_line_is_blocked(tmp_path: Path) -> None:
-    """L6 · D-273: جولةُ بحثٍ ليست قرارَ حوكمة — ⛔ لا خطَّ ثامنَ بلا قرارٍ صريح."""
+def test_duplicate_offer_id_is_blocked(tmp_path: Path) -> None:
+    """بعد D-296 لا حصرَ عددياً (D-297 أزال عدّ السبعة من هذا الفارض) — لكنّ مُعرِّفاً مكرَّراً يُحجب."""
     paths = _tree(tmp_path)
     catalog = json.loads(Path(paths["CATALOG"]).read_text(encoding="utf-8"))
-    clone = dict(catalog["offers"][0])
-    clone["id"] = "OFFER-8"
+    clone = dict(catalog["offers"][0])  # same id ⇒ two lines, one identifier
     catalog["offers"].append(clone)
     Path(paths["CATALOG"]).write_text(
         json.dumps(catalog, ensure_ascii=False, indent=2), encoding="utf-8"
     )
     code, output = _run(**paths)
     assert code == 1
-    assert "لا خطَّ ثامن" in output
+    assert "مكرَّر" in output
 
 
 def test_removing_the_legal_ethical_gate_section_is_blocked(tmp_path: Path) -> None:

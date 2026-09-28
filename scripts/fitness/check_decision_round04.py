@@ -568,13 +568,20 @@ def check_forbidden_claims(failures: list[str]) -> None:
 
 
 def check_offer_lines(failures: list[str]) -> None:
-    """L6 قانون الكتالوج: 7 خطوط عرض، ⛔ ولا ثامنَ بلا قرار حوكمة."""
+    """قانون الكتالوج بعد D-296: عضويةٌ مفتوحة — لا حصرَ عددياً، لكن لا كتالوجَ فارغاً ولا مُعرِّفاً مكرَّراً.
+
+    كان هنا حصرُ السبعة (L6 · D-273). ألغاه المالك كتابةً في D-296 (2026-09-19) وبقي هذا
+    الفارضُ يعدّ — فارضٌ يناقض قانوناً حيّاً، وهو ما أصلحه D-297. الشرطُ الباقي بنيوي.
+    """
     catalog = json.loads(CATALOG.read_text(encoding="utf-8"))
     lines = catalog.get("offer_lines") or catalog.get("offers") or []
-    if len(lines) != 7:
+    if not lines:
+        failures.append("OFFER_CATALOG.json بلا خطوط — كتالوجٌ فارغ ليس عضويةً مفتوحة بل غياباً")
+    ids = [str(line.get("id") or "") for line in lines]
+    duplicates = sorted({identifier for identifier in ids if ids.count(identifier) > 1})
+    if duplicates or "" in ids:
         failures.append(
-            f"OFFER_CATALOG.json يحوي {len(lines)} خطّاً، والمتوقّع 7 — ⛔ لا خطَّ ثامنَ بلا قرار "
-            "حوكمةٍ صريح (L6 · D-273)، وجولةُ بحثٍ ليست قرارَ حوكمة"
+            f"OFFER_CATALOG.json: مُعرِّفُ خطٍّ مكرَّر أو فارغ {duplicates or ['']} — خطٌّ واحد لكلّ مُعرِّف"
         )
 
 

@@ -7,9 +7,21 @@ Audit et assainissement des référentiels clients/fournisseurs pour la réforme
 from __future__ import annotations
 
 import csv
+import json
 import re
 import unicodedata
+import urllib.parse
+import urllib.request
+from collections.abc import Callable
+from datetime import date
 from pathlib import Path
+
+#: Base publique « Recherche d'entreprises » (INSEE/DINUM) — la seule source qui dit si une
+#: entreprise est radiée. Sans elle, le contrôle est purement algorithmique (clés Luhn/TVA).
+SIRENE_API_URL = "https://recherche-entreprises.api.gouv.fr/search"
+
+#: Une entreprise est active quand `etat_administratif == "A"` ; « C » = cessée/radiée.
+_SIRENE_ACTIVE = "A"
 
 
 def strip_accents(s: str) -> str:
@@ -52,10 +64,12 @@ def siret_check(siret: str) -> tuple[bool, str, str]:
     if len(s) != 14:
         return False, s, f"Longueur {len(s)} ≠ 14"
     if s.startswith("356000000"):
+        # Règle INSEE : les SIRET de La Poste ne suivent pas Luhn ; ils sont valides
+        # lorsque la somme des chiffres est un multiple de 5 (et non de 10).
         sum_digits = sum(int(ch) for ch in s)
-        if sum_digits % 10 == 0:
+        if sum_digits % 5 == 0:
             return True, s, "OK (La Poste)"
-        return False, s, "Échec contrôle somme La Poste"
+        return False, s, "Échec contrôle somme La Poste (multiple de 5 attendu)"
     if not luhn_ok(s):
         return False, s, "Échec contrôle Luhn"
     return True, s, "OK"
@@ -130,6 +144,48 @@ def compute_french_vat_key(siren: str) -> str:
         return ""
     key = str((12 + 3 * (int(s) % 97)) % 97).zfill(2)
     return f"FR{key}{s}"
+
+
+def sirene_lookup(siren: str, timeout: int = 10) -> dict:
+    """Interroge la base publique Recherche d'entreprises pour un SIREN.
+
+    Retourne ``{"trouve": True, "actif": bool, "etat": str, "nom_officiel": str}``,
+    ``{"trouve": False}`` si le SIREN est inconnu, ou ``{"trouve": None, "erreur": …}``
+    quand le réseau est indisponible — le rapport dit alors « indisponible », jamais « OK ».
+    """
+    query = urllib.parse.urlencode({"q": siren, "limit": 1})
+    request = urllib.request.Request(
+        f"{SIRENE_API_URL}?{query}", headers={"User-Agent": "hard-currency-engine/1.0"}
+    )
+    try:
+        with urllib.request.urlopen(request, timeout=timeout) as response:
+            data = json.loads(response.read().decode("utf-8"))
+    except Exception as exc:  # réseau/quota indisponible → dégradation explicite
+        return {"trouve": None, "erreur": str(exc)[:120]}
+    results = data.get("results") or []
+    if not results:
+        return {"trouve": False}
+    entry = results[0]
+    etat = entry.get("etat_administratif") or "?"
+    return {
+        "trouve": True,
+        "etat": etat,
+        "actif": etat == _SIRENE_ACTIVE,
+        "nom_officiel": (entry.get("nom_complet") or "").upper(),
+    }
+
+
+def _sirene_flags(clean_siren: str, lookup: Callable[[str], dict]) -> tuple[list[str], str, str]:
+    """(erreurs SIRENE, statut, nom officiel) pour un SIREN syntaxiquement valide."""
+    info = lookup(clean_siren)
+    if info.get("trouve") is None:
+        return [], "INDISPONIBLE", ""
+    if info.get("trouve") is False:
+        return ["SIREN_INCONNU_SIRENE(aucune entreprise pour ce SIREN)"], "INCONNU", ""
+    nom = info.get("nom_officiel") or ""
+    if not info.get("actif"):
+        return [f"ENTREPRISE_RADIEE(etat={info.get('etat', '?')})"], "RADIEE", nom
+    return [], "ACTIVE", nom
 
 
 def _read_csv_lines_multi_encoding(csv_path: Path) -> list[str]:
@@ -227,8 +283,18 @@ def _validate_french_row(  # noqa: PLR0912, PLR0915 — one pass mirrors the reg
     return line_errors, has_siren_err, has_siret_err, has_tva_err
 
 
-def audit_french_csv(csv_path: Path) -> dict:
-    """Audit complet d'un fichier CSV de tiers pour le marché français."""
+def audit_french_csv(
+    csv_path: Path,
+    *,
+    online: bool = False,
+    lookup: Callable[[str], dict] | None = None,
+) -> dict:
+    """Audit complet d'un fichier CSV de tiers pour le marché français.
+
+    ``online=True`` rapproche chaque SIREN syntaxiquement valide de la base SIRENE publique
+    (entreprises radiées, SIREN inconnus). ``lookup`` permet d'injecter la fonction de
+    recherche (tests hors réseau) ; par défaut ``sirene_lookup``.
+    """
     if not csv_path.exists():
         raise FileNotFoundError(f"Fichier introuvable : {csv_path}")
 
@@ -239,9 +305,14 @@ def audit_french_csv(csv_path: Path) -> dict:
         "erreurs_siret": 0,
         "erreurs_tva": 0,
         "doublons": 0,
+        "online": online,
+        "radiees": 0,
+        "sirene_inconnues": 0,
+        "sirene_indisponible": 0,
         "anomalies": [],
         "annotees": [],
     }
+    resolver = lookup or sirene_lookup
 
     seen_dedup: dict[str, int] = {}
     valid_lines = _read_csv_lines_multi_encoding(csv_path)
@@ -263,69 +334,104 @@ def audit_french_csv(csv_path: Path) -> dict:
     }
 
     for line_no, row in enumerate(reader, start=2):
-        results["total"] += 1
-        line_errors, err_siren, err_siret, err_tva = _validate_french_row(
-            row, cols, line_no, seen_dedup
-        )
-        if err_siren:
-            results["erreurs_siren"] += 1
-        if err_siret:
-            results["erreurs_siret"] += 1
-        if err_tva:
-            results["erreurs_tva"] += 1
-        if any("DOUBLON" in err for err in line_errors):
-            results["doublons"] += 1
-
-        nom_val = row.get(cols["nom"], "") if cols["nom"] else ""
-        siren_val = row.get(cols["siren"], "") if cols["siren"] else ""
-        siret_val = row.get(cols["siret"], "") if cols["siret"] else ""
-
-        if line_errors:
-            results["anomalies"].append(
-                {
-                    "ligne": line_no,
-                    "nom": nom_val,
-                    "siren": siren_val or siret_val[:9] if siret_val else "",
-                    "erreurs": line_errors,
-                }
-            )
-        else:
-            results["valides"] += 1
-
-        row_ann = dict(row)
-        clean_s = (
-            re.sub(r"\D", "", siren_val)
-            or (re.sub(r"\D", "", siret_val)[:9] if siret_val else "")
-            or (
-                re.sub(r"\D", "", row.get(cols["tva"], ""))[2:]
-                if cols["tva"]
-                and (row.get(cols["tva"], "") or "").upper().startswith("FR")
-                and len(re.sub(r"\D", "", row.get(cols["tva"], ""))) == 11
-                else ""
-            )
-        )
-        row_ann["ANOMALIES_RFE"] = "; ".join(line_errors) if line_errors else "CONFORME"
-        row_ann["STATUT_RFE"] = "CONFORME" if not line_errors else "A_CORRIGER"
-        row_ann["SIREN_ASSAINI"] = clean_s if clean_s and luhn_ok(clean_s) else ""
-        row_ann["TVA_FR_CALCULEE"] = (
-            compute_french_vat_key(clean_s) if clean_s and luhn_ok(clean_s) else ""
-        )
-        if cols["cp"] and row.get(cols["cp"]):
-            _, healed_cp, _ = validate_french_postal_code(row.get(cols["cp"], ""))
-            row_ann["CP_ASSAINI"] = healed_cp
-        results["annotees"].append(row_ann)
+        _process_french_row(row, cols, line_no, seen_dedup, results, online, resolver)
 
     return results
 
 
-def format_french_report(results: dict, filename: str) -> str:
+def _clean_siren(row: dict, cols: dict) -> str:
+    """SIREN à 9 chiffres dérivé, dans l'ordre : colonne SIREN, SIRET, numéro de TVA FR."""
+    siren_val = row.get(cols["siren"], "") if cols["siren"] else ""
+    siret_val = row.get(cols["siret"], "") if cols["siret"] else ""
+    tva_val = (row.get(cols["tva"], "") or "") if cols["tva"] else ""
+    tva_digits = re.sub(r"\D", "", tva_val)
+    return (
+        re.sub(r"\D", "", siren_val)
+        or (re.sub(r"\D", "", siret_val)[:9] if siret_val else "")
+        or (tva_digits[2:] if tva_val.upper().startswith("FR") and len(tva_digits) == 11 else "")
+    )
+
+
+def _process_french_row(
+    row: dict,
+    cols: dict,
+    line_no: int,
+    seen_dedup: dict,
+    results: dict,
+    online: bool,
+    resolver: Callable[[str], dict],
+) -> None:
+    """Valide une ligne, la compte, l'annote et l'ajoute à `results` (mutation volontaire)."""
+    results["total"] += 1
+    line_errors, err_siren, err_siret, err_tva = _validate_french_row(
+        row, cols, line_no, seen_dedup
+    )
+    results["erreurs_siren"] += int(err_siren)
+    results["erreurs_siret"] += int(err_siret)
+    results["erreurs_tva"] += int(err_tva)
+    results["doublons"] += int(any("DOUBLON" in err for err in line_errors))
+
+    nom_val = row.get(cols["nom"], "") if cols["nom"] else ""
+    siren_val = row.get(cols["siren"], "") if cols["siren"] else ""
+    clean_s = _clean_siren(row, cols)
+    siren_ok = len(clean_s) == 9 and luhn_ok(clean_s)
+
+    sirene_statut, sirene_nom = "", ""
+    if online and siren_ok:
+        sirene_errors, sirene_statut, sirene_nom = _sirene_flags(clean_s, resolver)
+        line_errors.extend(sirene_errors)
+        counter = {
+            "RADIEE": "radiees",
+            "INCONNU": "sirene_inconnues",
+            "INDISPONIBLE": "sirene_indisponible",
+        }
+        if sirene_statut in counter:
+            results[counter[sirene_statut]] += 1
+
+    if line_errors:
+        results["anomalies"].append(
+            {
+                "ligne": line_no,
+                "nom": nom_val,
+                # Précédence : l'ancien `a or b if c else ""` renvoyait "" dès que la
+                # colonne SIRET manquait, même avec un SIREN présent.
+                "siren": re.sub(r"\D", "", siren_val) or clean_s,
+                "erreurs": line_errors,
+            }
+        )
+    else:
+        results["valides"] += 1
+
+    row_ann = dict(row)
+    row_ann["ANOMALIES_RFE"] = "; ".join(line_errors) if line_errors else "CONFORME"
+    row_ann["STATUT_RFE"] = "CONFORME" if not line_errors else "A_CORRIGER"
+    row_ann["SIREN_ASSAINI"] = clean_s if siren_ok else ""
+    row_ann["TVA_FR_CALCULEE"] = compute_french_vat_key(clean_s) if siren_ok else ""
+    if cols["cp"] and row.get(cols["cp"]):
+        _, healed_cp, _ = validate_french_postal_code(row.get(cols["cp"], ""))
+        row_ann["CP_ASSAINI"] = healed_cp
+    if online:
+        row_ann["SIRENE_STATUT"] = sirene_statut or "NON_VERIFIE"
+        row_ann["SIRENE_NOM_OFFICIEL"] = sirene_nom
+    results["annotees"].append(row_ann)
+
+
+def format_french_report(results: dict, filename: str, report_date: date | None = None) -> str:
     total = results["total"]
     valides = results["valides"]
     pct = (valides / total * 100) if total > 0 else 0.0
+    online = bool(results.get("online"))
+    when = (report_date or date.today()).isoformat()
+    perimetre = (
+        "contrôles algorithmiques + rapprochement SIRENE (base publique)"
+        if online
+        else "contrôles algorithmiques hors ligne (clés Luhn/TVA, doublons) — sans rapprochement SIRENE"
+    )
 
     lines = [
         f"# Rapport d'Audit Référentiels RFE France — {filename}",
-        "**Date :** 2026-09-24 · **Cadre Réglementaire :** Réforme Facturation Électronique (DGFiP / Factur-X)",
+        f"**Date :** {when} · **Cadre Réglementaire :** Réforme Facturation Électronique (DGFiP / Factur-X)",
+        f"**Périmètre du contrôle :** {perimetre}",
         "",
         "## 1. Synthèse de Conformité",
         "| Indicateur | Résultat | Statut |",
@@ -336,14 +442,26 @@ def format_french_report(results: dict, filename: str) -> str:
         f"| Erreurs SIREN / SIRET | **{results['erreurs_siren'] + results['erreurs_siret']}** | Rejet immédiat sur l'annuaire |",
         f"| Erreurs TVA intracommunautaire | **{results['erreurs_tva']}** | Risque d'invalidation fiscale |",
         f"| Doublons détectés | **{results['doublons']}** | Risque de multi-routage |",
+    ]
+    if online:
+        lines += [
+            f"| Entreprises radiées (SIRENE) | **{results.get('radiees', 0)}** | Facture à un tiers disparu |",
+            f"| SIREN inconnus de SIRENE | **{results.get('sirene_inconnues', 0)}** | Identifiant à vérifier avec le tiers |",
+            f"| Fiches non vérifiables (SIRENE indisponible) | **{results.get('sirene_indisponible', 0)}** | À relancer — pas un « OK » |",
+        ]
+    lines += [
         "",
         "## 2. Risques Financiers pour l'Entreprise",
         "- **Pénalités de conformité :** 50 € par facture non conforme (plafonnée à 15 000 €/an par assujetti).",
         f"- **Impact immédiat :** {total - valides} fiches tiers nécessitent une remédiation avant injection dans votre PDP.",
         "",
         "## 3. Plan d'Action Recommandé",
-        "1. Correction algorithmique des SIREN et dérivation automatique des TVA conformes.",
-        "2. Rapprochement avec la base INSEE Sirene via API publique.",
+        "1. Correction des SIREN/SIRET invalides et dérivation des numéros de TVA conformes.",
+        (
+            "2. Traiter les entreprises radiées et les SIREN inconnus de SIRENE avec le tiers concerné."
+            if online
+            else "2. Ce rapport est hors ligne : le rapprochement SIRENE (radiations, raisons sociales) s'exécute avec l'option `--online`."
+        ),
         "3. Fusion des fiches doublons.",
     ]
 

@@ -6,18 +6,24 @@ Couvre la validation France, Belgique Peppol, CBAM, ZATCA, EAA, CRM et Contrats.
 
 from __future__ import annotations
 
+import contextlib
+import io
 import sys
 import tempfile
 import unittest
+from datetime import date
 from pathlib import Path
+from unittest import mock
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
+from tools.hard_currency_engine import cli as hce_cli
 from tools.hard_currency_engine.belgium_validator import (
     audit_belgian_csv,
     export_cleaned_belgian_csv,
+    format_belgian_report,
     format_peppol_id,
     get_kbo_public_url,
     get_peppol_directory_url,
@@ -41,6 +47,7 @@ from tools.hard_currency_engine.contracts import (
     FinancialArbitrage,
 )
 from tools.hard_currency_engine.crm_dispatcher import (
+    dispatch_campaign,
     generate_personalized_dispatch,
 )
 from tools.hard_currency_engine.eaa_scanner import (
@@ -52,6 +59,7 @@ from tools.hard_currency_engine.france_validator import (
     audit_french_csv,
     compute_french_vat_key,
     export_cleaned_french_csv,
+    format_french_report,
     luhn_ok,
     siren_check,
     siret_check,
@@ -145,6 +153,99 @@ class TestFranceValidator(unittest.TestCase):
             self.assertIn("FR64443061841", out_txt)
 
 
+class TestFranceValidatorCustomerPathFixes(unittest.TestCase):
+    """Bugs found by the 2026-09-28 asset audit — each test was red before its fix."""
+
+    def test_anomaly_table_keeps_siren_when_file_has_no_siret_column(self):
+        # Operator precedence bug: `a or b if c else ""` dropped the SIREN whenever
+        # the file had no SIRET column, so the customer report showed an empty cell.
+        with tempfile.TemporaryDirectory() as tmpdir:
+            csv_in = Path(tmpdir) / "siren_only.csv"
+            csv_in.write_text("nom;siren;tva\nACME;123456789;FR40123456789\n", encoding="utf-8")
+            res = audit_french_csv(csv_in)
+            self.assertEqual(len(res["anomalies"]), 1)
+            self.assertEqual(res["anomalies"][0]["siren"], "123456789")
+
+    def test_la_poste_siret_rule_is_sum_multiple_of_five(self):
+        # INSEE: La Poste (SIREN 356000000) SIRETs do not follow Luhn; they are valid
+        # when the digit sum is a multiple of 5 — not of 10.
+        ok_25, _, msg = siret_check("35600000000047")  # digit sum = 25
+        self.assertTrue(ok_25, msg)
+        self.assertIn("La Poste", msg)
+        ok_20, _, _ = siret_check("35600000000042")  # digit sum = 20
+        self.assertTrue(ok_20)
+        ok_21, _, _ = siret_check("35600000000043")  # digit sum = 21
+        self.assertFalse(ok_21)
+
+    def test_report_date_is_the_run_date_not_a_hardcoded_string(self):
+        res = {
+            "total": 1,
+            "valides": 1,
+            "erreurs_siren": 0,
+            "erreurs_siret": 0,
+            "erreurs_tva": 0,
+            "doublons": 0,
+            "anomalies": [],
+            "annotees": [],
+        }
+        report = format_french_report(res, "x.csv")
+        self.assertIn(date.today().isoformat(), report)
+        self.assertNotIn("2026-09-24 ·", report.replace(date.today().isoformat(), ""))
+
+    def test_offline_report_does_not_promise_an_insee_match_it_never_did(self):
+        res = {
+            "total": 1,
+            "valides": 0,
+            "erreurs_siren": 1,
+            "erreurs_siret": 0,
+            "erreurs_tva": 0,
+            "doublons": 0,
+            "anomalies": [
+                {"ligne": 2, "nom": "X", "siren": "123456789", "erreurs": ["SIREN_INVALID"]}
+            ],
+            "annotees": [],
+        }
+        report = format_french_report(res, "x.csv")
+        self.assertNotIn("INSEE", report)
+        self.assertIn("hors ligne", report.lower())
+
+    def test_online_lookup_flags_deregistered_and_unknown_companies(self):
+        # The outreach templates promise detection of "radiés"; the tool must actually
+        # do it. The lookup is injected so the test never touches the network.
+        def fake_lookup(siren: str) -> dict:
+            return {
+                "443061841": {
+                    "trouve": True,
+                    "actif": True,
+                    "etat": "A",
+                    "nom_officiel": "GOOGLE FRANCE",
+                },
+                "501058812": {
+                    "trouve": True,
+                    "actif": False,
+                    "etat": "C",
+                    "nom_officiel": "BALAGUE",
+                },
+                "552032534": {"trouve": False},
+            }.get(siren, {"trouve": None, "erreur": "offline"})
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            csv_in = Path(tmpdir) / "tiers.csv"
+            csv_in.write_text(
+                "nom;siren\nGoogle;443061841\nBalague;501058812\nDanone;552032534\nOrange;380129866\n",
+                encoding="utf-8",
+            )
+            res = audit_french_csv(csv_in, online=True, lookup=fake_lookup)
+            flat = {a["siren"]: a["erreurs"] for a in res["anomalies"]}
+            self.assertNotIn("443061841", flat)
+            self.assertTrue(any(e.startswith("ENTREPRISE_RADIEE") for e in flat["501058812"]))
+            self.assertTrue(any(e.startswith("SIREN_INCONNU_SIRENE") for e in flat["552032534"]))
+            self.assertEqual(res["sirene_indisponible"], 1)
+            self.assertEqual(res["radiees"], 1)
+            report = format_french_report(res, "tiers.csv")
+            self.assertIn("SIRENE", report)
+
+
 class TestBelgiumValidator(unittest.TestCase):
     def test_bce_modulo97(self):
         ok, formatted, _msg = validate_bce_modulo97("0123.456.749")
@@ -198,6 +299,111 @@ class TestBelgiumValidator(unittest.TestCase):
             self.assertIn("0208:0123456749", out_txt)
             self.assertIn("COMPATIBLE", out_txt)
             self.assertIn("directory.peppol.eu", out_txt)
+
+
+class TestBelgiumValidatorCustomerPathFixes(unittest.TestCase):
+    """Severe false positive found by the 2026-09-28 audit — red before the fix."""
+
+    def test_nom_entreprise_header_is_not_read_as_the_bce_column(self):
+        # Header regex `bce|kbo|entreprise|siren` matched `Nom_entreprise` first, so the
+        # company NAME was validated as a BCE number and every real company failed.
+        with tempfile.TemporaryDirectory() as tmpdir:
+            csv_in = Path(tmpdir) / "be.csv"
+            csv_in.write_text(
+                "Nom_entreprise,Numero_BCE,Numero_TVA,Code_postal\n"
+                "Proximus,0202.239.951,BE0202239951,1030\n"
+                "AB InBev,0417.497.106,BE0417497106,3000\n",
+                encoding="utf-8",
+            )
+            res = audit_belgian_csv(csv_in)
+            self.assertEqual(res["total"], 2)
+            self.assertEqual(res["valides"], 2, res["anomalies"])
+            self.assertEqual(res["erreurs_bce"], 0)
+
+    def test_bce_column_is_found_under_common_dutch_and_french_headers(self):
+        for header in ("Ondernemingsnummer", "N° entreprise", "KBO", "BCE", "numero_bce"):
+            with tempfile.TemporaryDirectory() as tmpdir:
+                csv_in = Path(tmpdir) / "be.csv"
+                csv_in.write_text(
+                    f"Raison sociale;{header};CP\nProximus;0202239951;1030\n", encoding="utf-8"
+                )
+                res = audit_belgian_csv(csv_in)
+                self.assertEqual(res["valides"], 1, (header, res["anomalies"]))
+
+    def test_belgian_report_has_today_and_an_anomaly_table(self):
+        res = {
+            "total": 1,
+            "valides": 0,
+            "erreurs_bce": 1,
+            "erreurs_tva": 0,
+            "doublons": 0,
+            "anomalies": [
+                {"ligne": 2, "nom": "X", "bce": "0123456750", "erreurs": ["BCE_INVALID"]}
+            ],
+            "annotees": [],
+        }
+        report = format_belgian_report(res, "be.csv")
+        self.assertIn(date.today().isoformat(), report)
+        self.assertIn("| 2 | X | 0123456750 | BCE_INVALID |", report)
+
+
+class TestCLIQuarantine(unittest.TestCase):
+    """CBAM, ZATCA and EAA were withdrawn from the customer path on 2026-09-28.
+
+    The CBAM factor reintroduced a withdrawn 0.025 error (~71x on billets), the ZATCA
+    "repair" hashes a made-up string and signs nothing, and the EAA declaration hardcodes
+    place, date and findings. Keeping them one `argparse` choice away from a customer file
+    is how a wrong number reaches an invoice.
+    """
+
+    def _run(self, argv: list[str]) -> int:
+        err = io.StringIO()
+        with mock.patch.object(sys, "argv", ["cli.py", *argv]), contextlib.redirect_stderr(err):
+            with self.assertRaises(SystemExit) as ctx:
+                hce_cli.main()
+        return int(ctx.exception.code or 0)
+
+    def test_withdrawn_subcommands_are_rejected(self):
+        for argv in (["cbam", "--list"], ["zatca", "--ubl"], ["eaa", "x.html"]):
+            self.assertEqual(self._run(argv), 2, argv)
+
+    def test_customer_path_subcommands_still_exist(self):
+        parser = hce_cli.build_parser()
+        self.assertEqual(hce_cli.CUSTOMER_PATH_COMMANDS, ("france", "belgium", "crm"))
+        self.assertEqual(parser.parse_args(["france", "f.csv"]).command, "france")
+        self.assertEqual(parser.parse_args(["belgium", "f.csv"]).command, "belgium")
+        self.assertEqual(parser.parse_args(["crm", "t.csv"]).command, "crm")
+
+
+class TestCRMDispatcherHonesty(unittest.TestCase):
+    def test_templates_do_not_promise_what_the_tools_cannot_do(self):
+        for corridor in ("FR_PDP", "BE_PEPPOL"):
+            body = generate_personalized_dispatch(
+                {"id": "1", "corridor": corridor, "nom_entite": "X", "hook_accroche": "h"}
+            )["corps"]
+            self.assertNotIn("radiés", body)
+            self.assertNotIn("ECDSA", body)
+            self.assertNotIn("Participant IDs", body)
+
+    def test_dispatch_skips_excluded_targets_and_writes_drafts(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            csv_in = Path(tmpdir) / "targets.csv"
+            csv_in.write_text(
+                "id,corridor,nom_entite,contact_cible,role_cible,statut,hook_accroche\n"
+                "1,FR_PDP,Alpha,a@alpha.fr,DAF,PROSPECT_QUALIFIE,hook a\n"
+                "2,FR_PDP,Beta,b@beta.fr,DAF,EXCLU,hook b\n",
+                encoding="utf-8",
+            )
+            out_dir = Path(tmpdir) / "drafts"
+            files = dispatch_campaign(csv_in, out_dir)
+            self.assertEqual(len(files), 1)
+            self.assertIn("Alpha", files[0].name)
+            self.assertIn("DRAFT", files[0].read_text(encoding="utf-8"))
+            # The excluded target still gets a file — a declared withdrawal, not a silent gap.
+            stub = out_dir / "02_FR_PDP_Beta.txt"
+            self.assertTrue(stub.exists())
+            self.assertIn("WITHDRAWN", stub.read_text(encoding="utf-8"))
+            self.assertIn("EXCLU", stub.read_text(encoding="utf-8"))
 
 
 class TestCBAMCalculator(unittest.TestCase):

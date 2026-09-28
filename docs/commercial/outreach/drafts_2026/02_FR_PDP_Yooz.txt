@@ -1,0 +1,4 @@
+STATUS: WITHDRAWN — NE PAS ENVOYER.
+DESTINATAIRE: Yooz
+CORRIDOR: FR_PDP
+RAISON: statut cible = EXCLU (opposition au démarchage ou cible écartée)

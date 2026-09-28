@@ -1,6 +1,15 @@
 #!/usr/bin/env python3
 """
 Module CBAM Calculator — Hard Currency Engine
+
+⛔ RETIRÉ DU PARCOURS CLIENT LE 2026-09-28 (docs/commercial/HARD_CURRENCY_OPPORTUNITY_DOSSIER_2026-09-28.md §10).
+Ce module n'est plus exposé par `cli.py`. Raisons mesurées : la formule multiplie par un
+facteur (1 − 0,975) = 0,025 que `shared/research/cbam_pin.py` a déjà retiré (≈ 71× d'écart :
+1,27 €/t ici contre 90,59 €/t dans le modèle épinglé sur HS 72071114) ; les « émissions réelles
+mesurées » sont des constantes attribuées à des usines nommées ; le XML n'est pas un schéma du
+registre CBAM. Aucun chiffre de ce fichier ne doit atteindre un client. Toute réintroduction
+exige un test comparatif contre les valeurs par défaut officielles (IR 2025/2620, annexe 5).
+
 Calculateur d'arbitrage carbone et générateur de déclarations XML pour le Mécanisme d'Ajustement Carbone aux Frontières (UE).
 """
 

@@ -1,0 +1,18 @@
+STATUS: DRAFT — NOT SENT. Lorsque ce message part réellement, ajoutez une ligne EMAIL_SENT (ou FORM_SUBMITTED / LINKEDIN_SENT) dans docs/commercial/outreach/CONTACT_LEDGER.csv.
+TO: support@mercor.com
+SUBJECT: Multilingual AI Evaluation Specialist Application — Mercor
+DESTINATAIRE: Mercor (Hiring Lead / AI Talent Partner)
+CORRIDOR: GLOBAL_AI_LABS
+================================================================================
+Dear Hiring Team at Mercor,
+
+I am submitting my profile as a multilingual AI evaluation engineer (Arabic, French, Darija, Python).
+
+Value proposition: Profil d'ingenieur IA specialise architectures d'agents et modeles multilingues Arabe/Francais disponible en contrat direct.
+
+Available 20-30h/week with daily availability on CET/UTC timezones. Ready for skill assessments immediately.
+
+Best regards,
+
+Houssam Benmerah
+h.benmerah@univ-eltarf.dz

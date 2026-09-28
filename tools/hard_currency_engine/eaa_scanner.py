@@ -1,6 +1,15 @@
 #!/usr/bin/env python3
 """
 Module EAA Scanner — Hard Currency Engine
+
+⛔ RETIRÉ DU PARCOURS CLIENT LE 2026-09-28 (docs/commercial/HARD_CURRENCY_OPPORTUNITY_DOSSIER_2026-09-28.md §10).
+Ce module n'est plus exposé par `cli.py`. Raisons mesurées : l'audit est un linter par
+expressions régulières sur du HTML statique (ni rendu JS, ni contraste, ni clavier) ; la
+« déclaration d'accessibilité légale » fixe en dur le lieu, la date et la liste des contenus
+non accessibles, et présente un score heuristique comme un « % de critères respectés ».
+Livrer ce document à un client l'exposerait à une déclaration inexacte. Aucune sortie de ce
+fichier ne doit être facturée.
+
 Audit d'accessibilité web (WCAG 2.1 niveau AA / EN 301 549) et générateur de Déclaration d'accessibilité légale (EAA).
 """
 

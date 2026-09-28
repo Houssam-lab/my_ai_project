@@ -146,10 +146,11 @@ def check_offers(offers: dict, reference_ids: set[str]) -> None:
     if not str(offers.get("commercial_objective_ar", "")).strip():
         fail("offer catalog commercial objective is missing")
     rows = offers.get("offers", [])
-    if not isinstance(rows, list) or len(rows) != 7:
-        fail(
-            f"offer catalog must contain exactly the seven declared revenue lines; got {len(rows) if isinstance(rows, list) else 'invalid'}"
-        )
+    # D-296 repealed the seven-line cap: membership is open and the only criterion is a
+    # documented external sale plus standing demand. The gate keeps the structural checks
+    # (non-empty, unique ids, references resolve) and no longer counts lines.
+    if not isinstance(rows, list) or not rows:
+        fail("offer catalog must contain at least one revenue line (open membership, D-296)")
         return
     identifiers: set[str] = set()
     for index, row in enumerate(rows, start=1):
@@ -203,7 +204,7 @@ def main() -> int:
         print(f"\n❌ Agent context gate failed: {len(FAILURES)} violation(s)")
         return 1
     passed(
-        "Agent boot context is coherent: authority, boot sequence, commercial trace, and seven offers resolve."
+        "Agent boot context is coherent: authority, boot sequence, commercial trace, and every catalog offer resolve."
     )
     return 0
 

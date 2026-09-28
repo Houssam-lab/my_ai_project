@@ -20,6 +20,9 @@
     "check_commercial_offers_parity.py": [
       "tests/architecture/test_commercial_offers_parity_gate.py"
     ],
+    "check_outbound_before_research.py": [
+      "tests/fitness/test_check_outbound_before_research.py"
+    ],
     "check_asset_license_clearance.py": [
       "tests/architecture/test_asset_license_clearance_gate.py"
     ],

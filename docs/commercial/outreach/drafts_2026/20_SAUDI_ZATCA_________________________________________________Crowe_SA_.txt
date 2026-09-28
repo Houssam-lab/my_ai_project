@@ -1,0 +1,4 @@
+STATUS: WITHDRAWN — NE PAS ENVOYER.
+DESTINATAIRE: مكتب العظم والسديري وال الشيخ محاسبون قانونيون (Crowe SA)
+CORRIDOR: SAUDI_ZATCA
+RAISON: corridor SAUDI_ZATCA retiré le 2026-09-28 : outil retiré du parcours client (CBAM/ZATCA/EAA) ou hors du périmètre unique (dossier §11)

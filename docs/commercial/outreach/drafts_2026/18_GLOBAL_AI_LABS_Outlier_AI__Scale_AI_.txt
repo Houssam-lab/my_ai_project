@@ -1,0 +1,18 @@
+STATUS: DRAFT — NOT SENT. Lorsque ce message part réellement, ajoutez une ligne EMAIL_SENT (ou FORM_SUBMITTED / LINKEDIN_SENT) dans docs/commercial/outreach/CONTACT_LEDGER.csv.
+TO: support@outlier.ai
+SUBJECT: Multilingual AI Evaluation Specialist Application — Outlier AI (Scale AI)
+DESTINATAIRE: Outlier AI (Scale AI) (Operations Lead - Multilingual Projects)
+CORRIDOR: GLOBAL_AI_LABS
+================================================================================
+Dear Hiring Team at Outlier AI (Scale AI),
+
+I am submitting my profile as a multilingual AI evaluation engineer (Arabic, French, Darija, Python).
+
+Value proposition: Specialiste verification d'agents et securite linguistique Arabe/Francais pret a integrer les missions de benchmarking.
+
+Available 20-30h/week with daily availability on CET/UTC timezones. Ready for skill assessments immediately.
+
+Best regards,
+
+Houssam Benmerah
+h.benmerah@univ-eltarf.dz

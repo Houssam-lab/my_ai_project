@@ -9,6 +9,7 @@ from __future__ import annotations
 import csv
 import re
 import unicodedata
+from datetime import date
 from pathlib import Path
 
 
@@ -19,6 +20,47 @@ def strip_accents(s: str) -> str:
 def norm(s: str) -> str:
     s = strip_accents((s or "").upper())
     return re.sub(r"[^A-Z0-9]", "", s)
+
+
+#: En-têtes (normalisés : sans accents, minuscules, alphanumériques) désignant sans ambiguïté
+#: la colonne du numéro d'entreprise, en français et en néerlandais.
+_BCE_HEADERS = frozenset(
+    {
+        "bce",
+        "kbo",
+        "cbe",
+        "nbce",
+        "nkbo",
+        "numerobce",
+        "numerokbo",
+        "kbonummer",
+        "bcenummer",
+        "numeroentreprise",
+        "numerodentreprise",
+        "nentreprise",
+        "ondernemingsnummer",
+        "ondernemingsnr",
+        "enterprisenumber",
+        "entreprise",
+        "siren",
+    }
+)
+_NAME_HEADER = re.compile(r"nom|raison|naam|name|client|fournisseur|leverancier|klant", re.I)
+
+
+def _find_bce_column(fields: list[str]) -> str | None:
+    """Colonne du numéro BCE/KBO — jamais une colonne de nom (`Nom_entreprise` contient
+    « entreprise » et faisait valider la raison sociale comme numéro : 100 % de faux rejets)."""
+    normalized = {field: re.sub(r"[^a-z0-9]", "", strip_accents(field).lower()) for field in fields}
+    for field, key in normalized.items():
+        if key in _BCE_HEADERS:
+            return field
+    for field in fields:
+        if _NAME_HEADER.search(field):
+            continue
+        if re.search(r"bce|kbo|ondernemingsnummer|entreprise|siren", field, re.I):
+            return field
+    return None
 
 
 def validate_bce_modulo97(raw_number: str) -> tuple[bool, str, str]:
@@ -189,12 +231,10 @@ def audit_belgian_csv(csv_path: Path) -> dict:
     fields = reader.fieldnames or []
 
     cols = {
-        "nom": next(
-            (c for c in fields if re.search(r"nom|raison|client|fournisseur", c, re.I)), None
-        ),
-        "bce": next((c for c in fields if re.search(r"bce|kbo|entreprise|siren", c, re.I)), None),
-        "tva": next((c for c in fields if re.search(r"tva|vat", c, re.I)), None),
-        "cp": next((c for c in fields if re.search(r"cp|postal|zip", c, re.I)), None),
+        "nom": next((c for c in fields if _NAME_HEADER.search(c)), None),
+        "bce": _find_bce_column(fields),
+        "tva": next((c for c in fields if re.search(r"tva|vat|btw", c, re.I)), None),
+        "cp": next((c for c in fields if re.search(r"cp|postal|zip|postcode", c, re.I)), None),
     }
 
     for line_no, row in enumerate(reader, start=2):
@@ -254,14 +294,16 @@ def audit_belgian_csv(csv_path: Path) -> dict:
     return results
 
 
-def format_belgian_report(results: dict, filename: str) -> str:
+def format_belgian_report(results: dict, filename: str, report_date: date | None = None) -> str:
     total = results["total"]
     valides = results["valides"]
     pct = (valides / total * 100) if total > 0 else 0.0
+    when = (report_date or date.today()).isoformat()
 
     lines = [
         f"# Rapport de Diagnostic Peppol Belgique — {filename}",
-        "**Date :** 2026-09-24 · **Cadre :** Arrêté Royal Facturation Électronique B2B Obligatoire",
+        f"**Date :** {when} · **Cadre :** Arrêté Royal Facturation Électronique B2B Obligatoire",
+        "**Périmètre du contrôle :** contrôles algorithmiques hors ligne (Modulo 97, TVA, codes postaux, doublons) — l'inscription effective à l'annuaire Peppol se vérifie via les liens fournis dans le CSV",
         "",
         "## 1. Synthèse de Conformité Peppol",
         "| Indicateur | Valeur | Statut |",
@@ -278,4 +320,14 @@ def format_belgian_report(results: dict, filename: str) -> str:
         f"- {total - valides} fiches bloqueront les flux entrants/sortants sur Exact Online, WinBooks ou Clearfacts.",
         "- Amendes administratives jusqu'à 5 000 € par infraction constatée par le SPF Finances.",
     ]
+
+    if results.get("anomalies"):
+        lines.append("")
+        lines.append("## 3. Échantillon des Anomalies")
+        lines.append("| Ligne | Nom | BCE | Erreurs Détectées |")
+        lines.append("|---|---|---|---|")
+        for item in results["anomalies"][:15]:
+            lines.append(
+                f"| {item['ligne']} | {item['nom']} | {item['bce']} | {', '.join(item['erreurs'])} |"
+            )
     return "\n".join(lines)

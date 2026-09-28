@@ -1,0 +1,26 @@
+STATUS: DRAFT — NOT SENT. Lorsque ce message part réellement, ajoutez une ligne EMAIL_SENT (ou FORM_SUBMITTED / LINKEDIN_SENT) dans docs/commercial/outreach/CONTACT_LEDGER.csv.
+TO: contact@fiduciairedewallonie.be
+SUBJECT: Peppol Belgique : mise en conformité des bases clients — Fiduciaire de Wallonie (Liège & Namur)
+DESTINATAIRE: Fiduciaire de Wallonie (Liège & Namur) (Responsable de Production Comptable)
+CORRIDOR: BE_PEPPOL
+================================================================================
+Bonjour,
+
+Depuis janvier 2026, l'obligation Peppol B2B est en vigueur en Belgique et les amendes administratives (1 500 à 5 000 €) s'appliquent.
+
+Constat : Le PDF par mail n'est plus reconnu par le fisc belge : nous convertissons vos referentiels en format structure Peppol.
+
+Je réalise l'audit d'intégrité de vos bases tiers :
+- Contrôle Modulo 97 des numéros BCE / KBO et des numéros de TVA.
+- Construction de l'identifiant Peppol (0208:…) à partir du numéro BCE validé, avec lien de vérification vers l'annuaire Peppol.
+- Dédoublonnage et contrôle des codes postaux ; livraison d'un fichier prêt à importer.
+
+Je vous propose un audit gratuit de 20 fiches sous 24 h, sans engagement.
+
+Seriez-vous ouvert à ce que je vous transmette ce diagnostic ?
+
+Cordialement,
+
+Houssam Benmerah
+h.benmerah@univ-eltarf.dz
+Consultant Référentiels Peppol
