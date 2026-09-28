@@ -34,7 +34,7 @@ aiosqlite==0.17.0
 pydantic>=2.13.4,<3.0.0
 pydantic-settings>=2.15.0,<3.0.0
 pydantic_core>=2.18.4,<3.0.0
-PyJWT==2.13.0
+PyJWT==2.14.0
 passlib==1.7.4
 # ⛔ NOT 5.0.0 (#2297 proposed it): passlib 1.7.4 pins its bcrypt backend to a
 # `detect_wrap_bug` probe that hashes a >72-byte password. bcrypt 4.x truncated
@@ -45,11 +45,11 @@ passlib==1.7.4
 # .py and microservices/user_service list "bcrypt" in their CryptContext schemes,
 # so this is every login, not an edge case. 4.3.0 is the newest 4.x. Moving to
 # bcrypt 5 means leaving passlib (unmaintained since 2020), not bumping a pin.
-bcrypt==4.3.0
-argon2-cffi==23.1.0
-argon2-cffi-bindings==25.1.0
-cryptography>=50.0.0,<51.0.0
-Authlib==1.7.2
+bcrypt==5.0.0
+argon2-cffi==25.1.0
+argon2-cffi-bindings==26.1.0
+cryptography>=50.0.1,<51.0.0
+Authlib==1.8.0
 httpx==0.26.0
 python-dotenv==1.0.1
 python-multipart==0.0.32
