@@ -10,7 +10,7 @@ langgraph
 dspy-ai==2.5.43
 llama-index-core==0.14.13
 llama-index-embeddings-openai
-dspy==2.5.7
+dspy==3.0.4b1
 # ⛔ REMOVED AS *UNSOLVABLE*, NOT RETARGETED — the D-205 remedy (ISS-202).
 # `litellm==1.50.0` is no longer published: the PyPI index jumps 1.27.1.x → 1.53.1,
 # so every image build of this service died at `pip install` (reproduced with the
