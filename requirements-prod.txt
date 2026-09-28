@@ -68,7 +68,7 @@ redis>=5.0.0
 # is not importing; this line is the difference.
 prometheus-client>=0.26.0
 
-aiofiles==24.1.0
+aiofiles==25.1.0
 # Supporting Libraries
 click==8.4.2
 greenlet==3.5.5

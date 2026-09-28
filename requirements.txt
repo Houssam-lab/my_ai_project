@@ -65,7 +65,7 @@ tenacity==8.2.3
 langgraph>=0.2.39,<2.0.0
 langchain-core>=0.3.0
 
-aiofiles==24.1.0
+aiofiles==25.1.0
 # Supporting Libraries
 click>=8.4.2
 greenlet>=3.5.5
