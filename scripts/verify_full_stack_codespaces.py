@@ -13,7 +13,7 @@ verify_full_stack_codespaces.py — تحقّق حيّ كامل للمنظومة 
 
 Usage:
   python3 scripts/verify_full_stack_codespaces.py
-  E2E_EMAIL=you@example.com E2E_PASSWORD=1111 python3 scripts/verify_full_stack_codespaces.py
+  E2E_EMAIL=you@example.com E2E_PASSWORD=<from-secrets> python3 scripts/verify_full_stack_codespaces.py
 """
 
 from __future__ import annotations

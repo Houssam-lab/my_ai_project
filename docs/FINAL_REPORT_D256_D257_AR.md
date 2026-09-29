@@ -53,8 +53,8 @@
 
 التجريب أُجري على قاعدة بيانات الإنتاج الحقيقية (`aws-1-eu-west-3.pooler.supabase.com`):
 
-1. **تسجيل دخول الأدمن** (`benmerahhoussam16@gmail.com`/1111) → `roles=[ADMIN]` ✅
-2. **تسجيل دخول المستخدم** (`houssamannaba963@gmail.com`/1111) → `roles=[STANDARD_USER, USER]` ✅
+1. **تسجيل دخول الأدمن** (بيانات الدخول مُحجوبة 2026-09-29) → `roles=[ADMIN]` ✅
+2. **تسجيل دخول المستخدم** (بيانات الدخول مُحجوبة 2026-09-29) → `roles=[STANDARD_USER, USER]` ✅
 3. **`/health`** → `database=ok` ✅
 4. **WebSocket chat الحي** (مع `REQUIRE_ORCHESTRATOR=0` محليًا فقط): conversation_id=1035، أحداث `assistant_delta` حية بتدفق LaTeX لتمارين دوال عددية — الدور يعمل كاملًا ✅
 5. **سكربت E2E الآلي** (`naas_e2e_test.py`): 317 حدثًا، persist ناجح (id=4915)، exit code=0 ✅

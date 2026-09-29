@@ -79,7 +79,7 @@ python3 scripts/verify_bkt_live.py
 python3 scripts/e2e_orchestrator_live.py "ما هو قانون نيوتن الثاني؟"
 
 # (هـ) Socratic No-Answer + BKT + بطاقات (D-113) — الأهمّ لهذه المهمة
-DIAG_EMAIL=houssamannaba963@gmail.com DIAG_PASSWORD=1111 \
+DIAG_EMAIL=<student-email> DIAG_PASSWORD=<from-secrets> \
 python3 scripts/verify_d113_socratic_live.py         # متوقّع: كل الفحوص ✅
 ```
 

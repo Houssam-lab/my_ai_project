@@ -20,16 +20,17 @@
 # حمراء متتالية على `main`. وذلك هو الخطر الذي حذّر منه رأس `repo-sync.yml` حرفيّاً
 # («failing every commit … trains people to ignore the job») ووقع في ISS-197.
 #
-# ولماذا تُسلَّم أصلاً: منفذا Postgres (6543/5432) محجوبان من حاويات التطوير — أُثبت
-# ذلك بقياسٍ حيّ (timeout). وعدّاء GitHub شبكتُه مفتوحة، فهو الموضع الوحيد الذي
-# يستطيع إثبات الرحلة على **قاعدة الإنتاج** بعينها.
+# قاعدة البيانات (Phase 1 · W6 · 2026-09-29): الرحلة تعمل على **Postgres مؤقّتة** داخل
+# العدّاء (`services.postgres` · pgvector · Postgres 17 مثل الإنتاج) تُنشأ لكل تشغيل
+# وتُمحى بعده. كانت تكتب في **قاعدة الإنتاج** بحساب طالبٍ حقيقي حتى صار 96.4٪ من
+# رسائل الإنتاج رسائلَ CI (ISS-203) — بياناتُ قاصرين مختلطة باختبار. والطالب يُسجَّل
+# عشوائياً في كل تشغيل، فلا كلمة مرور حسابٍ حقيقي في الأسرار ولا في السجلّات.
 #
 # ⛔ **لا يُشغَّل بلا أسرارٍ مضبوطة.** وظيفةٌ تمرّ لأن السرّ غائب هي بالضبط «الصمت
 # يُقرأ نجاحاً» الذي يحظره D-207 — فالخطوة الأولى تفشل صراحةً وتسمّي السرّ الناقص.
 #
 # الأسرار المطلوبة (تُضبَط من إعدادات المستودع):
-#   DATABASE_URL · OPENROUTER_API_KEY · TAVILY_API_KEY
-#   E2E_STUDENT_EMAIL · E2E_STUDENT_PASSWORD · SECRET_KEY · HONCHO_API_KEY
+#   OPENROUTER_API_KEY · TAVILY_API_KEY · SECRET_KEY · HONCHO_API_KEY
 name: live-e2e
 
 on:
@@ -47,15 +48,9 @@ on:
         required: false
         default: false
     secrets:
-      DATABASE_URL:
-        required: true
       OPENROUTER_API_KEY:
         required: true
       TAVILY_API_KEY:
-        required: true
-      E2E_STUDENT_EMAIL:
-        required: true
-      E2E_STUDENT_PASSWORD:
         required: true
       SECRET_KEY:
         required: true
@@ -74,16 +69,28 @@ jobs:
     name: live-e2e
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    services:
+      postgres:
+        image: pgvector/pgvector:pg17
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: cogniforge_e2e
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d cogniforge_e2e"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
     env:
-      DATABASE_URL: ${{ secrets.DATABASE_URL }}
-      APP_DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      # قاعدةٌ مؤقّتة لا سرّ: لا تحمل إلّا ما تكتبه هذه الرحلة، وتُمحى مع العدّاء.
+      DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/cogniforge_e2e
+      APP_DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/cogniforge_e2e
       OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
       TAVILY_API_KEY: ${{ secrets.TAVILY_API_KEY }}
-      # D-268: الأسماء الظاهرة هنا (DIAG_*) هي المفاتيح التي تقرأها سكربتات الاختبار
-      # الحيّ في عدة أماكن — تغييرها يخالف عقودها المكتوبة. المصدر الجذري في Secrets
-      # هو E2E_STUDENT_EMAIL/E2E_STUDENT_PASSWORD (انظر `aliases` في الكتالوج).
-      DIAG_EMAIL: ${{ secrets.E2E_STUDENT_EMAIL }}
-      DIAG_PASSWORD: ${{ secrets.E2E_STUDENT_PASSWORD }}
+      # DIAG_EMAIL/DIAG_PASSWORD (الأسماء التي تقرأها سكربتات الاختبار الحيّ) تُضبط
+      # في خطوة «Register an ephemeral E2E student» — حسابٌ عشوائي لكل تشغيل.
       SECRET_KEY: ${{ secrets.SECRET_KEY }}
       # D-268/D-269 — طبقة الهوية المعرفية المحيطة. اختياريّ عمداً: غيابه يجعل
       # المسبار يُبلِّغ `not_configured` ولا يُفشِل الرحلة، لأنه ليس على مسار
@@ -115,7 +122,7 @@ jobs:
         run: |
           set -euo pipefail
           missing=()
-          for name in DATABASE_URL OPENROUTER_API_KEY TAVILY_API_KEY DIAG_EMAIL DIAG_PASSWORD SECRET_KEY HONCHO_API_KEY; do
+          for name in OPENROUTER_API_KEY TAVILY_API_KEY SECRET_KEY HONCHO_API_KEY; do
             [ -n "${!name:-}" ] || missing+=("$name")
           done
           if [ ${#missing[@]} -gt 0 ]; then
@@ -123,6 +130,14 @@ jobs:
             exit 1
           fi
           echo "✅ كل الأسرار المطلوبة حاضرة."
+
+      # الإنتاج Postgres 17 + pgvector؛ جدول التمارين يحمل عمود `vector(1024)`.
+      - name: Enable pgvector in the ephemeral database
+        shell: bash
+        run: |
+          set -euo pipefail
+          PGPASSWORD=postgres psql -h 127.0.0.1 -U postgres -d cogniforge_e2e \
+            -v ON_ERROR_STOP=1 -c 'CREATE EXTENSION IF NOT EXISTS vector;'
 
       - uses: actions/setup-python@v7
         with:
@@ -158,7 +173,10 @@ jobs:
           url="${url/postgresql:\/\//postgresql+asyncpg://}"
           url="${url/postgresql+psycopg2:\/\//postgresql+asyncpg://}"
           url="$(printf '%s' "$url" | sed 's/:6543\//:5432\//' | sed 's/[?&]sslmode=[^&]*//' | sed 's/[?&]ssl=[^&]*//')"
-          echo "::add-mask::$url"
+          # الحاوية المؤقّتة بلا TLS، ومجمّع psycopg في الـorchestrator يفرض
+          # `sslmode=require` حين يغيب (`core/database.py:_build_psycopg_conninfo`) ⇒
+          # `database: unreachable`. أُعيد إنتاجه حياً على Postgres محلية قبل هذا السطر.
+          url="${url}?sslmode=disable"
           echo "ORCHESTRATOR_DATABASE_URL=$url" >> "$GITHUB_ENV"
 
       - name: Install dependencies
@@ -218,7 +236,7 @@ jobs:
           path: /tmp/openrouter-free-probe.json
           retention-days: 7
 
-      - name: Boot the real StateGraph orchestrator against production Supabase
+      - name: Boot the real StateGraph orchestrator against the ephemeral Postgres
         shell: bash
         run: |
           set -euo pipefail
@@ -249,7 +267,7 @@ jobs:
           print(f"✅ orchestrator graph_ready=true database={h.get('database')}")
           PY
 
-      - name: Boot the monolith against production Supabase
+      - name: Boot the monolith against the ephemeral Postgres
         shell: bash
         run: |
           set -euo pipefail
@@ -267,6 +285,26 @@ jobs:
           # `/health` صادقٌ أو لا شيء (D-245): نقرأ الجسم لا وجود العملية.
           cat /tmp/health.json
           python -c "import json,sys;h=json.load(open('/tmp/health.json'));bad=[k for k in ('application','database') if h.get(k)!='ok'];sys.exit('::error::/health غير صادق: '+str({k:h.get(k) for k in bad})) if bad else print('✅ /health صادق: application=ok database=ok')"
+
+      # حسابٌ عشوائي لكل تشغيل على القاعدة المؤقّتة: لا بيانات دخولٍ حقيقية في الأسرار.
+      - name: Register an ephemeral E2E student
+        shell: bash
+        run: |
+          set -euo pipefail
+          email="e2e.${GITHUB_RUN_ID}.${GITHUB_RUN_ATTEMPT}.$(openssl rand -hex 4)@example.com"
+          password="$(openssl rand -hex 16)"
+          echo "::add-mask::$password"
+          body="$(python -c 'import json,sys; print(json.dumps({"full_name": "CI E2E Student", "email": sys.argv[1], "password": sys.argv[2]}))' "$email" "$password")"
+          code="$(curl -s -o /tmp/register.json -w '%{http_code}' -X POST \
+            http://127.0.0.1:8000/api/security/register \
+            -H 'Content-Type: application/json' -d "$body")"
+          if [ "$code" -lt 200 ] || [ "$code" -ge 300 ]; then
+            echo "::error::تسجيل الطالب المؤقّت فشل (HTTP $code): $(head -c 400 /tmp/register.json)"
+            exit 1
+          fi
+          echo "DIAG_EMAIL=$email" >> "$GITHUB_ENV"
+          echo "DIAG_PASSWORD=$password" >> "$GITHUB_ENV"
+          echo "✅ طالبٌ مؤقّت مسجَّل (HTTP $code)"
 
       # D-269: الساق الثالثة من البرهان الثلاثي للطبقة الخامسة. `--require` عمداً:
       # المالك ضبط السرّ بهذا الاسم، فغيابُه هنا يعني اسماً خاطئاً لا طبقةً اختيارية

@@ -71,7 +71,7 @@
 |--------|--------|---------|
 | حساب الإدمن `benmerahhoussam16@gmail.com` | موجود · `is_active=true` · argon2id hash · دور ADMIN | سليم بالمخطط الحالي |
 | حساب المستخدم `houssamannaba963@gmail.com` | موجود · `is_active=true` · argon2id hash · STANDARD_USER + USER | سليم بالمخطط الحالي |
-| `CryptContext.verify('1111')` على تجزئتَي الحسابَين (passlib حيّ) | **True / True** | كلمة السرّ التي ذكرها المالك **صحيحة في DB** — لا عطب بيانات |
+| `CryptContext.verify(<كلمة المرور — مُحجوبة 2026-09-29>)` على تجزئتَي الحسابَين (passlib حيّ) | **True / True** | كلمة السرّ التي ذكرها المالك **صحيحة في DB** — لا عطب بيانات |
 | `app_state.dev_secret_key` | موجودة · 86 حرفًا | مفتاح D-241 محفوظ في جدول الإنتاج — K-ROOT سارٍ |
 | E2E كامل (uvicorn حقيقي + TestClient ضد :6543) | login الإدمن **200** · login المستخدم **200** · كلمة خاطئة 401 · مستخدم مجهول 401 · JWT موقع بصلاحياته الصحيحة | مسار التسجيل حيّ وناجح ضد الإنتاج مباشرة |
 | `POST /api/security/login` على الـdeployment المنشور | **404** (`static` deployment — صفحة "Run this app") | الواجهة المنشورة **بلا Backend** — أصل ثالث للعطب |

@@ -32,8 +32,8 @@ import websockets
 BACKEND = os.environ.get("E2E_BACKEND", "http://localhost:8000")
 ORCH = os.environ.get("E2E_ORCH", "http://localhost:8006")
 FRONTEND = os.environ.get("E2E_FRONTEND", "http://localhost:5000")
-EMAIL = os.environ.get("E2E_EMAIL", "houssamannaba963@gmail.com")
-PASSWORD = os.environ.get("E2E_PASSWORD", "1111")
+EMAIL = os.environ.get("E2E_EMAIL", "")
+PASSWORD = os.environ.get("E2E_PASSWORD", "")
 FULLNAME = os.environ.get("E2E_FULLNAME", "Houssam E2E")
 
 
@@ -216,4 +216,6 @@ async def main() -> int:
 
 
 if __name__ == "__main__":
+    if not (EMAIL and PASSWORD):
+        raise SystemExit("⛔ E2E_EMAIL / E2E_PASSWORD مطلوبان من البيئة — لا حساب مضمَّن في الكود.")
     raise SystemExit(asyncio.run(main()))

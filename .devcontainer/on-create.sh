@@ -68,7 +68,7 @@ OPENROUTER_API_KEY="${OPENROUTER_API_KEY:-}"
 
 # 👤 ADMIN CONFIGURATION | تكوين المسؤول
 ADMIN_EMAIL="${ADMIN_EMAIL:-benmerahhoussam16@gmail.com}"
-ADMIN_PASSWORD="${ADMIN_PASSWORD:-1111}"
+ADMIN_PASSWORD="${ADMIN_PASSWORD:-$(openssl rand -hex 16)}"
 ADMIN_NAME="${ADMIN_NAME:-Houssam Benmerah}"
 
 # 🗄️ SUPABASE CONFIGURATION | تكوين Supabase

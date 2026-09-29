@@ -21,8 +21,8 @@ orchestrator/OpenRouter عند الحاجة) ويُثبت موت الكارثة 
 
 Usage:
     set -a && . .devcontainer/secrets.env && set +a
-    E2E_BACKEND=http://localhost:8000 DIAG_EMAIL=houssamannaba963@gmail.com \
-    DIAG_PASSWORD=1111 python3.12 scripts/verify_iss129_e2e.py
+    E2E_BACKEND=http://localhost:8000 DIAG_EMAIL=<student-email> \
+    DIAG_PASSWORD=<from-secrets> python3.12 scripts/verify_iss129_e2e.py
 """
 
 from __future__ import annotations
@@ -38,8 +38,8 @@ import httpx
 import websockets
 
 BACKEND = os.environ.get("E2E_BACKEND", "http://localhost:8000")
-EMAIL = os.environ.get("DIAG_EMAIL", "houssamannaba963@gmail.com")
-PASSWORD = os.environ.get("DIAG_PASSWORD", "1111")
+EMAIL = os.environ.get("DIAG_EMAIL", "")
+PASSWORD = os.environ.get("DIAG_PASSWORD", "")
 FULLNAME = "Houssam ISS129 E2E"
 
 #: رسالة الكارثة الحرفية من transcript المالك (بالـ typo «كن»).
@@ -145,4 +145,6 @@ async def main() -> None:
 
 
 if __name__ == "__main__":
+    if not (EMAIL and PASSWORD):
+        raise SystemExit("⛔ DIAG_EMAIL / DIAG_PASSWORD مطلوبان من البيئة — لا حساب مضمَّن في الكود.")
     asyncio.run(main())

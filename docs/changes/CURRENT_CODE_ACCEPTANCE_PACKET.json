@@ -1,89 +1,84 @@
 {
   "$schema_version": 1,
-  "packet_id": "CAP-2026-09-29-truthful-evaluation",
+  "packet_id": "CAP-2026-09-29-phase1-security-containment",
   "status": "READY_FOR_GATE",
   "decision": "D-277",
-  "decision_of_change": "D-298 (المرحلة 1 بعد تدقيق العملة الصعبة · ISS-203): المصفوفة الحيّة ترفض الردّ الجاهز وتفشل بمفتاحٍ ميت، و401/403 خطأٌ صريح لا دوران، و/health في الـorchestrator يقيس مجمّع الدردشة، وlive-e2e يعطي الـorchestrator عنوان قاعدته، ومسبار النماذج يشترط جواباً عربياً بلا تسريب تفكير، والرحلة تختبر استمرارية المحادثة، وخمسة إخفاقاتٍ على main تُصلَح (نافذة الاحتفاظ · اختبارا الخطّ الثامن · حرفية مكرّرة).",
+  "decision_of_change": "D-299 (المرحلة 1 — احتواءٌ أمنيّ · ISS-204): دالّة claude-admin التي كانت تنفّذ SQL حرّاً على الإنتاج صارت تُرجع 410 (كودها محفوظ خارج المستودع)، وبيانات دخول حسابَي الإنتاج أُزيلت من كل ملفٍّ متتبَّع والسكربتات تفشل صراحةً بلا متغيّرات البيئة، وlive-e2e يعمل على Postgres مؤقّتة بطالبٍ عشوائي لكل تشغيل بدل قاعدة الإنتاج.",
   "standards": [
     "system-design-primer",
     "clean-code-book"
   ],
   "evidence": [
-    "nist-ai-rmf-1.0",
-    "dora-core"
+    "nist-ssdf-1.1",
+    "owasp-agent-security"
   ],
   "local_application": [
     {
       "standard": "system-design-primer",
       "paths": [
-        "microservices/orchestrator_service/main.py",
-        "microservices/orchestrator_service/src/services/llm/client.py",
         ".github/workflows/live-e2e.yml",
-        "tests/microservices/orchestrator_service/test_d298_health_database.py",
-        "tests/microservices/orchestrator_service/test_d298_honest_provider_failure.py"
+        "config/secret_catalog.json",
+        ".memory/runbooks/supabase-bridge.md"
       ],
-      "gate": "python -m pytest tests/microservices/orchestrator_service/test_d298_health_database.py tests/microservices/orchestrator_service/test_d298_honest_provider_failure.py tests/microservices/orchestrator_service/test_llm_client_model_chain.py",
-      "application_ar": "فحص صحّةٍ يقيس التبعية التي يحتاجها المسار (مجمّع القاعدة بمهلة صريحة) لا وجود العملية، وفشلٌ سريع مُسمّى للمصادقة بدل إعادة المحاولة على كل النماذج."
+      "gate": "python scripts/fitness/check_secret_capture_parity.py && python scripts/fitness/check_no_committed_secrets.py",
+      "application_ar": "عزل بيئة الاختبار عن الإنتاج: قاعدةٌ مؤقّتة لكل تشغيل وحسابٌ يُولَّد ولا يُخزَّن، وإغلاق مسار إدارةٍ خارج المستودع بدل تقييده بمرشِّح."
     },
     {
       "standard": "clean-code-book",
       "paths": [
-        "app/services/llm/degraded_replies.py",
-        "microservices/orchestrator_service/src/core/degraded_replies.py",
-        "scripts/e2e/reply_judge.py",
-        "tests/scripts/test_e2e_reply_judge.py"
+        "tests/integration/test_bac_exercise_websocket.py",
+        "scripts/verify_d162_e2e.py",
+        "scripts/e2e_d258_supabase_live.py",
+        "scripts/verify_exercise_retrieval_e2e.py"
       ],
-      "gate": "python -m pytest tests/scripts/test_e2e_reply_judge.py tests/scripts/test_probe_openrouter_free_models.py",
-      "application_ar": "كل نصٍّ احتياطيّ له موطنٌ واحد يقرأه الكود والحَكَم معاً، فلا يتفرّق نصٌّ يُبَثّ عن نصٍّ يُفحَص؛ وحارس AST يمنع نسخةً ثانية."
+      "gate": "python -m pytest tests/integration/test_bac_exercise_websocket.py",
+      "application_ar": "لا قيمٌ سحرية لحساباتٍ حقيقية ولا سقوطٌ صامت إلى افتراضٍ خطِر: الاعتماد من البيئة، والغياب يفشل صراحةً باسم المتغيّر الناقص أو يُتخطّى الاختبار بسببٍ منطوق."
     }
   ],
   "production": {
-    "owner": "live-e2e-truth",
-    "status": "CI_TRUTH_RESTORED_NO_CUSTOMER_IMPACT_CLAIMED",
+    "owner": "security-containment",
+    "status": "CONTAINED_PENDING_OWNER_ROTATION",
     "interfaces": [
-      "GET /health (orchestrator :8006) — حقل database",
-      "WebSocket /api/chat/ws — إطار assistant_error عند رفض المزوّد",
-      "scripts/e2e/universal_answerability_live.py",
-      "scripts/e2e/live_student_journey.py",
-      "scripts/e2e/probe_openrouter_free_models.py",
-      ".github/workflows/live-e2e.yml"
+      "POST https://<project>.supabase.co/functions/v1/claude-admin ⇒ 410 Gone",
+      ".github/workflows/live-e2e.yml (services.postgres · Register an ephemeral E2E student)",
+      "scripts/verify_* و scripts/e2e_* (DIAG_* / E2E_* / ADMIN_* من البيئة)"
     ],
     "runtime_evidence_paths": [
-      "tests/scripts/test_e2e_reply_judge.py",
-      "tests/microservices/orchestrator_service/test_d298_health_database.py",
-      "tests/microservices/orchestrator_service/test_d298_honest_provider_failure.py",
       ".memory/issues.md",
-      ".memory/decisions.md"
+      ".memory/decisions.md",
+      ".memory/runbooks/supabase-bridge.md"
     ],
-    "failure_behavior_ar": "مفتاحٌ ميت ⇒ إطار assistant_error صريح في كل دور والمصفوفة تخرج 1؛ مجمّعٌ لا يجيب ⇒ /health يقول degraded وخطوة الإقلاع في CI تتوقّف برسالة؛ لا نموذج مجاني يجيب بالعربية ⇒ المسبار يخرج 1 ويسمّي السبب لكل نموذج.",
-    "observability_ar": "المصفوفة تطبع عدد الردود الجاهزة منفصلاً عن الأجوبة، وسجلّ الـorchestrator يحمل «rejected by provider (auth)» و«health: database» وتُلتقَط في تنبيه CI.",
-    "security_boundary_ar": "عنوان القاعدة المُشتقّ محجوبٌ بـ::add-mask:: ولا يُطبَع؛ لا مفتاح يُكتب في ملف أو سجلّ؛ الحَكَم يقرأ نصوص النظام فقط ولا يرسل شيئاً إلى الخارج.",
-    "rollback_ar": "git revert للدفعة يعيد السلوك السابق كاملاً؛ لا ترحيل بيانات ولا جدول جديد."
+    "failure_behavior_ar": "متغيّرات بيئة غائبة ⇒ السكربت يخرج برسالةٍ تسمّي المتغيّرات ولا يلمس أيّ حساب؛ الاختبار التكاملي يُتخطّى بسببٍ منطوق؛ تسجيل الطالب المؤقّت يفشل ⇒ الوظيفة تتوقّف بـHTTP والجسم؛ أيّ طلبٍ إلى الجسر ⇒ 410.",
+    "observability_ar": "خطوات live-e2e تطبع حالة /health للخدمتين (database=ok على القاعدة المؤقّتة) ونتيجة التسجيل؛ الجسر يُرجع جسماً صريحاً gone.",
+    "security_boundary_ar": "لا قيمة سرٍّ في أيّ ملفٍّ أو سجلّ؛ كلمة سرّ الطالب المؤقّت تُقنَّع بـ::add-mask::؛ قاعدة CI لا تحمل بيانات إنتاج وتُمحى مع العدّاء؛ التدوير الفعلي للأسرار فعلُ مالكٍ خارج المستودع.",
+    "rollback_ar": "git revert للدفعة يعيد الملفات؛ الجسر يُعاد نشره من النسخة المحفوظة خارج المستودع إن قرّر المالك ذلك؛ التدوير لا يُعكس بطبيعته."
   },
   "commercial_trace": {
     "offer_ids": [
-      "ai-red-teaming-multilingual"
+      "fr-be-einvoicing-referential-cleansing"
     ],
-    "customer_problem_ar": "فرق الذكاء الاصطناعي لا تعرف متى يُرجِع روبوت المحادثة العربي اعتذاراً جاهزاً أو تفكيراً إنجليزياً مُسرَّباً على أنه جواب، لأنّ مقاييسها تعدّ أيّ نصٍّ غير فارغ نجاحاً.",
-    "value_hypothesis_ar": "حَكَمٌ حتميّ يفصل الجواب عن الردّ الجاهز وعن التسريب قابلٌ لأن يُعرَض كتدقيقٍ لروبوتات عربية (فرضية بلا مشترٍ ولا تسعير — لا تُعرَض قبل نتائج التواصل مع مكاتب المحاسبة).",
-    "foreign_currency_path_ar": "لا مسار إيراد جديد في هذه الدفعة؛ أيّ عرضٍ لاحق يمرّ بخطّ ai-red-teaming-multilingual بحالته PROPOSED ولا يُدّعى إيراد قبل صفّ PAYMENT_SETTLED.",
-    "foundation_exception_ar": "استثناءٌ تأسيسيّ مُعلَن: الدفعة تعيد صدق CI (required-ci أحمر على main منذ أربع دفعات) — لا يُقبَل عرضُ مُتحقِّقٍ من مستودعٍ مقياسه الحيّ يحسب الاعتذار جواباً."
+    "customer_problem_ar": "مكتب محاسبةٍ أوروبي يسلّم ملفّات مرجعيات عملائه لمورّدٍ خارج الاتحاد يطلب أوّلاً DPA وضماناتٍ تقنية؛ مورّدٌ مستودعه العامّ يحمل بيانات دخول إنتاج وباباً لـSQL حرّ لا يجتاز استبيان أمنٍ واحداً.",
+    "value_hypothesis_ar": "الاحتواء شرطٌ مسبق لأيّ DPA صادق (GDPR المادة 28 · التدابير التقنية)، لا ميزةٌ تُباع — فرضيةٌ بلا مشترٍ بعد.",
+    "foreign_currency_path_ar": "لا مسار إيراد جديد في هذه الدفعة؛ العرض يبقى PROPOSED ولا يُدّعى إيراد قبل صفّ PAYMENT_SETTLED.",
+    "foundation_exception_ar": "استثناءٌ تأسيسيّ مُعلَن: احتواءٌ أمنيّ عاجل بعد تدقيق المرحلة 0 — لا يُبنى شيءٌ فوق بابٍ خلفيّ مفتوح على الإنتاج."
   },
   "deletions": {
     "count": 0,
     "paths": [],
-    "policy_ar": "صفر حذف: الحرفيات نُقلت إلى موطنٍ واحد وأُبقي الاسم القديم _ARABIC_FALLBACK_MESSAGE مُرادفاً لاختباره؛ والاختباران المُعاد تسميتهما يثبّتان قاعدةً أقوى لا أضعف."
+    "policy_ar": "صفر حذف ملفّات: الجسر عُطِّل لا حُذف كوده من المستودع، والسكربتات بقيت وتغيّر مصدر اعتمادها فقط، والقيم المحجوبة في الوثائق التاريخية استُبدلت بعلامة حجبٍ مؤرَّخة."
   },
   "verification": {
     "result": "PASS",
     "commands": [
-      "python -m pytest tests/scripts/test_e2e_reply_judge.py tests/scripts/test_probe_openrouter_free_models.py",
-      "python -m pytest tests/microservices/orchestrator_service/",
-      "python -m pytest tests/shared/test_cpn_cbam_pin.py tests/shared/test_rcl_retraction_cascade.py",
-      "python scripts/e2e/universal_answerability_live.py --base http://127.0.0.1:8000 (مفتاح صالح ⇒ 1 · مفتاح ميت ⇒ 1، كان 0)",
-      "python scripts/e2e/live_student_journey.py --base http://127.0.0.1:8000 (محادثة واحدة · خروج 0)",
+      "curl -X POST <claude-admin> (الرمز القديم) ⇒ HTTP 410 · لا SQL",
+      "git grep لكلمة مرورٍ حرفية بجانب حسابٍ حقيقي ⇒ 0",
+      "python scripts/fitness/check_no_committed_secrets.py && python scripts/fitness/check_secret_capture_parity.py",
+      "python -m pytest tests/integration/test_bac_exercise_websocket.py (6 skipped بلا بيئة)",
+      "خطوات live-e2e محلياً على Postgres مؤقّتة: orchestrator database=ok · monolith /health صادق · register 200 · login 200",
+      "python scripts/e2e/live_student_journey.py (4 أدوار · خروج 0 · 8 رسائل في القاعدة المؤقّتة وحدها)",
+      "python scripts/e2e/universal_answerability_live.py (8/14 أجابت · 6 أخطاء مزوّد منطوقة 429 · 0 ردّ جاهز)",
       "python scripts/run_fitness_gates.py",
-      "ruff check . && ruff format --check ."
+      "ruff check . && ruff format --check . (ruff==0.14.0)"
     ]
   },
   "curriculum": {
@@ -160,94 +155,70 @@
       "harvard-cs50x-foundations",
       "harvard-cs-concentration-domains"
     ],
-    "unapplied_course_policy_ar": "كل المقررات قُرئت على مستوى الكتالوج والمصفوفة؛ ما لا ينطبق مباشرة على دفعة صدق التقييم (حَكَم ردود · فحص صحّة · فشل مصادقة صريح · مسبار نماذج · استمرارية) يُسجَّل كغير منطبق مع سبب، ولا يتحوّل إلى ادّعاء تطبيق أو حذف من الكتالوج.",
+    "unapplied_course_policy_ar": "كل المقررات قُرئت على مستوى الكتالوج والمصفوفة؛ ما لا ينطبق مباشرةً على دفعة احتواءٍ أمني (إغلاق باب SQL · إزالة بيانات دخول · عزل قاعدة CI) يُسجَّل كغير منطبق مع سبب، ولا يتحوّل إلى ادّعاء تطبيق أو حذف من الكتالوج.",
     "applicability_result": "ALL_CATALOG_COURSES_CONSIDERED",
     "owner": "curriculum-governance"
   },
   "changed_paths": [
+    ".devcontainer/on-create.sh",
     ".github/workflows/live-e2e.yml",
-    ".memory/README.md",
-    ".memory/context.md",
+    ".memory/auth_runtime_truth.md",
     ".memory/decisions.md",
     ".memory/issues.md",
-    ".memory/retraction_cascade_truth.md",
-    ".runtime/truth_table.lock.json",
-    "README.ar.md",
-    "README.md",
-    "app/infrastructure/clients/orchestrator/stream_normalization.py",
-    "app/infrastructure/clients/orchestrator/text_streaming.py",
-    "app/services/analytics/product_events.py",
-    "app/services/llm/degraded_replies.py",
-    "app/services/llm/safety_net.py",
-    "app/services/skills/arabic_stream_guard.py",
-    "docs/DOCUMENTATION_INDEX.md",
-    "microservices/orchestrator_service/main.py",
-    "microservices/orchestrator_service/src/api/stream_serialization.py",
-    "microservices/orchestrator_service/src/core/config.py",
-    "microservices/orchestrator_service/src/core/degraded_replies.py",
-    "microservices/orchestrator_service/src/services/llm/client.py",
-    "microservices/orchestrator_service/src/services/llm/safety_net.py",
-    "microservices/orchestrator_service/src/services/overmind/graph/general_knowledge.py",
-    "microservices/orchestrator_service/src/services/overmind/graph/nodes.py",
-    "microservices/orchestrator_service/src/services/overmind/graph/search.py",
-    "microservices/orchestrator_service/src/services/tools/content.py",
-    "scripts/e2e/live_student_journey.py",
-    "scripts/e2e/probe_openrouter_free_models.py",
-    "scripts/e2e/reply_judge.py",
-    "scripts/e2e/universal_answerability_live.py",
-    "scripts/fitness/endpoint_complexity_debt.json",
-    "tests/microservices/orchestrator_service/test_d298_health_database.py",
-    "tests/microservices/orchestrator_service/test_d298_honest_provider_failure.py",
-    "tests/microservices/orchestrator_service/test_llm_client_model_chain.py",
-    "tests/scripts/test_e2e_reply_judge.py",
-    "tests/scripts/test_probe_openrouter_free_models.py",
-    "tests/shared/test_cpn_cbam_pin.py",
-    "tests/shared/test_rcl_retraction_cascade.py"
+    ".memory/runbooks/e2e-codespaces.md",
+    ".memory/runbooks/supabase-bridge.md",
+    "CLAUDE.md",
+    "config/secret_catalog.json",
+    "docs/FINAL_REPORT_D256_D257_AR.md",
+    "docs/archive/constitution-history/CLAUDE-SECTIONS-6x-FULL.md",
+    "scripts/diagnose_chat.py",
+    "scripts/e2e_d258_supabase_live.py",
+    "scripts/e2e_orchestrator_live.py",
+    "scripts/gitpod_live_debug.py",
+    "scripts/verify_d113_socratic_live.py",
+    "scripts/verify_d158_e2e.py",
+    "scripts/verify_d159_e2e.py",
+    "scripts/verify_d162_e2e.py",
+    "scripts/verify_exercise_retrieval_e2e.py",
+    "scripts/verify_full_stack_codespaces.py",
+    "scripts/verify_iss110_live.py",
+    "scripts/verify_iss126_live.py",
+    "scripts/verify_iss129_e2e.py",
+    "scripts/verify_revolution_live.py",
+    "tests/integration/test_bac_exercise_websocket.py"
   ],
   "git_change_snapshot": {
-    "base_ref": "origin/main",
+    "base_ref": "WORKTREE",
     "changed_paths_excluding_packet": [
+      ".devcontainer/on-create.sh",
       ".github/workflows/live-e2e.yml",
-      ".memory/README.md",
-      ".memory/context.md",
+      ".memory/auth_runtime_truth.md",
       ".memory/decisions.md",
       ".memory/issues.md",
-      ".memory/retraction_cascade_truth.md",
-      ".runtime/truth_table.lock.json",
-      "README.ar.md",
-      "README.md",
-      "app/infrastructure/clients/orchestrator/stream_normalization.py",
-      "app/infrastructure/clients/orchestrator/text_streaming.py",
-      "app/services/analytics/product_events.py",
-      "app/services/llm/degraded_replies.py",
-      "app/services/llm/safety_net.py",
-      "app/services/skills/arabic_stream_guard.py",
-      "docs/DOCUMENTATION_INDEX.md",
-      "microservices/orchestrator_service/main.py",
-      "microservices/orchestrator_service/src/api/stream_serialization.py",
-      "microservices/orchestrator_service/src/core/config.py",
-      "microservices/orchestrator_service/src/core/degraded_replies.py",
-      "microservices/orchestrator_service/src/services/llm/client.py",
-      "microservices/orchestrator_service/src/services/llm/safety_net.py",
-      "microservices/orchestrator_service/src/services/overmind/graph/general_knowledge.py",
-      "microservices/orchestrator_service/src/services/overmind/graph/nodes.py",
-      "microservices/orchestrator_service/src/services/overmind/graph/search.py",
-      "microservices/orchestrator_service/src/services/tools/content.py",
-      "scripts/e2e/live_student_journey.py",
-      "scripts/e2e/probe_openrouter_free_models.py",
-      "scripts/e2e/reply_judge.py",
-      "scripts/e2e/universal_answerability_live.py",
-      "scripts/fitness/endpoint_complexity_debt.json",
-      "tests/microservices/orchestrator_service/test_d298_health_database.py",
-      "tests/microservices/orchestrator_service/test_d298_honest_provider_failure.py",
-      "tests/microservices/orchestrator_service/test_llm_client_model_chain.py",
-      "tests/scripts/test_e2e_reply_judge.py",
-      "tests/scripts/test_probe_openrouter_free_models.py",
-      "tests/shared/test_cpn_cbam_pin.py",
-      "tests/shared/test_rcl_retraction_cascade.py"
+      ".memory/runbooks/e2e-codespaces.md",
+      ".memory/runbooks/supabase-bridge.md",
+      "CLAUDE.md",
+      "config/secret_catalog.json",
+      "docs/FINAL_REPORT_D256_D257_AR.md",
+      "docs/archive/constitution-history/CLAUDE-SECTIONS-6x-FULL.md",
+      "scripts/diagnose_chat.py",
+      "scripts/e2e_d258_supabase_live.py",
+      "scripts/e2e_orchestrator_live.py",
+      "scripts/gitpod_live_debug.py",
+      "scripts/verify_d113_socratic_live.py",
+      "scripts/verify_d158_e2e.py",
+      "scripts/verify_d159_e2e.py",
+      "scripts/verify_d162_e2e.py",
+      "scripts/verify_exercise_retrieval_e2e.py",
+      "scripts/verify_full_stack_codespaces.py",
+      "scripts/verify_iss110_live.py",
+      "scripts/verify_iss126_live.py",
+      "scripts/verify_iss129_e2e.py",
+      "scripts/verify_revolution_live.py",
+      "tests/integration/test_bac_exercise_websocket.py"
     ],
-    "content_sha256_excluding_packet": "4c165d9f71d5859711c617cfdd1c3e5fdaedb300a5a3c6a3bce0ffb5eab06419",
+    "content_sha256_excluding_packet": "3392b720465d81a1a27d4704175d419eec1f712c696be7d8dafc9a038239bf65",
     "refreshed_on": "2026-09-29",
-    "refresh_command": "CODE_ACCEPTANCE_BASE_SHA=origin/main python3 scripts/research/refresh_acceptance_diff_snapshot.py"
+    "refresh_command": "python3 scripts/research/refresh_acceptance_diff_snapshot.py"
   }
 }

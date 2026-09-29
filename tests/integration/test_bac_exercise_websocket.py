@@ -9,7 +9,8 @@
 
 متطلبات:
     - الخادم يعمل على localhost:8000
-    - مستخدم admin موجود (benmerahhoussam16@gmail.com / 1111)
+    - حساب admin موجود، وبيانات دخوله في البيئة: ADMIN_EMAIL / ADMIN_PASSWORD
+      (لا حساب مضمَّن في الكود — يُتخطّى الاختبار بدونها)
     - OPENROUTER_API_KEY مضبوط في البيئة
 """
 
@@ -28,6 +29,8 @@ pytestmark = pytest.mark.skipif(
 
 BASE_URL = "http://localhost:8000"
 WS_URL = "ws://localhost:8000/admin/api/chat/ws"
+_ADMIN_EMAIL = os.environ.get("ADMIN_EMAIL", "")
+_ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD", "")
 
 # ─── helpers ──────────────────────────────────────────────────────────────────
 
@@ -37,7 +40,7 @@ def _get_fresh_token() -> str | None:
     try:
         resp = httpx.post(
             f"{BASE_URL}/api/v1/auth/login",
-            json={"email": "benmerahhoussam16@gmail.com", "password": "1111"},
+            json={"email": _ADMIN_EMAIL, "password": _ADMIN_PASSWORD},
             timeout=10,
         )
         resp.raise_for_status()
@@ -107,6 +110,8 @@ async def _ws_send(
 @pytest.fixture(scope="module")
 def token() -> str:
     """يجلب token مرة واحدة لكل الاختبارات في هذا الملف."""
+    if not (_ADMIN_EMAIL and _ADMIN_PASSWORD):
+        pytest.skip("ADMIN_EMAIL / ADMIN_PASSWORD غير مضبوطين — لا حساب مضمَّن في الاختبار")
     t = _get_fresh_token()
     if t is None:
         pytest.skip("الخادم لا يعمل على localhost:8000")

@@ -8,7 +8,7 @@ CogniForge — Live Chat Diagnostic (run inside the GitHub Codespaces terminal).
 التشغيل في ترمينال Codespaces:
     python scripts/diagnose_chat.py
     # اختياري للاختبار الكامل (login + WS):
-    DIAG_EMAIL=houssamannaba963@gmail.com DIAG_PASSWORD=1111 python scripts/diagnose_chat.py
+    DIAG_EMAIL=<student-email> DIAG_PASSWORD=<from-secrets> python scripts/diagnose_chat.py
 
 ثم انسخ كامل المخرجات والصقها هنا. لا يطبع أي أسرار (الـ token وكلمة مرور DB مُخفاة).
 """

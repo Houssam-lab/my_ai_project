@@ -1,5 +1,26 @@
 # Open Issues & Bugs
 
+## ISS-204 (2026-09-29) — بابٌ خلفيّ لـSQL حرّ على الإنتاج، وبيانات دخولٍ حقيقية في مستودعٍ عامّ، وCI يكتب في قاعدة الإنتاج — 🟡 احتُوي في المستودع والمنصّة بـD-299 · التدوير فعلُ مالك
+
+**العَرَض (تدقيقٌ جنائي للمرحلة 0 · قراءةٌ فقط):**
+- دالّة Edge `claude-admin` على مشروع الإنتاج كانت تنفّذ أيّ SQL (`sql.unsafe`) بصلاحية الخدمة خلف رمزٍ ثابت واحد، وعنوانها منشور في `scripts/db_bridge.py`، وكودها **خارج** المستودع.
+- بيانات دخول حسابَي الإنتاج (أدمن + طالب) كانت مكتوبةً حرفياً في ملفٍّ اختباري وسكربتات تحقّق ووثائق؛ و12 سكربتاً تسقط إليها صامتةً حين تغيب متغيّرات البيئة.
+- `live-e2e` يسجّل الدخول بحساب طالبٍ حقيقي ويكتب في قاعدة الإنتاج (96.4٪ من الرسائل — ISS-203).
+
+**الإصلاح (D-299):** الدالّة أُعيد نشرها قالباً يُرجع `410 Gone` ولا يفتح اتصالاً (كودها السابق حُفظ خارج المستودع) · بيانات الدخول أُزيلت من كل ملفٍّ متتبَّع، والسكربتات تفشل صراحةً بلا متغيّرات البيئة · `live-e2e` على Postgres مؤقّتة (pgvector · 17) بطالبٍ عشوائي لكل تشغيل.
+
+**البرهان الحيّ (2026-09-29):**
+- `POST` إلى `claude-admin` بالرمز القديم ⇒ **410** ولا SQL.
+- `git grep` لأيّ كلمة مرورٍ حرفية بجانب حسابٍ حقيقي ⇒ **0**؛ `check_no_committed_secrets` و`check_secret_capture_parity` خضراوان.
+- إعادة إنتاج خطوات `live-e2e` محلياً على Postgres مؤقّتة: الـorchestrator `database=ok` · المونوليث `/health` صادق · تسجيل طالبٍ 200 ودخوله 200 · رحلة الطالب 4 أدوار بإطارٍ نهائيٍّ واحد لكلٍّ وخروج 0 · 8 رسائل في محادثةٍ واحدة **في القاعدة المؤقّتة وحدها** · المصفوفة 8/14 أجابت و6 أخطاء مزوّدٍ منطوقة (429 من الطبقة المجانية) و0 ردٌّ جاهز.
+- **عطبٌ كشفه التشغيل الحيّ قبل الدفع:** مجمّع psycopg في الـorchestrator يفرض `sslmode=require` حين يغيب (`core/database.py:_build_psycopg_conninfo`) ⇒ `database: unreachable` على أيّ Postgres بلا TLS. الـworkflow يمرّر `sslmode=disable` للحاوية المؤقّتة.
+
+**ما بقي مفتوحاً (لا يُدّعى إغلاقه):** تدوير كل بيانات الاعتماد المعنيّة وتحديث أسرار GitHub (فعلُ مالك) · الحذف النهائي لـ`claude-admin` من لوحة Supabase · قرار رؤية المستودع · `live-e2e` يبقى أحمر ما دامت الطبقة المجانية لا تجيب (المرحلة 4).
+
+**شرط الإغلاق:** تدويرٌ مؤكَّد (المفتاح القديم ⇒ 401) + وظائف CI الحتمية خضراء على رأس الدفعة + `live-e2e` لا يلمس الإنتاج.
+
+---
+
 ## ISS-203 (2026-09-29) — المقياس الحيّ كان يحسب الاعتذار جواباً، و`required-ci` أحمر على `main` منذ أربع دفعات — 🟡 مُصلَحةٌ في الكود بـD-298 بانتظار CI
 
 **العَرَضُ بما هو قياسٌ لا شكوى:**
@@ -818,7 +839,7 @@ keepalive/heartbeat ordering · persistence fences — كلٌ خضراء. **CI G
 الأسئلة» — بعد أن كان يعمل.
 
 **القياس الحيّ (2026-08-13 · Supabase الإنتاج مباشرة + E2E sandbox):** بيانات الإنتاج
-سليمة تمامًا — `check_password('1111')` Argon2id = True للادمن والمستخدم، `app_state`
+سليمة تمامًا — `check_password(<مُحجوبة>)` Argon2id = True للادمن والمستخدم، `app_state`
 يحمل المفتاح (D-241/K-ROOT)، RBAC سليم، E2E login 200/200/401/401، WebSocket +
 `session_ready`/`conversation_init` + persistence يعملان (810 محادثة مستخدم · 41 أدمن).
 **الكارثة ليست في البيانات ولا في الكود الأساسي** — بل في الإخفاء.
@@ -5836,7 +5857,7 @@ proved BUGGY=hang+raw-LaTeX, FIXED=unlock+KaTeX, content preserved. 21/21 checks
 
 **MANDATORY follow-up (Codespaces, real Supabase):** since Postgres egress is firewalled in the
 build sandbox, run the live end-to-end there with the real secrets + logins
-(`houssamannaba963@gmail.com`/`1111`, admin `benmerahhoussam16@gmail.com`/`1111`): request the
+(student + admin accounts; credentials from secrets, redacted 2026-09-29): request the
 2016 exercise, confirm no hang + KaTeX render; and investigate WHY the fail-safe write yields
 `error` (if persistence keeps failing the turn renders but is absent on reload — separate item).
 
@@ -5898,8 +5919,8 @@ build sandbox, run the live end-to-end there with the real secrets + logins
 **egress الـ sandbox:** OpenRouter ✅ / Tavily ✅ / Supabase Postgres 6543 **محجوب فعلياً**
 (TCP timeout — حقيقة شبكية). الـ E2E الكامل لمسار الإجابة جرى بـ SQLite + OpenRouter الحقيقي
 (محتوى التمرين من `knowledge_base/` لا من DB). **التحقق الكامل عبر المتصفح + Supabase + WS
-إلزامي في Codespaces الحقيقي** بالدخولين (`houssamannaba963@gmail.com`/`1111`،
-أدمن `benmerahhoussam16@gmail.com`/`1111`).
+إلزامي في Codespaces الحقيقي** بالدخولين (الطالب والأدمن — بيانات الدخول من الأسرار، حُجبت
+2026-09-29).
 
 **الملفات:** `app/services/skills/arabic_stream_guard.py` (جديد)، `app/services/chat/local_graph.py`،
 `app/core/gateway/simple_client.py`، `app/core/ai_config.py`،

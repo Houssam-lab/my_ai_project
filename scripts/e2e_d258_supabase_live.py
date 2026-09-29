@@ -25,10 +25,10 @@ import httpx
 import websockets
 
 BACKEND = os.environ.get("E2E_BACKEND", "http://localhost:8000")
-EMAIL = os.environ.get("DIAG_EMAIL", "houssamannaba963@gmail.com")
-PASSWORD = os.environ.get("DIAG_PASSWORD", "1111")
-ADMIN_EMAIL = os.environ.get("ADMIN_EMAIL", "benmerahhoussam16@gmail.com")
-ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD", "1111")
+EMAIL = os.environ.get("DIAG_EMAIL", "")
+PASSWORD = os.environ.get("DIAG_PASSWORD", "")
+ADMIN_EMAIL = os.environ.get("ADMIN_EMAIL", "")
+ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD", "")
 FULLNAME = "Houssam D258 E2E"
 
 CHECKS: list[bool] = []
@@ -217,4 +217,9 @@ async def main() -> int:
 
 
 if __name__ == "__main__":
+    if not (EMAIL and PASSWORD and ADMIN_EMAIL and ADMIN_PASSWORD):
+        raise SystemExit(
+            "⛔ DIAG_EMAIL / DIAG_PASSWORD / ADMIN_EMAIL / ADMIN_PASSWORD مطلوبة من البيئة"
+            " — لا حساب مضمَّن في الكود."
+        )
     sys.exit(asyncio.run(main()))

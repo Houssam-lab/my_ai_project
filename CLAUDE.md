@@ -1086,7 +1086,7 @@ exercise_explanation_with_context(2.5) → LangGraph(3.0) → general_chat(4.0)`
   في `app/core/logging.py` — بلا مصدر سادس)، ومُزوِّد يفشل لا يُسقط النداء.
 
 ### ز) جسر قاعدة البيانات + الأسرار + compose (D-DB-BRIDGE-001 · D-172)
-- **جسر Supabase** (`scripts/db_bridge.py`): SQL عبر HTTPS:443 حين تُحجَب منافذ Postgres (5432/6543).
+- **جسر Supabase** (`scripts/db_bridge.py`): ⛔ **متقاعد 2026-09-29** (كان ينفّذ SQL حرّاً على الإنتاج؛ يُرجع الآن 410 — `.memory/runbooks/supabase-bridge.md`).
   للقراءة/التشخيص/DDL اليدوي فقط — لا كتابة مزدوجة (D-006). الأسرار من البيئة حصراً (git-ignored).
 - **Docker full-stack قابل لإعادة الإنتاج** (D-172): الشبكة compose-managed؛ جسر أسرار تلقائي
   (`compose_env_from_secrets.sh`)؛ **الصحة لا تكذب** — خدمة على sqlite/mock تحت الإنتاج تُبلِّغ

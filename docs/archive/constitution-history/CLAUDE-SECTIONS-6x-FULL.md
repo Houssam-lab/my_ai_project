@@ -6691,7 +6691,7 @@ const flushDeltaBuffer = () => {
 ```
 Backend:    curl http://localhost:8000/health → {"application":"ok","database":"ok"}
 Frontend:   http://localhost:5000 → HTML ✅
-Login:      houssamannaba963@gmail.com / 1111 → JWT ✅
+Login:      <student account — credentials redacted 2026-09-29> → JWT ✅
 WS connect: ws://localhost:8000/api/chat/ws → session_ready ✅
 Q1 (مشتق x²):   998 chunks، 2412 حرف عربي + LaTeX ✅
 Token after Q1:  /api/v1/users/me → 200 (لا kick-to-login) ✅
@@ -7705,8 +7705,7 @@ ruff check/format + validate_structure خضراء. الإثبات الكامل �
 mergeAssistantContent + preprocessMath حرفياً) أثبتت BUGGY=تعليق+LaTeX خام، FIXED=فك+KaTeX مع
 حفظ المحتوى؛ **21/21** في `frontend/tests/iss104_error_finalizes_message.test.mjs`؛ ISS-080 18/18
 (لا انحدار). **التجريب الحي الكامل مع Supabase إلزامي في Codespaces** (Postgres محجوب في الـ
-sandbox) بالأسرار الحقيقية + الدخولين (`houssamannaba963@gmail.com`/`1111`, الإدمن
-`benmerahhoussam16@gmail.com`/`1111`).
+sandbox) بالأسرار الحقيقية + الدخولين (الطالب والأدمن — بيانات الدخول مُحجوبة 2026-09-29).
 
 ### الملفات (ISS-104)
 
@@ -7896,7 +7895,7 @@ node frontend/tests/iss105_orphaned_streaming_message.test.mjs   # 9 ضمانا�
 - 23/23 ISS-107 + 123 regression + 6 gateway خضراء؛ ruff نظيف.
 - **egress:** OpenRouter ✅/Tavily ✅/**Supabase 6543 محجوب** في الـ sandbox → E2E مسار الإجابة
   بـ SQLite + OpenRouter الحقيقي. **التحقق الكامل (Supabase + WS + المتصفح) إلزامي في Codespaces**
-  بالدخولين (`houssamannaba963@gmail.com`/`1111`، أدمن `benmerahhoussam16@gmail.com`/`1111`).
+  بالدخولين (الطالب والأدمن — بيانات الدخول مُحجوبة 2026-09-29).
 
 ---
 

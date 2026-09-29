@@ -11,7 +11,7 @@ BAC-2024 الرسمي (المحرك الرمزي، صفر LLM). يُثبت أن 
     python3 scripts/verify_iss126_live.py
 
 للتحقق الحي الكامل عبر WS + المتصفح + Supabase: بعد `bash .devcontainer/supervisor.sh`،
-سجِّل الدخول (houssamannaba963@gmail.com / 1111) وأعد التسلسل في واجهة الدردشة.
+سجِّل الدخول بحساب الطالب التجريبي (بياناته في الأسرار لا في الكود) وأعد التسلسل في واجهة الدردشة.
 """
 
 from __future__ import annotations

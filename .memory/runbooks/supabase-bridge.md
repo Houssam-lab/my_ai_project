@@ -1,5 +1,15 @@
 # Runbook — Supabase SQL bridge (HTTPS Edge Function)
 
+> ⛔ **RETIRED 2026-09-29 (Phase 1 security containment · W4).** The `claude-admin`
+> function executed arbitrary SQL (`sql.unsafe`) against production behind a single
+> bearer token whose value was the production database password, on a URL published
+> in this public repository. It was redeployed as a stub that returns `410 Gone` to
+> every request and never opens a database connection (verified live with the old
+> token ⇒ 410). Everything below is **historical**: `scripts/db_bridge.py` and the
+> `verify_*` scripts that call the bridge now receive 410. Do not re-enable it; a
+> future diagnostic path needs its own decision (read-only role, separate rotated
+> credential, source under version control).
+
 **Why:** the sandbox / Codespaces firewall blocks raw TCP to Postgres ports
 (**5432 / 6543**), so direct DB access (asyncpg/psql) fails from this environment.
 A Supabase **Edge Function** (`claude-admin`) executes SQL over **HTTPS :443** and

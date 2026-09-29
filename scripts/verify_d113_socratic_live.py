@@ -31,7 +31,7 @@ D-113 (ISS-115) — Live E2E FULL-STACK: Socratic No-Answer OS + BKT + cards.
 Usage (داخل Codespaces بعد تشغيل supervisor.sh):
     set -a && . .devcontainer/secrets.env && set +a
     E2E_BACKEND=http://localhost:8000 \
-    DIAG_EMAIL=houssamannaba963@gmail.com DIAG_PASSWORD=1111 \
+    DIAG_EMAIL=<student-email> DIAG_PASSWORD=<from-secrets> \
     python3.12 scripts/verify_d113_socratic_live.py
 """
 
@@ -48,8 +48,8 @@ import httpx
 import websockets
 
 BACKEND = os.environ.get("E2E_BACKEND", "http://localhost:8000")
-EMAIL = os.environ.get("DIAG_EMAIL", "houssamannaba963@gmail.com")
-PASSWORD = os.environ.get("DIAG_PASSWORD", "1111")
+EMAIL = os.environ.get("DIAG_EMAIL", "")
+PASSWORD = os.environ.get("DIAG_PASSWORD", "")
 FULLNAME = "Houssam D113 E2E"
 
 # نتيجة نهائية صريحة مكشوفة (يجب ألّا تظهر للطالب في الشرح).
@@ -246,4 +246,6 @@ async def main() -> int:
 
 
 if __name__ == "__main__":
+    if not (EMAIL and PASSWORD):
+        raise SystemExit("⛔ DIAG_EMAIL / DIAG_PASSWORD مطلوبان من البيئة — لا حساب مضمَّن في الكود.")
     sys.exit(asyncio.run(main()))

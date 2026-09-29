@@ -194,10 +194,13 @@ async def _ws_one(backend_ws: str, token: str, query: str) -> str:
 
 def layer_c_websocket() -> bool | None:
     backend = os.environ.get("E2E_BACKEND")
-    email = os.environ.get("E2E_EMAIL", "houssamannaba963@gmail.com")
-    password = os.environ.get("E2E_PASSWORD", "1111")
+    email = os.environ.get("E2E_EMAIL", "")
+    password = os.environ.get("E2E_PASSWORD", "")
     if not backend:
         print("[C] SKIP WebSocket E2E (set E2E_BACKEND=http://localhost:8000 to run — Codespaces)")
+        return None
+    if not (email and password):
+        print("[C] SKIP WebSocket E2E (set E2E_EMAIL / E2E_PASSWORD — no embedded account)")
         return None
     try:
         import httpx  # type: ignore

@@ -20,8 +20,8 @@ from websockets.asyncio.client import connect
 
 BACKEND = os.environ.get("E2E_BACKEND", "http://localhost:8000")
 WS = BACKEND.replace("http", "ws") + "/api/chat/ws"
-EMAIL = os.environ.get("E2E_EMAIL", "houssamannaba963@gmail.com")
-PASSWORD = os.environ.get("E2E_PASSWORD", "1111")
+EMAIL = os.environ.get("E2E_EMAIL", "")
+PASSWORD = os.environ.get("E2E_PASSWORD", "")
 
 GARBAGE = ["experiences_random", "brückecónceptual", "exitos", "Eingaben", "Sweg", "ôté", "casos"]
 HTML_RE = re.compile(r"<(div|span|p|button|table|h[1-6])\b|class\s*=|</[a-zA-Z]+>")
@@ -132,4 +132,6 @@ async def main() -> int:
 
 
 if __name__ == "__main__":
+    if not (EMAIL and PASSWORD):
+        raise SystemExit("⛔ E2E_EMAIL / E2E_PASSWORD مطلوبان من البيئة — لا حساب مضمَّن في الكود.")
     raise SystemExit(asyncio.run(main()))

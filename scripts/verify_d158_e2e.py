@@ -26,8 +26,8 @@ dead once the turn is routed through `_cognitive_turn` over persisted `tutor_sta
 
 Usage (داخل Codespaces بعد تشغيل supervisor.sh بالعلم):
     set -a && . .devcontainer/secrets.env && set +a
-    E2E_BACKEND=http://localhost:8000 DIAG_EMAIL=houssamannaba963@gmail.com \
-    DIAG_PASSWORD=1111 python3.12 scripts/verify_d158_e2e.py
+    E2E_BACKEND=http://localhost:8000 DIAG_EMAIL=<student-email> \
+    DIAG_PASSWORD=<from-secrets> python3.12 scripts/verify_d158_e2e.py
 """
 
 from __future__ import annotations
@@ -42,8 +42,8 @@ import httpx
 import websockets
 
 BACKEND = os.environ.get("E2E_BACKEND", "http://localhost:8000")
-EMAIL = os.environ.get("DIAG_EMAIL", "houssamannaba963@gmail.com")
-PASSWORD = os.environ.get("DIAG_PASSWORD", "1111")
+EMAIL = os.environ.get("DIAG_EMAIL", "")
+PASSWORD = os.environ.get("DIAG_PASSWORD", "")
 FULLNAME = "Houssam D158 E2E"
 
 _DUMP_MARKERS = ("نجمع الحالات الممكنة فقط", "كل الطرق الممكنة لسحب")
@@ -183,4 +183,6 @@ async def main() -> int:
 
 
 if __name__ == "__main__":
+    if not (EMAIL and PASSWORD):
+        raise SystemExit("⛔ DIAG_EMAIL / DIAG_PASSWORD مطلوبان من البيئة — لا حساب مضمَّن في الكود.")
     sys.exit(asyncio.run(main()))

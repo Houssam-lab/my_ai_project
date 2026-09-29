@@ -30,8 +30,8 @@ OPENROUTER_API_KEY = os.environ.get("OPENROUTER_API_KEY", "")
 DATABASE_URL = os.environ.get("DATABASE_URL", os.environ.get("APP_DATABASE_URL", ""))
 MONOLITH_BASE = "http://localhost:8000"
 
-STUDENT_EMAIL = "houssamannaba963@gmail.com"
-STUDENT_PIN = "1111"
+STUDENT_EMAIL = os.environ.get("DIAG_EMAIL", "")
+STUDENT_PIN = os.environ.get("DIAG_PASSWORD", "")
 
 CONVERSATION_SEQUENCE = [
     "اعطني تمرين الاحتمالات 2024",
@@ -582,4 +582,6 @@ async def main() -> None:
 
 
 if __name__ == "__main__":
+    if not (STUDENT_EMAIL and STUDENT_PIN):
+        raise SystemExit("⛔ DIAG_EMAIL / DIAG_PASSWORD مطلوبان من البيئة — لا حساب مضمَّن في الكود.")
     asyncio.run(main())
