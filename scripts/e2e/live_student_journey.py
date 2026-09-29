@@ -7,6 +7,9 @@
   • إطارٌ نهائيّ **واحد** لكل دور (§6.5) — لا صفر ولا اثنان
   • ⛔ صفر نصّ نظامٍ مخزَّنٍ بدور الطالب (D-229 · ISS-146)
   • ⛔ صفر دورٍ صامت: محتوى فارغ + مكوّنٌ لا يُرسَم (ISS-145)
+  • ⛔ صفر نصٍّ جاهز بثوب إجابة (D-298 · ``reply_judge``)
+  • **محادثةٌ واحدة** لكل الأدوار (D-298): كانت كل رسالة تفتح محادثة جديدة، فلم تختبر
+    الرحلةُ الاستمرارية قطّ — «كيف نحسب A» بعد التمرين سُئلت في محادثةٍ لا تمرين فيها.
 
 وتُبلَّغ ولا تحجب: كل مخالفةٍ يسمّي نصُّها بلاغاً **مؤجَّلاً بتصريح** في
 `scripts/e2e/deferred_findings.py` — واليوم أحدُها: تسرّبُ نثرٍ لاتيني (ISS-150)،
@@ -44,6 +47,7 @@ from app.contracts.streaming import KNOWN_UI_COMPONENTS
 
 #: المصدر الوحيد لما يُبلَّغ ولا يحجب (ISS-199). ⛔ ولا قائمة ثانية هنا (D-186).
 from scripts.e2e.deferred_findings import mark, render_deferred, split_problems
+from scripts.e2e.reply_judge import reply_problems
 from shared.memory import is_system_authored
 from shared.ux import FIRST_OBJECT_PAINT_MS, classify_latency
 
@@ -79,6 +83,8 @@ class TurnResult:
     components: list[str] = field(default_factory=list)
     problems: list[str] = field(default_factory=list)
     spoken_error: str = ""
+    #: من إطار ``conversation_init`` — يُعاد إرساله في الدور التالي (D-298).
+    conversation_id: int | None = None
 
 
 def _latin_leak(text: str) -> str | None:
@@ -141,7 +147,9 @@ def _absorb_frame(result: TurnResult, event: dict[str, Any], now: float) -> bool
     etype = event.get("type", "")
     payload = event.get("payload") or {}
 
-    if etype == "assistant_delta" and payload.get("content"):
+    if etype == "conversation_init" and payload.get("conversation_id") is not None:
+        result.conversation_id = int(payload["conversation_id"])
+    elif etype == "assistant_delta" and payload.get("content"):
         _absorb_delta(result, payload, now)
     elif etype == "ui_component":
         _absorb_object(result, payload, now)
@@ -151,14 +159,20 @@ def _absorb_frame(result: TurnResult, event: dict[str, Any], now: float) -> bool
     return False
 
 
-async def _run_turn(ws_url: str, token: str, question: str) -> TurnResult:
+async def _run_turn(
+    ws_url: str, token: str, question: str, conversation_id: int | None = None
+) -> TurnResult:
     result = TurnResult(question=question)
     started = time.perf_counter()
+
+    message: dict[str, Any] = {"question": question}
+    if conversation_id is not None:
+        message["conversation_id"] = conversation_id
 
     async with websockets.connect(
         ws_url, subprotocols=["jwt", token], open_timeout=30, close_timeout=10
     ) as ws:
-        await ws.send(json.dumps({"question": question}))
+        await ws.send(json.dumps(message))
         while True:
             try:
                 raw = await asyncio.wait_for(ws.recv(), timeout=120.0)
@@ -198,7 +212,24 @@ def _turn_violations(result: TurnResult) -> list[str]:
         problems.append(f"لم يُجَب — خطأٌ منطوق: {result.spoken_error[:120]!r}")
     elif not result.content.strip() and not result.components:
         problems.append("دورٌ صامت: لا نصَّ ولا كائن")
+    else:
+        problems.extend(reply_problems(result.question, result.content))
     return problems
+
+
+def _continuity_problems(results: list[TurnResult]) -> list[str]:
+    """الرحلة محادثةٌ واحدة: كل دورٍ بعد الأول يعود بمعرّف المحادثة نفسه (D-298)."""
+    ids = [turn.conversation_id for turn in results]
+    if not ids or ids[0] is None:
+        return ["لا `conversation_id` في إطار `conversation_init` — لا تُختبَر الاستمرارية"]
+    drifted = [
+        f"«{turn.question}» ⇒ {turn.conversation_id}"
+        for turn in results[1:]
+        if turn.conversation_id != ids[0]
+    ]
+    if drifted:
+        return [f"الرحلة انقسمت عن المحادثة {ids[0]}: {', '.join(drifted)} (D-298)"]
+    return []
 
 
 def _seconds(value: float | None) -> str:
@@ -226,7 +257,9 @@ def _print_verdict(results: list[TurnResult]) -> int:
     budget_s = FIRST_OBJECT_PAINT_MS / 1000
     with_object = [turn for turn in results if turn.components]
     fast = [t for t in with_object if t.first_object_s is not None and t.first_object_s <= budget_s]
-    blocking, deferred = split_problems(p for turn in results for p in turn.problems)
+    blocking, deferred = split_problems(
+        [p for turn in results for p in turn.problems] + _continuity_problems(results)
+    )
 
     print("\n" + "═" * 62)
     print(
@@ -259,10 +292,12 @@ async def main() -> int:
     ws_url = f"{ws_url}/api/chat/ws"
 
     results: list[TurnResult] = []
+    conversation_id: int | None = None
     for question in JOURNEY:
         print(f"\n▶ «{question}»", flush=True)
-        turn = await _run_turn(ws_url, token, question)
+        turn = await _run_turn(ws_url, token, question, conversation_id)
         results.append(turn)
+        conversation_id = turn.conversation_id or conversation_id
         _print_turn(turn)
 
     return _print_verdict(results)

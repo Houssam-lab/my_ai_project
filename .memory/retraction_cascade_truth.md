@@ -15,7 +15,7 @@
 | GATE_C — عملة صعبة مسوّاة | `ABSENT` | لا تغيير عن [وثيقة حالة D-290](agent_reliability_hard_currency_truth.md) |
 | عروضٌ مُرسَلة | **0** | `RCL_MEASUREMENTS.json → declared_zeros.offers_sent` |
 | سككٌ معلَنةُ الجاهزية | **0** | `declared_zeros.rails_declared_ready` |
-| خطوط الكتالوج | **7** — لا ثامن | [`OFFER_CATALOG.json`](../docs/commercial/OFFER_CATALOG.json) + اختبار `test_no_eighth_offer_line_is_opened` |
+| خطوط الكتالوج | **8**، كلّها `PROPOSED` — حصرُ السبعة ألغاه D-296، ولا ترقيةَ بلا معاملة (D-297 · D-298) | [`OFFER_CATALOG.json`](../docs/commercial/OFFER_CATALOG.json) + اختبار `test_no_offer_line_is_promoted_by_this_batch` |
 
 ---
 

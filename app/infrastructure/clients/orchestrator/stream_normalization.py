@@ -16,6 +16,7 @@ import json
 import logging
 from ast import literal_eval
 
+from app.services.llm.degraded_replies import SERVICE_UNAVAILABLE_REPLY
 from shared.chat_protocol.chat_events import ChatEventEnvelope, ChatEventPayload, ChatEventType
 
 logger = logging.getLogger("orchestrator-client")
@@ -158,7 +159,7 @@ class StreamNormalizationMixin:
         return {
             "type": "assistant_error",
             "payload": {
-                "content": "تعذر إتمام طلبك حالياً بسبب ضغط أو عطل مؤقت في خدمة المحادثة. حاول مرة أخرى بعد لحظات.",
+                "content": SERVICE_UNAVAILABLE_REPLY,
                 "request_id": request_id,
                 "retry_hint": "يمكنك إعادة المحاولة بعد دقيقة.",
             },

@@ -12,6 +12,7 @@ import difflib
 import re
 
 from microservices.orchestrator_service.src.core.constants import BRANCH_MAP
+from microservices.orchestrator_service.src.core.degraded_replies import NO_DETAILS_REPLY
 from microservices.orchestrator_service.src.core.logging import get_logger
 from microservices.orchestrator_service.src.infrastructure.clients.research_client import (
     research_client,
@@ -143,7 +144,7 @@ def format_search_response(
         f"📌 [المصدر]       → {source}\n\n"
     )
     if not content:
-        content = "لا توجد تفاصيل متاحة."
+        content = NO_DETAILS_REPLY
     return header + content
 
 

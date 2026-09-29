@@ -190,16 +190,16 @@
     "nesting": 1
   },
   "chat_stream_engine.py": {
-    "loc": 605
+    "loc": 679
   },
   "chat_stream_engine.py::_run_chat_langgraph": {
-    "loc": 151,
-    "cc": 27,
+    "loc": 183,
+    "cc": 29,
     "nesting": 8
   },
   "chat_stream_engine.py::_stream_chat_langgraph": {
-    "loc": 392,
-    "cc": 60,
+    "loc": 431,
+    "cc": 63,
     "nesting": 10
   },
   "chat_turn_context.py": {
@@ -399,7 +399,7 @@
     "nesting": 1
   },
   "routes.py": {
-    "loc": 1064
+    "loc": 1070
   },
   "routes.py::_build_chat_turn": {
     "loc": 14,
@@ -442,8 +442,8 @@
     "nesting": 2
   },
   "routes.py::chat_messages_endpoint": {
-    "loc": 105,
-    "cc": 22,
+    "loc": 111,
+    "cc": 23,
     "nesting": 7
   },
   "routes.py::chat_messages_health_endpoint": {
@@ -522,7 +522,7 @@
     "nesting": 0
   },
   "stream_serialization.py": {
-    "loc": 110
+    "loc": 109
   },
   "stream_serialization.py::_append_telemetry_line": {
     "loc": 12,
@@ -530,7 +530,7 @@
     "nesting": 2
   },
   "stream_serialization.py::_extract_human_readable_response": {
-    "loc": 38,
+    "loc": 35,
     "cc": 13,
     "nesting": 4
   },

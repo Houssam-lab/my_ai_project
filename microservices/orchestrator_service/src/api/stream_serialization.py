@@ -10,6 +10,8 @@ import json
 
 import anyio
 
+from microservices.orchestrator_service.src.core.degraded_replies import NO_DETAILS_REPLY
+
 from .chat_types import StreamFrame
 
 
@@ -83,17 +85,14 @@ def _extract_human_readable_response(final_resp: object) -> str:
             # حالة nested: قد يكون response_json داخل response_json
             if isinstance(value, dict):
                 nested = _extract_human_readable_response(value)
-                if nested and nested != "لا توجد تفاصيل متاحة.":
+                if nested and nested != NO_DETAILS_REPLY:
                     return nested
 
         # dict بدون حقل بشري معروف — لا تكشف المظروف الداخلي للطالب
-        return "لا توجد تفاصيل متاحة."
+        return NO_DETAILS_REPLY
 
-    if final_resp is None:
-        return "لا توجد تفاصيل متاحة."
-
-    text = str(final_resp).strip()
-    return text or "لا توجد تفاصيل متاحة."
+    text = "" if final_resp is None else str(final_resp).strip()
+    return text or NO_DETAILS_REPLY
 
 
 async def _serialize_stream_frame(payload: object) -> str:

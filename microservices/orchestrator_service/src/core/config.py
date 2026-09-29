@@ -72,6 +72,11 @@ class Settings(BaseSettings):
     OPENROUTER_BASE_URL: str | None = Field(
         None, description="Provider base URL override (gateway/proxy/test double)"
     )
+    # D-298: نماذج اكتشفها المسبار الحيّ (CSV) تسبق السلسلة الثابتة. حقلٌ لا حرفية
+    # (D-270 L5): كان العميل يقرأ الاسم حرفياً فتكرّر في ملفّين وأحمرّت بوّابة الحرفيات.
+    OPENROUTER_EXTRA_MODELS: str = Field(
+        "", description="Comma-separated runtime-verified models placed after PRIMARY"
+    )
 
     # Microservices URLs (Dynamic Resolution)
     PLANNING_AGENT_URL: str | None = Field(default=None, validate_default=True)

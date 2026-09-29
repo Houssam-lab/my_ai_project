@@ -186,9 +186,16 @@ class ProductAnalyticsService:
         window_days: int = 90,
         horizons: tuple[int, ...] = DEFAULT_HORIZONS,
     ) -> RetentionReport:
-        """تقرير الاحتفاظ بالأفواج. الحساب في `shared/analytics` — مصدر تعريفٍ واحد."""
+        """تقرير الاحتفاظ بالأفواج. الحساب في `shared/analytics` — مصدر تعريفٍ واحد.
+
+        D-298: النافذة تُرسى على تاريخ التقرير (`today`) لا على ساعة الحائط. كانت
+        `datetime.now()` تقصّ النافذة لتقريرٍ عن تاريخٍ سابق، فصار الاختبار الذي يثبّت
+        التاريخ يفشل وحده بمرور الوقت (أحمر على `main` منذ ~2026-09-20 بلا تغيير كود).
+        """
         reference = today or datetime.now(UTC).date()
-        since = datetime.now(UTC) - timedelta(days=window_days)
+        since = datetime.combine(reference, datetime.min.time(), tzinfo=UTC) - timedelta(
+            days=window_days
+        )
         return retention_report(
             signups=await self._signups(since),
             activity=await self._activity(since),

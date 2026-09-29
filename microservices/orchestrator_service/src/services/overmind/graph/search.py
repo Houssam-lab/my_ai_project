@@ -41,6 +41,10 @@ except ModuleNotFoundError:
 
     dspy = _DSPyModule()  # type: ignore[assignment]
 
+from microservices.orchestrator_service.src.core.degraded_replies import (
+    NO_DETAILS_REPLY,
+    SYNTHESIS_FAILED_REPLY,
+)
 from microservices.orchestrator_service.src.core.logging import get_logger
 
 # Assuming research_client is used for actual db access
@@ -702,7 +706,7 @@ class SynthesizerNode:
                 # («لا توجد تفاصيل متاحة») كان يُقرأ كإجابة ويُطفئ أي إنذار.
                 text_val = PROVIDER_UNAVAILABLE_MESSAGE
             elif not text_val:
-                text_val = "لا توجد تفاصيل متاحة."
+                text_val = NO_DETAILS_REPLY
         else:
             raw_doc_text = reranked[0].text
             source = reranked[0].metadata.get("source", "الإنترنت")
@@ -812,9 +816,7 @@ class SynthesizerNode:
                     text_val = normalize_latex(raw_pred)
                 except Exception as e:
                     logger.error(f"Synthesizer LLM generation failed: {e}")
-                    text_val = (
-                        "عذراً، تعذر صياغة الشرح المطلوب بسبب خطأ داخلي. يرجى إعادة صياغة السؤال."
-                    )
+                    text_val = SYNTHESIS_FAILED_REPLY
 
         # D-064 (ISS-076): تنظيف foreign-script للمخرج التعليمي
         from microservices.orchestrator_service.src.services.overmind.response_sanitizer import (
@@ -853,7 +855,7 @@ class SynthesizerNode:
             "messages": [
                 AIMessage(
                     content=text_val
-                    or (PROVIDER_UNAVAILABLE_MESSAGE if provider_down else "لا توجد تفاصيل متاحة.")
+                    or (PROVIDER_UNAVAILABLE_MESSAGE if provider_down else NO_DETAILS_REPLY)
                 )
             ],
         }

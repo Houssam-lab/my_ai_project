@@ -913,11 +913,18 @@ def test_filed_measurements_match_recomputation() -> None:
         assert filed[key] == json.loads(json.dumps(fresh[key], default=str)), key
 
 
-def test_no_eighth_offer_line_is_opened() -> None:
-    """هذه الدفعة قياسٌ لا عرض — الكتالوج يبقى سبعة."""
+def test_no_offer_line_is_promoted_by_this_batch() -> None:
+    """هذه الدفعة قياسٌ لا عرض — لا خطَّ فوق `PROPOSED` بلا معاملةٍ مُسوّاة.
+
+    حصرُ السبعة ألغاه المالك في D-296؛ والشرط الباقي (D-297) بنيويّ: مُعرِّفٌ فريد
+    لكلّ خطّ، ولا ترقيةَ بلا معاملة. عدُّ الخطوط هنا كان يُحمِّر `main` بعد إلغاء الحصر.
+    """
     catalog_path = REPO_ROOT / "docs" / "commercial" / "OFFER_CATALOG.json"
-    catalog = json.loads(catalog_path.read_text("utf-8"))
-    assert len(catalog["offers"]) == 7
+    offers = json.loads(catalog_path.read_text("utf-8"))["offers"]
+    ids = [offer.get("id") for offer in offers]
+    assert offers
+    assert all(ids) and len(ids) == len(set(ids))
+    assert all(offer.get("status") == "PROPOSED" for offer in offers)
 
 
 def test_every_source_carries_a_grade_a_date_and_a_quote() -> None:

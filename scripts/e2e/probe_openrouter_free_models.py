@@ -2,9 +2,22 @@
 """Discover and *invoke* currently free OpenRouter text models.
 
 Catalog presence is not proof of answerability.  This probe fetches today's
-catalog, selects free text-generation models, then sends one tiny Arabic chat
+catalog, selects free text-generation models, then sends one Arabic tutoring
 completion to each candidate.  It emits no API key and can export the first
 working models to GitHub Actions through ``--github-env``.
+
+D-298 — "working" now means *a usable Arabic answer*, not "any characters":
+
+* The old probe asked a 32-token question with no system prompt and accepted any
+  non-empty reply.  Live on 2026-09-29 it selected ``nvidia/nemotron-3.5-lightning``,
+  which under a real tutoring prompt returns ``"Here's a thinking process: …"`` in
+  English inside ``content`` — the D-067 leak class.  The monolith's Arabic guard
+  then replaced it with a canned apology, 1,006 times in production since August.
+* The probe now sends a system prompt like the real path, asks for a short
+  explanation, and accepts a reply only if its letters are mostly Arabic and it
+  carries no reasoning marker.
+* The declared production chain (``shared/ai_models/model_chain.py``) is probed
+  first, so CI exercises the chain production uses whenever that chain works.
 """
 
 from __future__ import annotations
@@ -12,6 +25,8 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import re
+import sys
 import time
 import urllib.error
 import urllib.request
@@ -19,7 +34,34 @@ from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Any
 
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+
+from shared.ai_models.model_chain import MODEL_CHAIN
+
 BASE_URL = "https://openrouter.ai/api/v1"
+
+#: A realistic tutoring request (short system prompt, < 1000 chars — D-067).
+_PROBE_MESSAGES: tuple[dict[str, str], ...] = (
+    {"role": "system", "content": "أنت أستاذ بكالوريا جزائري. أجب بالعربية فقط."},
+    {"role": "user", "content": "اشرح لي قانون أوم في جملتين."},
+)
+_PROBE_MAX_TOKENS = 200
+
+#: Share of letters that must be Arabic for the reply to count as an Arabic answer.
+MIN_ARABIC_LETTER_SHARE = 0.6
+
+#: English planning prose that must never reach a student (D-067 · ISS-079).
+REASONING_MARKERS: tuple[str, ...] = (
+    "thinking process",
+    "analyze the user",
+    "the user",
+    "we need to",
+    "let me",
+    "okay,",
+)
+
+_ARABIC_LETTER = re.compile(r"[ء-ي]")
+_LATIN_LETTER = re.compile(r"[A-Za-z]")
 EXCLUDED = (
     "audio",
     "embed",
@@ -43,6 +85,36 @@ class ProbeResult:
     seconds: float
     chars: int
     error: str | None = None
+    arabic_share: float | None = None
+
+
+def arabic_answer_problem(content: str) -> str | None:
+    """Why ``content`` is not a usable Arabic answer, or ``None`` when it is."""
+    text = content.strip()
+    if not text:
+        return "empty content"
+    lowered = text.lower()
+    marker = next((m for m in REASONING_MARKERS if m in lowered), None)
+    if marker:
+        return f"reasoning leak ({marker!r})"
+    arabic = len(_ARABIC_LETTER.findall(text))
+    latin = len(_LATIN_LETTER.findall(text))
+    share = arabic / (arabic + latin) if arabic + latin else 0.0
+    if share < MIN_ARABIC_LETTER_SHARE:
+        return f"not an Arabic answer (arabic_share={share:.2f})"
+    return None
+
+
+def _arabic_share(content: str) -> float:
+    arabic = len(_ARABIC_LETTER.findall(content))
+    latin = len(_LATIN_LETTER.findall(content))
+    return round(arabic / (arabic + latin), 2) if arabic + latin else 0.0
+
+
+def chain_first(candidates: list[str], chain: tuple[str, ...] = MODEL_CHAIN) -> list[str]:
+    """Declared chain models (in chain order) first, then the rest of the catalog."""
+    declared = [model for model in chain if model in candidates]
+    return declared + [model for model in candidates if model not in declared]
 
 
 def _zero(value: object) -> bool:
@@ -121,14 +193,9 @@ def probe(base_url: str, key: str, model: str, timeout: float) -> ProbeResult:
             timeout=timeout,
             body={
                 "model": model,
-                "messages": [
-                    {
-                        "role": "user",
-                        "content": "أجب بكلمتين فقط: ما عاصمة الجزائر؟",
-                    }
-                ],
+                "messages": list(_PROBE_MESSAGES),
                 "temperature": 0,
-                "max_tokens": 32,
+                "max_tokens": _PROBE_MAX_TOKENS,
             },
         )
         content = ""
@@ -137,14 +204,22 @@ def probe(base_url: str, key: str, model: str, timeout: float) -> ProbeResult:
             message = choices[0].get("message") if isinstance(choices[0], dict) else None
             if isinstance(message, dict) and isinstance(message.get("content"), str):
                 content = message["content"].strip()
-        ok = bool(content)
+        problem = arabic_answer_problem(content) if status < 400 else None
+        ok = status < 400 and problem is None
+        if ok:
+            error = None
+        elif status < 400:
+            error = problem
+        else:
+            error = _error_message(payload)
         return ProbeResult(
             model=model,
             ok=ok,
             status=status,
             seconds=round(time.monotonic() - started, 2),
             chars=len(content),
-            error=None if ok else _error_message(payload),
+            error=error,
+            arabic_share=_arabic_share(content) if content else None,
         )
     except Exception as exc:
         return ProbeResult(
@@ -205,7 +280,7 @@ def main() -> int:
         return 2
 
     probe_budget = args.limit if remaining is None else min(args.limit, remaining - args.reserve)
-    candidates = free_text_models(catalog)[: max(1, probe_budget)]
+    candidates = chain_first(free_text_models(catalog))[: max(1, probe_budget)]
     print(
         f"catalog free text candidates={len(free_text_models(catalog))}; probing={len(candidates)}"
     )
@@ -234,7 +309,7 @@ def main() -> int:
             env.write(f"OPENROUTER_PRIMARY_MODEL={working[0]}\n")
             env.write(f"OPENROUTER_EXTRA_MODELS={','.join(working[1:3])}\n")
     if not working:
-        print("❌ catalog listed free models, but none returned textual content")
+        print("❌ catalog listed free models, but none returned a usable Arabic answer")
         return 1
     print(f"SELECTED primary={working[0]} fallbacks={','.join(working[1:3]) or '-'}")
     return 0

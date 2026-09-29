@@ -11,6 +11,10 @@ import os
 import re
 
 from microservices.orchestrator_service.src.core.ai_config import get_ai_config
+from microservices.orchestrator_service.src.core.degraded_replies import (
+    CHAT_FALLBACK_REPLY,
+    CONTEXT_FAILED_REPLY,
+)
 
 from .dspy_compat import dspy
 from .state import (
@@ -282,6 +286,10 @@ class ChatFallbackNode:
         import time
 
         from microservices.orchestrator_service.src.services.llm.client import (
+            PROVIDER_UNAVAILABLE_MESSAGE,
+            AllModelsFailedError,
+        )
+        from microservices.orchestrator_service.src.services.llm.client import (
             get_ai_client as get_llm_client,
         )
         from microservices.orchestrator_service.src.services.overmind.latex_normalizer import (
@@ -340,9 +348,7 @@ class ChatFallbackNode:
         )
         user_content = f"السياق:\n{history}\n\nالسؤال:\n{query}"
 
-        fallback_response = (
-            "وعليكم السلام! أنا هنا للمساعدة. أخبرني بما تحتاجه وسأتابع معك خطوة بخطوة."
-        )
+        fallback_response = CHAT_FALLBACK_REPLY
 
         llm_client = get_llm_client()
         writer = self._get_writer()
@@ -408,6 +414,25 @@ class ChatFallbackNode:
                 response_content = normalize_latex(raw)
                 if response_content and response_content.strip():
                     fallback_response = response_content.strip()
+        except AllModelsFailedError as error:
+            # D-298: المزوّد غير متاح (السلسلة ميتة أو المفتاح مرفوض). كان هذا يقع في
+            # ``except Exception`` أدناه فيُرسَل «وعليكم السلام! أنا هنا للمساعدة…»
+            # إجابةً بحالة ``ok`` — تحيةٌ لطالبٍ قال «لم أفهم». الآن حالة تشغيلٍ صريحة،
+            # بنفس عقد ``GeneralKnowledgeNode`` (ISS-200).
+            logger.error("ChatFallbackNode: provider unavailable — %s", error)
+            emit_telemetry(
+                node_name="ChatFallbackNode",
+                start_time=start_time,
+                state=state,
+                error=error,
+            )
+            from langchain_core.messages import AIMessage
+
+            return {
+                "final_response": PROVIDER_UNAVAILABLE_MESSAGE,
+                "messages": [AIMessage(content=PROVIDER_UNAVAILABLE_MESSAGE)],
+                "provider_error": True,
+            }
         except Exception as error:
             emit_telemetry(
                 node_name="ChatFallbackNode",
@@ -694,7 +719,7 @@ class ValidatorNode:
         retry_count = state.get("retry_count", 0)
         if is_failure:
             if retry_count >= 1:
-                updates["final_response"] = "عذراً، لم أتمكن من معالجة السياق."
+                updates["final_response"] = CONTEXT_FAILED_REPLY
                 updates["retry_count"] = retry_count
             else:
                 updates["retry_count"] = retry_count + 1

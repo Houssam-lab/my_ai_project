@@ -26,6 +26,7 @@ from microservices.orchestrator_service.src.services.llm.client import (
     DEFAULT_BASE_URL,
     AIClient,
     AllModelsFailedError,
+    ProviderAuthError,
 )
 
 # ── بدائل خفيفة: مزوّد OpenAI-compatible مزيف ─────────────────────────────────
@@ -117,7 +118,10 @@ class TestModelChainResolution:
             lambda: fake_config,
         )
         monkeypatch.delenv("OPENROUTER_PRIMARY_MODEL", raising=False)
-        monkeypatch.delenv("OPENROUTER_EXTRA_MODELS", raising=False)
+        monkeypatch.setattr(
+            "microservices.orchestrator_service.src.services.llm.client.get_settings",
+            lambda: SimpleNamespace(OPENROUTER_EXTRA_MODELS=""),
+        )
         assert client.model_chain() == ["test/primary:free", "test/fb1:free", "test/fb2:free"]
 
     def test_runtime_verified_models_precede_static_fallbacks(self, monkeypatch) -> None:
@@ -131,8 +135,12 @@ class TestModelChainResolution:
             lambda: fake_config,
         )
         monkeypatch.setenv("OPENROUTER_PRIMARY_MODEL", "live/first:free")
-        monkeypatch.setenv(
-            "OPENROUTER_EXTRA_MODELS", "live/second:free,live/third:free,live/second:free"
+        # D-298: the extra models arrive through Settings (one home for the env name).
+        monkeypatch.setattr(
+            "microservices.orchestrator_service.src.services.llm.client.get_settings",
+            lambda: SimpleNamespace(
+                OPENROUTER_EXTRA_MODELS="live/second:free,live/third:free,live/second:free"
+            ),
         )
 
         assert client.model_chain() == [
@@ -216,13 +224,30 @@ class TestStreamRotation:
         assert "No endpoints" in str(exc.value)
 
     async def test_auth_error_does_not_rotate(self, monkeypatch) -> None:
-        """401 مشكلة مفتاح، لا مشكلة توجيه: الدوران فوق 6 نماذج يضاعف التعليق فقط."""
+        """401 مشكلة مفتاح، لا مشكلة توجيه: الدوران فوق 6 نماذج يضاعف التعليق فقط.
+
+        D-298: ولا يخرج خطأً خاماً — يخرج :class:`ProviderAuthError` (صنفٌ فرعي من
+        ``AllModelsFailedError``) فتُعلنه العُقد ``provider_error`` بدل نصٍّ جاهز.
+        """
         client, completions = _client(
             {"test/primary:free": _status_error("test/primary:free", 401)}, monkeypatch
         )
-        with pytest.raises(APIStatusError):
+        with pytest.raises(ProviderAuthError) as exc:
             _ = [c async for c in client.stream_chat(_MESSAGES)]
         assert completions.calls == ["test/primary:free"]
+        assert isinstance(exc.value, AllModelsFailedError)
+        assert isinstance(exc.value.__cause__, APIStatusError)
+        assert exc.value.models == ["test/primary:free"]
+
+    @pytest.mark.parametrize("status", [401, 403])
+    async def test_auth_error_is_provider_unavailability_for_every_status(
+        self, monkeypatch, status: int
+    ) -> None:
+        client, _ = _client(
+            {"test/primary:free": _status_error("test/primary:free", status)}, monkeypatch
+        )
+        with pytest.raises(ProviderAuthError):
+            _ = [c async for c in client.stream_chat(_MESSAGES)]
 
 
 class TestGenerateRotation:
@@ -245,6 +270,21 @@ class TestGenerateRotation:
             await client.generate(model="custom/model", messages=_MESSAGES)
         assert completions.calls == ["custom/model"]
 
+    async def test_generate_auth_error_is_provider_unavailability(self, monkeypatch) -> None:
+        """المفتاح المرفوض يُعلَن حالةَ تشغيل في المسار غير المتدفّق أيضاً (D-298)."""
+        client, completions = _client(
+            {"test/primary:free": _status_error("test/primary:free", 401)}, monkeypatch
+        )
+        with pytest.raises(ProviderAuthError):
+            await client.generate(messages=_MESSAGES)
+        assert completions.calls == ["test/primary:free"]
+
+    async def test_explicit_model_auth_error_is_provider_unavailability(self, monkeypatch) -> None:
+        """نموذجٌ محدَّد صراحةً لا يُعفي رفضَ المفتاح من أن يُسمّى باسمه."""
+        client, _ = _client({"custom/model": _status_error("custom/model", 403)}, monkeypatch)
+        with pytest.raises(ProviderAuthError):
+            await client.generate(model="custom/model", messages=_MESSAGES)
+
 
 class TestSettingsWiring:
     def test_base_url_env_override_is_honoured(self, monkeypatch) -> None:
@@ -257,6 +297,28 @@ class TestSettingsWiring:
         try:
             client = AIClient()
             assert client.base_url == "http://127.0.0.1:8100/api/v1"
+        finally:
+            get_settings.cache_clear()
+
+    def test_extra_models_env_reaches_the_chain_through_settings(self, monkeypatch) -> None:
+        """D-298: الاسم يُقرأ من البيئة عبر حقل Settings — مقبضٌ واحد، لا حرفية."""
+        monkeypatch.setenv("OPENROUTER_EXTRA_MODELS", "probe/verified:free")
+        monkeypatch.delenv("OPENROUTER_PRIMARY_MODEL", raising=False)
+        monkeypatch.setattr(
+            "microservices.orchestrator_service.src.services.llm.client.get_ai_config",
+            lambda: SimpleNamespace(get_fallback_models=lambda: ["dated/fallback:free"]),
+        )
+        from microservices.orchestrator_service.src.core.config import get_settings
+
+        get_settings.cache_clear()
+        try:
+            client = AIClient.__new__(AIClient)
+            client.default_model = "dated/primary:free"
+            assert client.model_chain() == [
+                "dated/primary:free",
+                "probe/verified:free",
+                "dated/fallback:free",
+            ]
         finally:
             get_settings.cache_clear()
 

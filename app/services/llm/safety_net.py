@@ -9,6 +9,7 @@ import time
 from collections.abc import AsyncGenerator
 
 from app.core.types import JSONDict
+from app.services.llm.degraded_replies import SAFETY_NET_REPLY
 
 
 class SafetyNetService:
@@ -18,8 +19,7 @@ class SafetyNetService:
 
     async def stream_safety_response(self) -> AsyncGenerator[JSONDict, None]:
         """Generates the static safety net response."""
-        safety_msg = "⚠️ System Alert: Unable to reach external intelligence providers. Please try again later."
-        words = safety_msg.split(" ")
+        words = SAFETY_NET_REPLY.split(" ")
         for word in words:
             chunk = {
                 "id": "safety-net",

@@ -143,6 +143,24 @@ jobs:
           echo "::add-mask::$raw"
           echo "TAVILY_API_KEY=$raw" >> "$GITHUB_ENV"
 
+      # D-298: الـ orchestrator لا يقرأ إلا `ORCHESTRATOR_DATABASE_URL` (config.py ·
+      # validation_alias)، وهذه الوظيفة كانت تضبط `DATABASE_URL` وحده. فكان يتّصل
+      # بالافتراضي `localhost:5432/orchestrator_db`، وتموت كل رسالة بـ`PoolTimeout` ثمّ
+      # 500 — و`/health` يقول `ok`. أُعيد إنتاجه محلياً بالبيئة نفسها حرفياً.
+      # التحويل نفسه الذي يُقلع به `.devcontainer/supervisor.sh` منذ D-178: سائق asyncpg،
+      # و6543 ⇒ 5432 (مجمّع الجلسة)، وحذف sslmode (psycopg يعيد `sslmode=require`).
+      - name: Derive the orchestrator database URL (D-298)
+        shell: bash
+        run: |
+          set -euo pipefail
+          url="${DATABASE_URL}"
+          url="${url/postgres:\/\//postgresql://}"
+          url="${url/postgresql:\/\//postgresql+asyncpg://}"
+          url="${url/postgresql+psycopg2:\/\//postgresql+asyncpg://}"
+          url="$(printf '%s' "$url" | sed 's/:6543\//:5432\//' | sed 's/[?&]sslmode=[^&]*//' | sed 's/[?&]ssl=[^&]*//')"
+          echo "::add-mask::$url"
+          echo "ORCHESTRATOR_DATABASE_URL=$url" >> "$GITHUB_ENV"
+
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
@@ -194,7 +212,7 @@ jobs:
           echo "::notice title=OpenRouter free-model experiment::${summary:0:4000}"
 
       - name: Upload free-model experiment
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: openrouter-free-model-probe
           path: /tmp/openrouter-free-probe.json
@@ -221,9 +239,14 @@ jobs:
           python - <<'PY'
           import json, sys
           h = json.load(open('/tmp/orchestrator-health.json'))
-          if h.get('status') != 'ok' or h.get('graph_ready') is not True:
-              sys.exit(f"::error::orchestrator/graph غير صالح: {h}")
-          print('✅ orchestrator graph_ready=true؛ ستثبت الرحلة التالية graph invocation فعلياً')
+          # D-298: `database` = مجمّع الدردشة يجيب فعلاً — لا يُكتفى بوجود الرسم.
+          if (
+              h.get('status') != 'ok'
+              or h.get('graph_ready') is not True
+              or h.get('database') == 'unreachable'
+          ):
+              sys.exit(f"::error::orchestrator/graph/database غير صالح: {h}")
+          print(f"✅ orchestrator graph_ready=true database={h.get('database')}")
           PY
 
       - name: Boot the monolith against production Supabase
@@ -297,7 +320,7 @@ jobs:
           # PRE-INVOKE، وهل خرج provider_error/terminal error، حتى إذا تعذّر تنزيل
           # ملف logs من blob storage. لا نطبع tokens أو headers أو DATABASE_URL.
           if [ -f /tmp/orchestrator.log ]; then
-            diagnostic="$(grep -E 'PRE-INVOKE|provider_error|LLM_PROVIDER_UNAVAILABLE|all models|AI stream:|served by model|LangGraph streaming failure' \
+            diagnostic="$(grep -E 'PRE-INVOKE|provider_error|LLM_PROVIDER_UNAVAILABLE|all models|AI stream:|served by model|LangGraph streaming failure|PoolTimeout|health: database|rejected by provider' \
               /tmp/orchestrator.log | tail -n 12 | tr '\n' ' ' | sed 's/%/%25/g; s/\r/%0D/g; s/\n/%0A/g')"
             if [ -n "$diagnostic" ]; then
               echo "::notice title=E2E graph diagnostic::${diagnostic:0:4000}"

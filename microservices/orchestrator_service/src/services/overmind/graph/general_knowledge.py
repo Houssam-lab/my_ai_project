@@ -2,6 +2,9 @@ import logging
 
 from langchain_core.messages import AIMessage
 
+from microservices.orchestrator_service.src.core.degraded_replies import (
+    GENERAL_KNOWLEDGE_FAILED_REPLY,
+)
 from microservices.orchestrator_service.src.services.llm.client import (
     PROVIDER_UNAVAILABLE_MESSAGE,
     AllModelsFailedError,
@@ -165,7 +168,7 @@ class GeneralKnowledgeNode:
             }
         except Exception as error:
             logger.error(f"GeneralKnowledgeNode failed: {error}", exc_info=True)
-            fallback_response = "عذراً، لم أتمكن من استرجاع هذه المعلومة الآن."
+            fallback_response = GENERAL_KNOWLEDGE_FAILED_REPLY
             emit_telemetry(
                 node_name="GeneralKnowledgeNode", start_time=start_time, state=state, error=error
             )

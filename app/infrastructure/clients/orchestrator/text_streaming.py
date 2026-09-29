@@ -13,6 +13,8 @@ from __future__ import annotations
 
 from collections.abc import AsyncGenerator
 
+from app.services.llm.degraded_replies import SERVICE_UNAVAILABLE_REPLY
+
 
 class TextStreamingMixin:
     """Markdown typing-effect + history formatting + user-safe text sanitization (D-164)."""
@@ -172,6 +174,6 @@ class TextStreamingMixin:
             "diagnostic",
         )
         if any(token in lowered for token in blocked_tokens):
-            return "تعذر إتمام طلبك حالياً بسبب ضغط أو عطل مؤقت في خدمة المحادثة. حاول مرة أخرى بعد لحظات."
+            return SERVICE_UNAVAILABLE_REPLY
         # ISS-058: حذف tags chunks الداخلية ([ex: ex_1], [sol: ex_1], [grading: ex_1])
         return cls._strip_retrieval_tags(content)

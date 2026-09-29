@@ -7,7 +7,9 @@
 # CogniForge — Project Context
 > 🟢 **آخر تحديث تشغيلي: 2026-07-22 · Branch `claude/oop-claude-md-update-e2ziez` (D-179):** طبقة
 > المهارات موحَّدة على قاعدة `BaseSkill` (OOP — العدد **مُشتَقّ** من `app/services/skills/registry.py`)؛ تحقّق حيّ E2E أثبت «يجيب على كل سؤال»
-> (4/4 عربي+LaTeX عبر PRIMARY `openai/gpt-oss-20b:free`)؛ تماسك `.memory` مُصلَح (backfill 6 عناوين).
+> (4/4 عربي+LaTeX عبر PRIMARY `openai/gpt-oss-20b:free` **يومها**)؛ تماسك `.memory` مُصلَح (backfill 6 عناوين).
+> ⚠️ **PRIMARY اليوم `google/gemma-4-31b-it:free`** (D-288) — `gpt-oss-20b` لم يعد مُقدَّماً (`"endpoints": []`)؛ المصدر الوحيد `shared/ai_models/model_chain.py`، لا هذا السطر.
+> 🔴 **D-298 (2026-09-29):** الطبقة المجانية تُرجِع 429 لنموذجَي gemma حيّاً، والنموذج الثالث يسرّب «Here's a thinking process» — فتلقّى الطلبة اعتذاراً جاهزاً **1,006 مرّة** منذ أغسطس، وكانت المصفوفة الحيّة تحسبه جواباً. القيمة الحيّة في `.memory/issues.md` ISS-203.
 > 🟢 **K-ROOT موثَّق دستوريًا** (CLAUDE.md §6.7 — بند جديد؛ D-241): لا مفتاح توقيع من قرصٍ متقلب؛ ولا إعادة ضبط كلمة مرور الأدمن إلا بـ`ADMIN_FORCE_PASSWORD_SYNC=1`.
 > 🧭 **الرؤية الثورية وخارطة الطريق:** المصدر الحيّ الوحيد هو **`.memory/roadmap.md`** (ملخّص في CLAUDE.md §0.6).
 > 🏗️ **العدسة المعمارية (Agentic Runtime):** `.memory/agentic_runtime_doctrine.md` (D-146 · CLAUDE.md §0.7) — خريطة الطبقات مُقيَّمة بصدق حسب §6.6.

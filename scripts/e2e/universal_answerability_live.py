@@ -17,6 +17,7 @@
 |---|---|
 | إطارٌ نهائي **واحد** — لا صفر ولا اثنان | §6.5 (`_emit_terminal_frames`) |
 | محتوى غير فارغ — لا دورَ صامت | ISS-145 · ISS-154 |
+| لا نصَّ جاهزاً بثوب إجابة، ولا ردَّ بلا حرفٍ عربي على سؤالٍ عربي | D-298 (`reply_judge`) |
 | صفر خطف موضوع: سؤال فيزياء لا يُجاب بمفردات الاحتمالات | **ISS-159** |
 | صفر نصّ نظامٍ بدور الطالب | D-117 · D-229 · ISS-146 |
 | صفر تسريب إجابة التمرين المرجعي | D-113 · ISS-148 |
@@ -57,6 +58,9 @@ from app.contracts.streaming import KNOWN_UI_COMPONENTS
 
 #: المصدر الوحيد لما يُبلَّغ ولا يحجب (ISS-199). ⛔ ولا قائمة ثانية هنا (D-186).
 from scripts.e2e.deferred_findings import mark, render_deferred, split_problems
+
+#: الحَكَم الذي يميّز الإجابة من النصّ الجاهز (D-298) — مشتركٌ مع رحلة الطالب.
+from scripts.e2e.reply_judge import degraded_reply, reply_problems
 from shared.memory import is_system_authored
 
 _TERMINAL = {"assistant_final", "error", "assistant_error"}
@@ -155,6 +159,9 @@ def _delivery_problems(result: TurnResult) -> list[str]:
         problems.append(f"لم يُجَب — خطأٌ منطوق: {result.spoken_error[:120]!r}")
     elif not result.content.strip() and not result.components:
         problems.append("دورٌ صامت: لا نصَّ ولا كائن ولا خطأٌ منطوق (ISS-145 · ISS-154)")
+    else:
+        # D-298: نصٌّ غير فارغ ليس بالضرورة إجابة — النصّ الجاهز فشلٌ بثوب إجابة.
+        problems.extend(reply_problems(result.probe.question, result.content))
     return problems
 
 
@@ -293,17 +300,23 @@ def _print_turn(result: TurnResult) -> None:
 
 
 def _answered(result: TurnResult) -> bool:
-    """وصل الطالبَ شيءٌ يُقرأ — نصّاً أو كائناً."""
-    return bool(result.content.strip() or result.components)
+    """وصل الطالبَ شيءٌ يُقرأ — نصّاً حقيقياً أو كائناً. ⛔ النصّ الجاهز ليس إجابة (D-298)."""
+    real_text = bool(result.content.strip()) and degraded_reply(result.content) is None
+    return bool(real_text or result.components)
 
 
 def _tally(results: list[TurnResult], blocking: int, deferred: int) -> str:
-    """سطر الحصيلة — ثلاث حالاتٍ لا اثنتان: أجاب · فشلٌ منطوق · صمتٌ تام."""
+    """سطر الحصيلة — أربع حالات: أجاب · ردٌّ جاهز · فشلٌ منطوق · صمتٌ تام."""
     answered = sum(1 for r in results if _answered(r))
+    canned = sum(1 for r in results if not _answered(r) and degraded_reply(r.content))
     spoken = sum(1 for r in results if r.spoken_error and not _answered(r))
-    silent = sum(1 for r in results if not _answered(r) and not r.spoken_error)
+    silent = sum(
+        1
+        for r in results
+        if not _answered(r) and not r.spoken_error and not degraded_reply(r.content)
+    )
     return (
-        f"أدوار: {len(results)} · أجابت: {answered} · "
+        f"أدوار: {len(results)} · أجابت: {answered} · ردٌّ جاهز: {canned} · "
         f"فشلٌ منطوق: {spoken} · صمتٌ تام: {silent} · "
         f"مخالفات حاجبة: {blocking} · مؤجَّلة بتصريح: {deferred}"
     )

@@ -28,6 +28,8 @@ import re
 from collections.abc import AsyncGenerator
 from typing import Any
 
+from app.services.llm.degraded_replies import ARABIC_GUARD_FALLBACK_REPLY
+
 logger = logging.getLogger("cogniforge.skills.arabic_stream_guard")
 
 # ─── مقاييس Prometheus — استيراد دفاعي (registry مستقل لكل skill — §6 doctrine) ──
@@ -90,11 +92,9 @@ _STRICT_ARABIC_PROMPT = (
     "استخدم LaTeX للرياضيات فقط: $$...$$ للمعادلات و \\(...\\) للرموز."
 )
 
-# رسالة عربية نظيفة عند فشل كل المحاولات (بدل الغارباج)
-_ARABIC_FALLBACK_MESSAGE = (
-    "عذراً، تعذّر توليد إجابة سليمة بالعربية في هذه اللحظة. "
-    "يرجى إعادة صياغة سؤالك أو المحاولة مرة أخرى."
-)
+# رسالة عربية نظيفة عند فشل كل المحاولات (بدل الغارباج). موطنها الواحد
+# `app/services/llm/degraded_replies.py` كي يراها مُحكِّم الإجابة (D-298).
+_ARABIC_FALLBACK_MESSAGE = ARABIC_GUARD_FALLBACK_REPLY
 
 # كلمات إنجليزية شائعة في تسريب التفكير/الهلوسة (إشارة قوية على الإنجليزية)
 _ENGLISH_SIGNAL_WORDS = frozenset(

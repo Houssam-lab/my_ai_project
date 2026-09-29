@@ -14,6 +14,7 @@ from microservices.orchestrator_service.src.core.database import (
     async_session_factory,
     close_db,
     get_checkpointer,
+    get_psycopg_pool,
     init_db,
 )
 from microservices.orchestrator_service.src.core.event_bus import event_bus
@@ -268,18 +269,45 @@ async def prometheus_metrics() -> Response:
     return Response(content=body, media_type=content_type)
 
 
+_DB_PROBE_TIMEOUT_SECONDS = 3.0
+
+
+async def _database_state() -> str:
+    """حالة مجمّع الاتصال الذي تقرأ منه نقطة الدردشة: ``ok`` · ``unreachable`` · ``not_pooled``.
+
+    D-298: كان ``/health`` يقول ``ok`` و``graph_ready: true`` بينما يفشل المجمّع في كل
+    محاولة، فتموت كل رسالة بـ500 بعد 30 ثانية (``PoolTimeout``). ``graph_ready`` يقيس وجود
+    الرسم لا قدرته على قراءة المحادثة. ``not_pooled`` = لا مجمّع مُهيَّأ (SQLite محلياً).
+    """
+    pool = get_psycopg_pool()
+    if pool is None:
+        return "not_pooled"
+
+    async def _probe() -> None:
+        async with pool.connection(timeout=_DB_PROBE_TIMEOUT_SECONDS) as conn:
+            await conn.execute("SELECT 1")
+
+    try:
+        await asyncio.wait_for(_probe(), timeout=_DB_PROBE_TIMEOUT_SECONDS + 1)
+    except Exception as exc:
+        logger.warning("health: database pool unreachable — %s", type(exc).__name__)
+        return "unreachable"
+    return "ok"
+
+
 @app.get("/health")
 async def health_check():
     """فحص صحة الخدمة مع الكشف عن حالة الإقلاع الفعلية.
 
     يُميِّز بين ثلاث حالات:
-      ok       — الخدمة جاهزة بالكامل (graph + warmup نجحا)
-      degraded — الخدمة تعمل لكن graph أو warmup فشلا
+      ok       — الخدمة جاهزة بالكامل (graph + warmup نجحا، والمجمّع يجيب)
+      degraded — الخدمة تعمل لكن graph أو warmup فشلا، أو المجمّع لا يجيب (D-298)
       starting — الخدمة لا تزال في مرحلة الإقلاع
     """
     startup_state = getattr(app.state, "startup_state", "starting")
     errors = getattr(app.state, "startup_errors", [])
     graph_ready = getattr(app.state, "app_graph", None) is not None
+    database = await _database_state()
 
     # checkpointer backend: postgres | memory | none  [Step 10 / R0.2]
     _ckpt = get_checkpointer()
@@ -298,6 +326,9 @@ async def health_check():
         and checkpointer_backend != "postgres"
     ):
         status = "degraded"
+    # D-298: مجمّعٌ لا يجيب = كل دور دردشة سيموت. ليس «ok» في أيّ بيئة.
+    if status == "ok" and database == "unreachable":
+        status = "degraded"
 
     return {
         "status": status,
@@ -305,6 +336,7 @@ async def health_check():
         "graph_ready": graph_ready,
         "startup_state": startup_state,
         "checkpointer_backend": checkpointer_backend,
+        "database": database,
         **({"startup_errors": errors} if errors else {}),
     }
 

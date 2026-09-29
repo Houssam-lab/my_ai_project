@@ -70,6 +70,21 @@ class AllModelsFailedError(RuntimeError):
         self.models = [model for model, _ in self.attempts]
 
 
+#: المفتاح نفسه مرفوض: كل نموذجٍ في السلسلة سيرفضه بالسبب نفسه، فلا دوران.
+_AUTH_FAILURE_STATUS = frozenset({401, 403})
+
+
+class ProviderAuthError(AllModelsFailedError):
+    """المزوّد رفض المفتاح (401/403) — لا نموذج يستطيع الإجابة الآن.
+
+    D-298: كان الخطأ الخام يسقط إلى ``except Exception`` في العُقد، فيصل الطالبَ نصٌّ
+    جاهز («لم أتمكن من استرجاع هذه المعلومة») بحالة ``ok``، ويعدّه اختبار الإجابة
+    ردّاً: بمفتاحٍ باطل نالت المصفوفة 14/14 ورمز خروج 0. هو صنفٌ فرعي من
+    :class:`AllModelsFailedError` لأنّ العاقبة واحدة، فكلّ عقدةٍ تُعلن
+    ``provider_error`` لانقطاع السلسلة تُعلنه لرفض المفتاح بلا سطرٍ إضافي.
+    """
+
+
 #: رسالة الحالة التشغيلية — تُعرَّف هنا لأن مصدرها فشل السلسلة نفسها، وتستهلكها عقد
 #: الرسم بدل أن تخترع كلُّ عقدة نصّاً مختلفاً يُقرأ كأنه «إجابة» (ISS-200 / D-288).
 PROVIDER_UNAVAILABLE_MESSAGE = (
@@ -146,7 +161,7 @@ class AIClient:
         # working free model and still invoke five removed/rate-limited IDs.
         runtime_fallbacks = [
             model.strip()
-            for model in os.getenv("OPENROUTER_EXTRA_MODELS", "").split(",")
+            for model in (get_settings().OPENROUTER_EXTRA_MODELS or "").split(",")
             if model.strip()
         ]
         candidates = [
@@ -172,6 +187,13 @@ class AIClient:
             return True
         # ValueError من حارس «لا محتوى» + أخطاء الشبكة غير المصنَّفة.
         return True
+
+    @staticmethod
+    def _is_auth_failure(exc: Exception) -> bool:
+        """401/403: المفتاح مرفوض — حالة تشغيل، لا خطأٌ في الطلب."""
+        return (
+            isinstance(exc, APIError) and getattr(exc, "status_code", None) in _AUTH_FAILURE_STATUS
+        )
 
     def _describe(self, exc: Exception) -> str:
         status = getattr(exc, "status_code", None)
@@ -212,6 +234,9 @@ class AIClient:
                 return resp
             except Exception as e:
                 attempts.append((target_model, self._describe(e)))
+                if self._is_auth_failure(e):
+                    logger.error("AI Generation rejected by provider (auth): %s", e)
+                    raise ProviderAuthError(attempts) from e
                 if model or not self._should_rotate(e):
                     logger.error("AI Generation failed: %s", e)
                     raise
@@ -276,6 +301,9 @@ class AIClient:
                     )
                     return
                 attempts.append((target_model, self._describe(e)))
+                if self._is_auth_failure(e):
+                    logger.error("AI Stream rejected by provider (auth): %s", e)
+                    raise ProviderAuthError(attempts) from e
                 if model or not self._should_rotate(e):
                     logger.error("AI Stream failed: %s", e)
                     raise
