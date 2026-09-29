@@ -41,6 +41,12 @@ from app.services.skills.probability_tutor_brain import ProbabilityTutorBrain
 
 logger = logging.getLogger("orchestrator-client")
 
+#: How long the monolith waits for bytes from the orchestrator before giving up (ISS-207).
+#: The orchestrator's model-rotation budget (``LLM_CHAIN_DEADLINE_S``) must stay below it,
+#: or a slow provider is misreported to the student as ``ORCHESTRATOR_REQUIRED``. The
+#: relation is guarded by ``tests/microservices/orchestrator_service/test_iss207_chain_deadline.py``.
+ORCHESTRATOR_CALL_TIMEOUT_S = 60.0
+
 
 class MissionResponse(BaseModel):
     id: int
@@ -89,7 +95,7 @@ class OrchestratorClient(
         self.base_url = resolved_url.rstrip("/")
         self.config = HTTPClientConfig(
             name="orchestrator-client",
-            timeout=60.0,
+            timeout=ORCHESTRATOR_CALL_TIMEOUT_S,
             max_connections=50,
         )
 

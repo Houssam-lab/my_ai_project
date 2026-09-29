@@ -4,6 +4,28 @@
 > The chat interface is merely an assistive channel. The true core consists of the Interactive Canvas (Object UI), Cognitive Modeling, Error Memory, Adaptive Generation, and Simulation Engine.
 > See `cognitive_lab_philosophy.md` for the foundational doctrine.# Architectural Decisions
 
+## D-302 (2026-09-29) — الـorchestrator يُسمّي بطء المزوّد قبل أن يستسلم مُناديه: ميزانيةٌ واحدة لدوران السلسلة (ISS-207)
+
+**القرار (موافقة المالك على الخطة 2026-09-29):** `AIClient.stream_chat` في الـorchestrator يملك **ميزانيةً واحدة**
+`LLM_CHAIN_DEADLINE_S = 40` ثانية للعثور على نموذجٍ يُنتج محتوى، عبر السلسلة كلّها. بعدها تُعلَن السلسلة مستنفَدة
+(`AllModelsFailedError` — الفشل المُسمّى)، وتُسجَّل النماذج غير المُجرَّبة «skipped: chain_deadline»، فيصل
+المونوليثَ إطارُ `LLM_PROVIDER_UNAVAILABLE` قبل مهلته (60 ثانية، صارت ثابتاً مُسمّى `ORCHESTRATOR_CALL_TIMEOUT_S`).
+
+**كيف:** `create()` وكلّ قراءةٍ من البثّ **قبل أوّل محتوى** تُنتظَر ضمن ما بقي من الميزانية (`asyncio.wait_for`)؛ وبعد
+أوّل محتوى لا تُطبَّق — الطالب يقرأ جواباً والمُنادي يستقبل بايتات. حارس أوّل رمز لكلّ نموذج (30 ثانية) باقٍ كما هو.
+
+**لماذا في العميل لا في محرّك البثّ:** مسار HTTP يبثّ إطاراً عند حدّ كلّ عقدة، فالنافذة الصامتة **داخل** دوران عقدةٍ
+واحدة — وهناك تُحَدّ. وبلا متغيّر بيئة عمداً: مقبضٌ للاختبار وحده يُخفي التباين الذي وُجد ليمنعه (D-288). والعلاقة
+`LLM_CHAIN_DEADLINE_S + 15 ≤ ORCHESTRATOR_CALL_TIMEOUT_S` محروسةٌ باختبار يستورد الطرفين (لا نسخة ثالثة).
+
+**النطاق والحدّ الصادق:** إصلاحُ عطبٍ لا ميزة في الكود المُجمَّد (D-300). يغطّي `stream_chat` (مسار الدردشة المرصود)؛
+`generate()` غير المتدفّق لم يُمَسّ لأنّ مستدعيه خارج مسار الدور أيضاً — يُعاد النظر إن ظهر في دورٍ حيّ.
+
+**الدليل:** خمسة اختبارات جديدة في `tests/microservices/orchestrator_service/test_iss207_chain_deadline.py` كانت حمراء
+(ImportError) قبل الكود · 27/27 مع اختبارات السلسلة وD-298 القائمة.
+
+---
+
 ## D-301 (2026-09-29) — CI يسمّي انقطاع المزوّد ولا يحجب عليه، ويحجب على كلّ ما عداه (المرحلة 4 الدنيا · ISS-206)
 
 **القرار (قرار المالك 2026-09-29: «اجعل CI صادقاً»):** انقطاع الطبقة المجانية لـOpenRouter يُبلَّغ ولا يحجب —

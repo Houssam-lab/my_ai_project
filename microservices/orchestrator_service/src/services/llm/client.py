@@ -24,10 +24,12 @@ single source of truth stays in ``ai_config``/``shared.ai_models.model_chain``
 (gates: ``check_model_client_literals``, ``check_model_chain_parity``).
 """
 
+import asyncio
 import logging
 import os
 import time
-from collections.abc import AsyncGenerator
+from collections.abc import AsyncGenerator, Awaitable
+from contextlib import suppress
 from typing import Any
 
 from openai import APIConnectionError, APIError, APITimeoutError, AsyncOpenAI, OpenAI
@@ -46,6 +48,16 @@ DEFAULT_BASE_URL = "https://openrouter.ai/api/v1"
 #: an empty/slow model must not hold the turn for the whole socket timeout).
 FIRST_TOKEN_TIMEOUT_ENV = "ORCHESTRATOR_LLM_FIRST_TOKEN_TIMEOUT"
 DEFAULT_FIRST_TOKEN_TIMEOUT = 30.0
+
+#: ISS-207 (D-302): one budget for the *whole* rotation until a model produces content.
+#: The monolith reads this service with a 60 s timeout (``ORCHESTRATOR_CALL_TIMEOUT_S``);
+#: waiting 30 s per model let two slow models outlast it, and the student was told the
+#: service was down when the provider was only slow. Past this budget the chain is
+#: declared exhausted — the named provider failure — so the caller always hears the
+#: truth first. No env override on purpose: a test-only knob would hide the very
+#: mismatch it exists to prevent (D-288). Guarded by
+#: ``tests/microservices/orchestrator_service/test_iss207_chain_deadline.py``.
+LLM_CHAIN_DEADLINE_S = 40.0
 
 #: Statuses worth rotating away from immediately — a dead/rate-limited/unavailable
 #: model is a routing problem, not a reason to fail the turn.
@@ -99,6 +111,10 @@ class AIClient:
     Wraps AsyncOpenAI to provide generate and stream_chat methods, rotating the
     canonical model chain on failure (ISS-200).
     """
+
+    #: Budget to find a model that produces content (ISS-207). Class-level so that
+    #: instances built without ``__init__`` (tests, DI seams) still honour it.
+    chain_deadline: float = LLM_CHAIN_DEADLINE_S
 
     def __init__(self) -> None:
         settings = get_settings()
@@ -263,17 +279,32 @@ class AIClient:
         """
         targets = [model] if model else self.model_chain()
         attempts: list[tuple[str, str]] = []
-        for target_model in targets:
+        chain_started = time.monotonic()
+        for index, target_model in enumerate(targets):
+            if time.monotonic() - chain_started >= self.chain_deadline:
+                # ISS-207: the budget is spent — name every untried model, then stop.
+                skipped = f"skipped: chain_deadline {self.chain_deadline:.0f}s exhausted"
+                attempts.extend((untried, skipped) for untried in targets[index:])
+                logger.warning(
+                    "AI stream: chain_deadline %.0fs exhausted after %d model(s)",
+                    self.chain_deadline,
+                    index,
+                )
+                break
             emitted = 0
             started = time.monotonic()
             try:
-                stream = await self.client.chat.completions.create(
-                    model=target_model,
-                    messages=messages,
-                    stream=True,
-                    **kwargs,
+                stream = await self._within_chain_budget(
+                    self.client.chat.completions.create(
+                        model=target_model,
+                        messages=messages,
+                        stream=True,
+                        **kwargs,
+                    ),
+                    chain_started,
+                    target_model,
                 )
-                async for chunk in stream:
+                async for chunk in self._budgeted(stream, chain_started, target_model):
                     if self._chunk_has_content(chunk):
                         if emitted == 0:
                             self.last_model = target_model
@@ -309,6 +340,48 @@ class AIClient:
                     raise
                 logger.warning("AI stream: model=%s failed (%s) — rotating", *attempts[-1])
         raise AllModelsFailedError(attempts)
+
+    async def _within_chain_budget(
+        self, awaitable: Awaitable[Any], chain_started: float, target_model: str
+    ) -> Any:
+        """Awaits ``awaitable`` within what is left of the chain budget (ISS-207)."""
+        remaining = self.chain_deadline - (time.monotonic() - chain_started)
+        try:
+            return await asyncio.wait_for(awaitable, timeout=max(remaining, 0.0))
+        except TimeoutError as exc:
+            raise TimeoutError(
+                f"chain_deadline model={target_model} after={self.chain_deadline:.0f}s"
+            ) from exc
+
+    async def _budgeted(
+        self, stream: Any, chain_started: float, target_model: str
+    ) -> AsyncGenerator[Any, None]:
+        """Iterates ``stream``; every read before the first content chunk is budgeted.
+
+        After content flows the budget no longer applies: the student is reading an
+        answer and the caller is receiving bytes, so there is nothing to protect.
+        """
+        iterator = stream.__aiter__()
+        content_seen = False
+        while True:
+            try:
+                if content_seen:
+                    chunk = await iterator.__anext__()
+                else:
+                    chunk = await self._within_chain_budget(
+                        iterator.__anext__(), chain_started, target_model
+                    )
+            except StopAsyncIteration:
+                return
+            except TimeoutError:
+                close = getattr(stream, "close", None)
+                if close is not None:
+                    with suppress(Exception):
+                        await close()
+                raise
+            if not content_seen and self._chunk_has_content(chunk):
+                content_seen = True
+            yield chunk
 
     @staticmethod
     def _chunk_has_content(chunk: object) -> bool:
