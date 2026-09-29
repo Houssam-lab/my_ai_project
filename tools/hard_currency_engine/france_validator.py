@@ -16,6 +16,8 @@ from collections.abc import Callable
 from datetime import date
 from pathlib import Path
 
+from tools.hard_currency_engine.contracts import flag_duplicate
+
 #: Base publique « Recherche d'entreprises » (INSEE/DINUM) — la seule source qui dit si une
 #: entreprise est radiée. Sans elle, le contrôle est purement algorithmique (clés Luhn/TVA).
 SIRENE_API_URL = "https://recherche-entreprises.api.gouv.fr/search"
@@ -273,12 +275,14 @@ def _validate_french_row(  # noqa: PLR0912, PLR0915 — one pass mirrors the reg
         if not ok_cp:
             line_errors.append(f"CP_INVALID({msg_cp})")
 
-    dedup_key = f"{norm(nom_val)}_{norm(cp_val)}"
-    if len(dedup_key) > 5:
-        if dedup_key in seen_dedup:
-            line_errors.append(f"DOUBLON_AVEC_LIGNE_{seen_dedup[dedup_key]}")
-        else:
-            seen_dedup[dedup_key] = line_no
+    dedup_keys = []
+    siren_key = _clean_siren(row, cols)
+    if len(siren_key) == 9:
+        dedup_keys.append(f"SIREN:{siren_key}")
+    name_cp_key = f"{norm(nom_val)}_{norm(cp_val)}"
+    if len(name_cp_key) > 5:
+        dedup_keys.append(f"NOM_CP:{name_cp_key}")
+    flag_duplicate(line_errors, seen_dedup, line_no, dedup_keys)
 
     return line_errors, has_siren_err, has_siret_err, has_tva_err
 
@@ -452,7 +456,9 @@ def format_french_report(results: dict, filename: str, report_date: date | None 
     lines += [
         "",
         "## 2. Risques Financiers pour l'Entreprise",
-        "- **Pénalités de conformité :** 50 € par facture non conforme (plafonnée à 15 000 €/an par assujetti).",
+        "- **Pénalités de conformité :** 50 € par facture émise hors format électronique "
+        "(plafond 15 000 €/an), dès l'obligation d'émission : 1er septembre 2026 pour les grandes "
+        "entreprises et ETI, 1er septembre 2027 pour les PME et micro-entreprises (loi de finances 2026).",
         f"- **Impact immédiat :** {total - valides} fiches tiers nécessitent une remédiation avant injection dans votre PDP.",
         "",
         "## 3. Plan d'Action Recommandé",

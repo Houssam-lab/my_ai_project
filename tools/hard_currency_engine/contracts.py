@@ -81,6 +81,23 @@ class AuditSummary:
         }
 
 
+def flag_duplicate(
+    line_errors: list[str], seen: dict[str, int], line_no: int, keys: list[str]
+) -> None:
+    """Définition unique du doublon, commune à tous les corridors.
+
+    Une ligne est un doublon si elle partage **l'identifiant d'entreprise** (SIREN, BCE)
+    **ou** le couple (nom, code postal) avec une ligne antérieure. L'identifiant d'abord :
+    « Boulangerie Martin » et « Boulangerie Martin SAS » ont le même SIREN mais pas le même
+    nom normalisé. Chaque clé retient la première ligne qui l'a portée.
+    """
+    first = next((seen[key] for key in keys if key in seen), None)
+    if first is not None:
+        line_errors.append(f"DOUBLON_AVEC_LIGNE_{first}")
+    for key in keys:
+        seen.setdefault(key, line_no)
+
+
 @dataclass(frozen=True)
 class FinancialArbitrage:
     corridor: CorridorType

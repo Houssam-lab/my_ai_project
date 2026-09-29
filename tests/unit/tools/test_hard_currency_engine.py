@@ -245,6 +245,55 @@ class TestFranceValidatorCustomerPathFixes(unittest.TestCase):
             report = format_french_report(res, "tiers.csv")
             self.assertIn("SIRENE", report)
 
+    def test_fine_is_tied_to_the_issuance_deadline_not_stated_as_immediate(self):
+        # Loi de finances 2026: 50 €/invoice (cap 15 000 €/year) sanctions *issuing*
+        # outside the e-invoicing format — GE/ETI from 2026-09-01, SMEs from 2027-09-01.
+        # A report sent to an SME accounting firm must not read as a fine due today.
+        res = {
+            "total": 1,
+            "valides": 0,
+            "erreurs_siren": 1,
+            "erreurs_siret": 0,
+            "erreurs_tva": 0,
+            "doublons": 0,
+            "anomalies": [],
+            "annotees": [],
+        }
+        report = format_french_report(res, "x.csv")
+        self.assertIn("émission", report)
+        self.assertIn("1er septembre 2027", report)
+
+    def test_same_siren_with_a_legal_form_suffix_is_a_duplicate(self):
+        # Live run 2026-09-29 on DEMO_20_FICHES (rows 4/5): «BOULANGERIE MARTIN» and
+        # «Boulangerie Martin SAS» share one SIREN, but the key was name + postcode, so
+        # the pair was never flagged — while merging duplicates is a promised outcome.
+        with tempfile.TemporaryDirectory() as tmpdir:
+            csv_in = Path(tmpdir) / "tiers.csv"
+            csv_in.write_text(
+                "nom;siren;cp\nOrange;380129866;75015\nOrange SA;380 129 866;75015\n"
+                "Google;443061841;75009\n",
+                encoding="utf-8",
+            )
+            res = audit_french_csv(csv_in)
+            self.assertEqual(res["doublons"], 1, res["anomalies"])
+            flat = {a["ligne"]: a["erreurs"] for a in res["anomalies"]}
+            self.assertIn("DOUBLON_AVEC_LIGNE_2", flat[3])
+
+    def test_same_name_in_another_town_with_another_siren_is_not_a_duplicate(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            csv_in = Path(tmpdir) / "tiers.csv"
+            csv_in.write_text(
+                "nom;siren;cp\nOrange;380129866;75015\nOrange;443061841;69001\n",
+                encoding="utf-8",
+            )
+            self.assertEqual(audit_french_csv(csv_in)["doublons"], 0)
+
+    def test_name_and_postcode_still_catch_duplicates_without_an_identifier(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            csv_in = Path(tmpdir) / "tiers.csv"
+            csv_in.write_text("nom;siren;cp\nACME;;75001\nAcme;;75001\n", encoding="utf-8")
+            self.assertEqual(audit_french_csv(csv_in)["doublons"], 1)
+
 
 class TestBelgiumValidator(unittest.TestCase):
     def test_bce_modulo97(self):
@@ -329,6 +378,19 @@ class TestBelgiumValidatorCustomerPathFixes(unittest.TestCase):
                 )
                 res = audit_belgian_csv(csv_in)
                 self.assertEqual(res["valides"], 1, (header, res["anomalies"]))
+
+    def test_same_bce_with_a_legal_form_suffix_is_a_duplicate(self):
+        # Live run 2026-09-29 on DEMO_BELGIUM_PEPPOL_20_FICHES (rows 13/14): one BCE,
+        # names differing only by «SA», and the report said «Doublons détectés: 0».
+        with tempfile.TemporaryDirectory() as tmpdir:
+            csv_in = Path(tmpdir) / "be.csv"
+            csv_in.write_text(
+                "Nom_entreprise;Numero_BCE;Code_postal\nProximus;0202.239.951;1030\n"
+                "Proximus SA;0202239951;1030\nAB InBev;0417.497.106;3000\n",
+                encoding="utf-8",
+            )
+            res = audit_belgian_csv(csv_in)
+            self.assertEqual(res["doublons"], 1, res["anomalies"])
 
     def test_belgian_report_has_today_and_an_anomaly_table(self):
         res = {

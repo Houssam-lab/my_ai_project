@@ -12,6 +12,8 @@ import unicodedata
 from datetime import date
 from pathlib import Path
 
+from tools.hard_currency_engine.contracts import flag_duplicate
+
 
 def strip_accents(s: str) -> str:
     return "".join(c for c in unicodedata.normalize("NFD", s) if unicodedata.category(c) != "Mn")
@@ -169,12 +171,16 @@ def _validate_belgian_row(
         if not ok_cp:
             line_errors.append(f"CP_INVALID({msg_cp})")
 
-    dedup_key = f"{norm(nom_val)}_{norm(cp_val)}"
-    if len(dedup_key) > 5:
-        if dedup_key in seen_dedup:
-            line_errors.append(f"DOUBLON_AVEC_LIGNE_{seen_dedup[dedup_key]}")
-        else:
-            seen_dedup[dedup_key] = line_no
+    dedup_keys = []
+    tva_text = tva_val or ""
+    bce_source = bce_val or (tva_text[2:] if tva_text.upper().startswith("BE") else "")
+    bce_key = re.sub(r"\D", "", bce_source)
+    if len(bce_key) in (9, 10):
+        dedup_keys.append(f"BCE:{bce_key.zfill(10)}")
+    name_cp_key = f"{norm(nom_val)}_{norm(cp_val)}"
+    if len(name_cp_key) > 5:
+        dedup_keys.append(f"NOM_CP:{name_cp_key}")
+    flag_duplicate(line_errors, seen_dedup, line_no, dedup_keys)
 
     return line_errors, err_bce, err_tva
 
