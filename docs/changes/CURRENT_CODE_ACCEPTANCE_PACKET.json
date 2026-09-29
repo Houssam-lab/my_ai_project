@@ -78,7 +78,8 @@
       "python scripts/e2e/live_student_journey.py (4 أدوار · خروج 0 · 8 رسائل في القاعدة المؤقّتة وحدها)",
       "python scripts/e2e/universal_answerability_live.py (8/14 أجابت · 6 أخطاء مزوّد منطوقة 429 · 0 ردّ جاهز)",
       "python scripts/run_fitness_gates.py",
-      "ruff check . && ruff format --check . (ruff==0.14.0)"
+      "ruff check . && ruff format --check . (ruff==0.14.0)",
+      "python scripts/fitness/check_memory_coherence.py && python scripts/fitness/check_constitution_reality.py (doc-integrity)"
     ]
   },
   "curriculum": {
@@ -162,13 +163,17 @@
   "changed_paths": [
     ".devcontainer/on-create.sh",
     ".github/workflows/live-e2e.yml",
+    ".memory/README.md",
     ".memory/auth_runtime_truth.md",
     ".memory/decisions.md",
     ".memory/issues.md",
     ".memory/runbooks/e2e-codespaces.md",
     ".memory/runbooks/supabase-bridge.md",
     "CLAUDE.md",
+    "README.ar.md",
+    "README.md",
     "config/secret_catalog.json",
+    "docs/DOCUMENTATION_INDEX.md",
     "docs/FINAL_REPORT_D256_D257_AR.md",
     "docs/archive/constitution-history/CLAUDE-SECTIONS-6x-FULL.md",
     "scripts/diagnose_chat.py",
@@ -188,17 +193,21 @@
     "tests/integration/test_bac_exercise_websocket.py"
   ],
   "git_change_snapshot": {
-    "base_ref": "WORKTREE",
+    "base_ref": "origin/main",
     "changed_paths_excluding_packet": [
       ".devcontainer/on-create.sh",
       ".github/workflows/live-e2e.yml",
+      ".memory/README.md",
       ".memory/auth_runtime_truth.md",
       ".memory/decisions.md",
       ".memory/issues.md",
       ".memory/runbooks/e2e-codespaces.md",
       ".memory/runbooks/supabase-bridge.md",
       "CLAUDE.md",
+      "README.ar.md",
+      "README.md",
       "config/secret_catalog.json",
+      "docs/DOCUMENTATION_INDEX.md",
       "docs/FINAL_REPORT_D256_D257_AR.md",
       "docs/archive/constitution-history/CLAUDE-SECTIONS-6x-FULL.md",
       "scripts/diagnose_chat.py",
@@ -217,7 +226,7 @@
       "scripts/verify_revolution_live.py",
       "tests/integration/test_bac_exercise_websocket.py"
     ],
-    "content_sha256_excluding_packet": "3392b720465d81a1a27d4704175d419eec1f712c696be7d8dafc9a038239bf65",
+    "content_sha256_excluding_packet": "7935da3a9fa9532390bf7a50a7a5c25730b1406e658eefdba5e67901b005a909",
     "refreshed_on": "2026-09-29",
     "refresh_command": "python3 scripts/research/refresh_acceptance_diff_snapshot.py"
   }
