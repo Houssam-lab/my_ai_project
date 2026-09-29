@@ -37,7 +37,9 @@ from scripts.e2e.deferred_findings import (
     DEFERRED_FINDINGS,
     FROZEN_DEFERRED_COUNT,
     deferring_issues,
+    outage_floor_problem,
     split_problems,
+    spoken_error_problem,
 )
 
 _REASON = (
@@ -241,3 +243,56 @@ def test_declared_finding_is_deferred() -> None:
 def test_frozen_count_matches_the_live_registry() -> None:
     """الرقم المُجمَّد في المستودع الحقيقي يطابق سجلَّه — يتقلّص فقط."""
     assert len(DEFERRED_FINDINGS) == FROZEN_DEFERRED_COUNT
+
+
+# ── انقطاع الطبقة المجانية ليس عطباً في الكود (D-301 · ISS-206) ─────────────────
+
+
+def _provider_message() -> str:
+    from microservices.orchestrator_service.src.services.llm.client import (
+        PROVIDER_UNAVAILABLE_MESSAGE,
+    )
+
+    return PROVIDER_UNAVAILABLE_MESSAGE
+
+
+def test_provider_outage_is_named_and_deferred() -> None:
+    """رسالة انقطاع السلسلة كلّها تُوسَم ISS-206 فتُبلَّغ ولا تحجب."""
+    problem = spoken_error_problem(_provider_message())
+    assert deferring_issues(problem) == frozenset({"ISS-206"})
+    blocking, deferred = split_problems([problem])
+    assert (len(blocking), len(deferred)) == (0, 1)
+
+
+def test_orchestrator_required_stays_blocking() -> None:
+    """غياب الـorchestrator عطبُ بنيتنا لا سعةُ مزوّد — يبقى حاجباً."""
+    problem = spoken_error_problem(
+        "النظام يتطلب الخدمات الذكية المتقدمة وهي غير متاحة حالياً. أعد المحاولة."
+    )
+    assert deferring_issues(problem) == frozenset()
+    assert split_problems([problem]) == ([problem], [])
+
+
+def test_arbitrary_spoken_error_stays_blocking() -> None:
+    """أيّ خطأٍ منطوق غير رسالة الانقطاع حاجب — لا يُعفى بالتشابه."""
+    problem = spoken_error_problem("خطأ داخلي في الخادم")
+    assert split_problems([problem]) == ([problem], [])
+
+
+def test_outage_floor_passes_a_partial_outage() -> None:
+    """١٢ من ١٤ أجابت: ضغطٌ عابر على الطبقة المجانية — لا مخالفة إضافية."""
+    assert outage_floor_problem(12, 14) is None
+    assert outage_floor_problem(7, 14) is None
+
+
+def test_outage_floor_blocks_a_broad_outage() -> None:
+    """أقلّ من النصف أجاب: انقطاعٌ شامل لا يُمرَّر مؤجَّلاً أبداً."""
+    for answered in (6, 0):
+        problem = outage_floor_problem(answered, 14)
+        assert problem is not None
+        assert split_problems([problem]) == ([problem], [])
+
+
+def test_outage_floor_blocks_an_empty_run() -> None:
+    """صفر أدوار ليس نجاحاً — لا نشهد بما لم نقِس (D-208 #6)."""
+    assert outage_floor_problem(0, 0) is not None

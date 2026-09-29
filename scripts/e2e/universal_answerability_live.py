@@ -57,7 +57,13 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 from app.contracts.streaming import KNOWN_UI_COMPONENTS
 
 #: المصدر الوحيد لما يُبلَّغ ولا يحجب (ISS-199). ⛔ ولا قائمة ثانية هنا (D-186).
-from scripts.e2e.deferred_findings import mark, render_deferred, split_problems
+from scripts.e2e.deferred_findings import (
+    mark,
+    outage_floor_problem,
+    render_deferred,
+    split_problems,
+    spoken_error_problem,
+)
 
 #: الحَكَم الذي يميّز الإجابة من النصّ الجاهز (D-298) — مشتركٌ مع رحلة الطالب.
 from scripts.e2e.reply_judge import degraded_reply, reply_problems
@@ -156,7 +162,7 @@ def _delivery_problems(result: TurnResult) -> list[str]:
     if result.terminal_frames != 1:
         problems.append(f"إطاراتٌ نهائية = {result.terminal_frames} والعقد يوجب **واحداً** (§6.5)")
     if result.spoken_error:
-        problems.append(f"لم يُجَب — خطأٌ منطوق: {result.spoken_error[:120]!r}")
+        problems.append(spoken_error_problem(result.spoken_error))
     elif not result.content.strip() and not result.components:
         problems.append("دورٌ صامت: لا نصَّ ولا كائن ولا خطأٌ منطوق (ISS-145 · ISS-154)")
     else:
@@ -330,6 +336,10 @@ def _verdict(results: list[TurnResult]) -> int:
     """
     blocking = [(r.probe.question, p) for r in results for p in split_problems(r.problems)[0]]
     deferred = [p for r in results for p in split_problems(r.problems)[1]]
+    # D-301: تأجيل انقطاع المزوّد (ISS-206) لا يغطّي انقطاعاً شاملاً.
+    floor = outage_floor_problem(sum(1 for r in results if _answered(r)), len(results))
+    if floor:
+        blocking.append(("المصفوفة كلّها", floor))
     print("\n" + "═" * 70)
     print(_tally(results, len(blocking), len(deferred)))
     if deferred:

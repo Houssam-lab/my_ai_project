@@ -4,6 +4,31 @@
 > The chat interface is merely an assistive channel. The true core consists of the Interactive Canvas (Object UI), Cognitive Modeling, Error Memory, Adaptive Generation, and Simulation Engine.
 > See `cognitive_lab_philosophy.md` for the foundational doctrine.# Architectural Decisions
 
+## D-301 (2026-09-29) — CI يسمّي انقطاع المزوّد ولا يحجب عليه، ويحجب على كلّ ما عداه (المرحلة 4 الدنيا · ISS-206)
+
+**القرار (قرار المالك 2026-09-29: «اجعل CI صادقاً»):** انقطاع الطبقة المجانية لـOpenRouter يُبلَّغ ولا يحجب —
+**عبر السجلّ الواحد القائم** `scripts/e2e/deferred_findings.py` (ISS-199) لا بقائمةٍ ثانية ولا بإخراج `live-e2e` من
+`required-ci`.
+
+**ما تغيّر:**
+- `spoken_error_problem` في السجلّ: الخطأ المنطوق الذي **نصّه** `PROVIDER_UNAVAILABLE_MESSAGE` (موطنه الواحد في
+  `services/llm/client.py` للـorchestrator) يُوسَم `(ISS-206)`؛ كلّ خطأٍ منطوقٍ آخر حاجب — ومنه `ORCHESTRATOR_REQUIRED`.
+  والسطر المكرَّر في المصفوفة ورحلة الطالب صار نداءً واحداً.
+- `outage_floor_problem`: مخالفةٌ **حاجبة بلا وسم** حين يجيب أقلّ من نصف الأدوار — التأجيل لا يُخفي انقطاعاً شاملاً.
+- `FROZEN_DEFERRED_COUNT` من 1 إلى 2. **سبب رفع المِسنَن (D-266 L9):** البوّابة كانت تحجب كل دفعة على سعة مزوّدٍ
+  خارجي تتذبذب دقيقةً بدقيقة، فتُدرِّب على تجاهلها (ISS-197) — وهو عكس غرضها.
+
+**البرهان السلبي (حتمي، `_verdict` على نتائج مُصنَّعة):** 12 أجابت + 2 انقطاع ⇒ خروج 0 ومؤجَّلتان مطبوعتان ·
+0 أجابت + 14 انقطاع ⇒ خروج 1 (الأرضية) · ردٌّ جاهز واحد ⇒ خروج 1 · `ORCHESTRATOR_REQUIRED` واحد ⇒ خروج 1.
+ستّة اختبارات جديدة في `tests/fitness/test_check_e2e_deferred_findings.py` كانت حمراء (ImportError) قبل الكود.
+
+**ما لم يُمَسّ:** سلسلة النماذج وكود الدردشة التعليمي (مُجمَّدان بـD-300) · عضوية `required-ci` في `ci.yml` ·
+تأجيل ISS-150.
+
+**يُبطَل حين:** يُغلَق ISS-206 (مفتاحٌ مدفوع أو 14/14 ثلاث مرّات) — فيُحذَف السطر ويُخفَض العدد.
+
+---
+
 ## D-300 (2026-09-29) — سجلّ قرار المنتج: منتجٌ نشطٌ واحد، والباقي مُجمَّد بسطرٍ واحد (المرحلة 2 · قرار المالك)
 
 **القرار (قرار المالك المكتوب 2026-09-29، بعد تقرير المرحلة 0 وموافقته على التوصية AA):** الأطروحة النشطة **الوحيدة**

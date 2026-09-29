@@ -1,9 +1,9 @@
 {
   "$schema_version": 1,
-  "packet_id": "CAP-2026-09-29-phase1-security-phase2-einvoicing-wedge",
+  "packet_id": "CAP-2026-09-29-phase1-security-phase2-wedge-phase4-ci-truth",
   "status": "READY_FOR_GATE",
   "decision": "D-277",
-  "decision_of_change": "D-299 (المرحلة 1 — احتواءٌ أمنيّ · ISS-204): دالّة claude-admin التي كانت تنفّذ SQL حرّاً على الإنتاج صارت تُرجع 410 (كودها محفوظ خارج المستودع)، وبيانات دخول حسابَي الإنتاج أُزيلت من كل ملفٍّ متتبَّع والسكربتات تفشل صراحةً بلا متغيّرات البيئة، وlive-e2e يعمل على Postgres مؤقّتة بطالبٍ عشوائي لكل تشغيل بدل قاعدة الإنتاج. · D-300 (المرحلة 2 — قرار المنتج · ISS-205): إسفين تنظيف مرجعيات الفوترة FR/BE هو المنتج النشط الوحيد والباقي مُجمَّد بسطرٍ واحد؛ وأداتا FR/BE صارتا تكشفان المكرّر بالمعرّف (SIREN/BCE) قبل الاسم فلا تفوّتان «Orange» و«Orange SA» بنفس SIREN، وتقرير فرنسا يربط غرامة 50€/فاتورة بموعد الإصدار (2026-09-01 للكبرى/ETI · 2027-09-01 للـPME) بدل تقديمها فوريّة.",
+  "decision_of_change": "D-299 (المرحلة 1 — احتواءٌ أمنيّ · ISS-204): دالّة claude-admin التي كانت تنفّذ SQL حرّاً على الإنتاج صارت تُرجع 410 (كودها محفوظ خارج المستودع)، وبيانات دخول حسابَي الإنتاج أُزيلت من كل ملفٍّ متتبَّع والسكربتات تفشل صراحةً بلا متغيّرات البيئة، وlive-e2e يعمل على Postgres مؤقّتة بطالبٍ عشوائي لكل تشغيل بدل قاعدة الإنتاج. · D-300 (المرحلة 2 — قرار المنتج · ISS-205): إسفين تنظيف مرجعيات الفوترة FR/BE هو المنتج النشط الوحيد والباقي مُجمَّد بسطرٍ واحد؛ وأداتا FR/BE صارتا تكشفان المكرّر بالمعرّف (SIREN/BCE) قبل الاسم فلا تفوّتان «Orange» و«Orange SA» بنفس SIREN، وتقرير فرنسا يربط غرامة 50€/فاتورة بموعد الإصدار (2026-09-01 للكبرى/ETI · 2027-09-01 للـPME) بدل تقديمها فوريّة. · D-301 (المرحلة 4 الدنيا · ISS-206): انقطاع الطبقة المجانية لـOpenRouter يُسمّى ولا يحجب عبر السجلّ الواحد scripts/e2e/deferred_findings.py — الخطأ المنطوق الذي نصّه PROVIDER_UNAVAILABLE_MESSAGE يُوسَم ISS-206، وكلّ ما عداه حاجب (الردّ الجاهز · الصمت · ORCHESTRATOR_REQUIRED · المفتاح الميت المحجوب قبل المصفوفة)، وأرضيةُ النصف تحجب الانقطاع الشامل.",
   "standards": [
     "system-design-primer",
     "clean-code-book"
@@ -18,10 +18,13 @@
       "paths": [
         ".github/workflows/live-e2e.yml",
         "config/secret_catalog.json",
-        ".memory/runbooks/supabase-bridge.md"
+        ".memory/runbooks/supabase-bridge.md",
+        "scripts/e2e/deferred_findings.py",
+        "scripts/e2e/universal_answerability_live.py",
+        "scripts/e2e/live_student_journey.py"
       ],
-      "gate": "python scripts/fitness/check_secret_capture_parity.py && python scripts/fitness/check_no_committed_secrets.py",
-      "application_ar": "عزل بيئة الاختبار عن الإنتاج: قاعدةٌ مؤقّتة لكل تشغيل وحسابٌ يُولَّد ولا يُخزَّن، وإغلاق مسار إدارةٍ خارج المستودع بدل تقييده بمرشِّح."
+      "gate": "python scripts/fitness/check_secret_capture_parity.py && python scripts/fitness/check_no_committed_secrets.py && python scripts/fitness/check_e2e_deferred_findings.py",
+      "application_ar": "عزل بيئة الاختبار عن الإنتاج: قاعدةٌ مؤقّتة لكل تشغيل وحسابٌ يُولَّد ولا يُخزَّن، وإغلاق مسار إدارةٍ خارج المستودع بدل تقييده بمرشِّح. والاعتماد على مزوّدٍ خارجي يُعامَل بتدهورٍ مُسمّى لا بعطلٍ حاجب: انقطاعٌ جزئيّ يُبلَّغ، وانقطاعٌ شامل (أقلّ من النصف) يحجب — فلا تُدرِّب البوّابة على تجاهلها ولا تُخفي فشلاً حقيقياً."
     },
     {
       "standard": "clean-code-book",
@@ -33,7 +36,8 @@
         "tools/hard_currency_engine/contracts.py",
         "tools/hard_currency_engine/france_validator.py",
         "tools/hard_currency_engine/belgium_validator.py",
-        "tests/unit/tools/test_hard_currency_engine.py"
+        "tests/unit/tools/test_hard_currency_engine.py",
+        "tests/fitness/test_check_e2e_deferred_findings.py"
       ],
       "gate": "python -m pytest tests/integration/test_bac_exercise_websocket.py && python -m pytest tests/unit/tools/test_hard_currency_engine.py",
       "application_ar": "لا قيمٌ سحرية لحساباتٍ حقيقية ولا سقوطٌ صامت إلى افتراضٍ خطِر: الاعتماد من البيئة، والغياب يفشل صراحةً باسم المتغيّر الناقص أو يُتخطّى الاختبار بسببٍ منطوق. وفي الأداة: قاعدة كشف المكرّر دالّةٌ واحدة (flag_duplicate) تشترك فيها الدولتان بدل منطقين، والمفتاح القانوني (المعرّف) يسبق المفتاح التقريبي (الاسم+الرمز البريدي) — اختبارٌ أحمر أوّلاً ثمّ أخضر."
@@ -46,7 +50,8 @@
       "POST https://<project>.supabase.co/functions/v1/claude-admin ⇒ 410 Gone",
       ".github/workflows/live-e2e.yml (services.postgres · Register an ephemeral E2E student)",
       "scripts/verify_* و scripts/e2e_* (DIAG_* / E2E_* / ADMIN_* من البيئة)",
-      "python -m tools.hard_currency_engine.cli france|belgium <csv> (تقرير + CSV مُنظَّف)"
+      "python -m tools.hard_currency_engine.cli france|belgium <csv> (تقرير + CSV مُنظَّف)",
+      "scripts/e2e/universal_answerability_live.py و live_student_journey.py (انقطاع المزوّد مؤجَّلٌ بتصريح ISS-206 · أرضية النصف حاجبة)"
     ],
     "runtime_evidence_paths": [
       ".memory/issues.md",
@@ -87,7 +92,10 @@
       "python scripts/fitness/check_memory_coherence.py && python scripts/fitness/check_constitution_reality.py (doc-integrity)",
       "python -m pytest tests/unit/tools/test_hard_currency_engine.py (39 passed · 5 اختبارات جديدة كانت حمراء قبل الإصلاح)",
       "python -m tools.hard_currency_engine.cli france|belgium على ملفَّي العرض ⇒ exit 0 · المكرّرات FR 1→2 · BE 0→2",
-      "python scripts/fitness/check_outbound_before_research.py && python scripts/fitness/check_commercial_offers_parity.py"
+      "python scripts/fitness/check_outbound_before_research.py && python scripts/fitness/check_commercial_offers_parity.py",
+      "python -m pytest tests/fitness/test_check_e2e_deferred_findings.py tests/scripts/test_e2e_reply_judge.py (51 passed · 6 جديدة كانت حمراء بـImportError)",
+      "برهان سلبي على _verdict: 12 أجابت + 2 انقطاع ⇒ 0 · 0 + 14 انقطاع ⇒ 1 · ردٌّ جاهز ⇒ 1 · ORCHESTRATOR_REQUIRED ⇒ 1",
+      "python scripts/fitness/check_e2e_deferred_findings.py (ISS-206 مفتوح · العدد المُجمَّد 2)"
     ]
   },
   "curriculum": {
@@ -189,6 +197,9 @@
     "docs/commercial/outreach/demo/RAPPORT_DIAGNOSTIC_BELGIQUE_PEPPOL.md",
     "docs/commercial/outreach/demo/RAPPORT_DIAGNOSTIC_FRANCE_RFE.md",
     "scripts/diagnose_chat.py",
+    "scripts/e2e/deferred_findings.py",
+    "scripts/e2e/live_student_journey.py",
+    "scripts/e2e/universal_answerability_live.py",
     "scripts/e2e_d258_supabase_live.py",
     "scripts/e2e_orchestrator_live.py",
     "scripts/gitpod_live_debug.py",
@@ -202,6 +213,7 @@
     "scripts/verify_iss126_live.py",
     "scripts/verify_iss129_e2e.py",
     "scripts/verify_revolution_live.py",
+    "tests/fitness/test_check_e2e_deferred_findings.py",
     "tests/integration/test_bac_exercise_websocket.py",
     "tests/unit/tools/test_hard_currency_engine.py",
     "tools/hard_currency_engine/belgium_validator.py",
@@ -231,6 +243,9 @@
       "docs/commercial/outreach/demo/RAPPORT_DIAGNOSTIC_BELGIQUE_PEPPOL.md",
       "docs/commercial/outreach/demo/RAPPORT_DIAGNOSTIC_FRANCE_RFE.md",
       "scripts/diagnose_chat.py",
+      "scripts/e2e/deferred_findings.py",
+      "scripts/e2e/live_student_journey.py",
+      "scripts/e2e/universal_answerability_live.py",
       "scripts/e2e_d258_supabase_live.py",
       "scripts/e2e_orchestrator_live.py",
       "scripts/gitpod_live_debug.py",
@@ -244,13 +259,14 @@
       "scripts/verify_iss126_live.py",
       "scripts/verify_iss129_e2e.py",
       "scripts/verify_revolution_live.py",
+      "tests/fitness/test_check_e2e_deferred_findings.py",
       "tests/integration/test_bac_exercise_websocket.py",
       "tests/unit/tools/test_hard_currency_engine.py",
       "tools/hard_currency_engine/belgium_validator.py",
       "tools/hard_currency_engine/contracts.py",
       "tools/hard_currency_engine/france_validator.py"
     ],
-    "content_sha256_excluding_packet": "a069a791f017e4a32a28284068561df975e790c2766e968a47557d7d845c744d",
+    "content_sha256_excluding_packet": "5683adfc9c6386af2bf92326d601a13cedd3b2099f4b0538db8d1244667c1915",
     "refreshed_on": "2026-09-29",
     "refresh_command": "python3 scripts/research/refresh_acceptance_diff_snapshot.py"
   }

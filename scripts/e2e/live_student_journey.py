@@ -46,7 +46,13 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 from app.contracts.streaming import KNOWN_UI_COMPONENTS
 
 #: المصدر الوحيد لما يُبلَّغ ولا يحجب (ISS-199). ⛔ ولا قائمة ثانية هنا (D-186).
-from scripts.e2e.deferred_findings import mark, render_deferred, split_problems
+from scripts.e2e.deferred_findings import (
+    mark,
+    outage_floor_problem,
+    render_deferred,
+    split_problems,
+    spoken_error_problem,
+)
 from scripts.e2e.reply_judge import reply_problems
 from shared.memory import is_system_authored
 from shared.ux import FIRST_OBJECT_PAINT_MS, classify_latency
@@ -209,7 +215,7 @@ def _turn_violations(result: TurnResult) -> list[str]:
     if is_system_authored(result.content):
         problems.append("نصُّ نظامٍ وصل الطالب (D-117/D-229)")
     if result.spoken_error:
-        problems.append(f"لم يُجَب — خطأٌ منطوق: {result.spoken_error[:120]!r}")
+        problems.append(spoken_error_problem(result.spoken_error))
     elif not result.content.strip() and not result.components:
         problems.append("دورٌ صامت: لا نصَّ ولا كائن")
     else:
@@ -257,8 +263,18 @@ def _print_verdict(results: list[TurnResult]) -> int:
     budget_s = FIRST_OBJECT_PAINT_MS / 1000
     with_object = [turn for turn in results if turn.components]
     fast = [t for t in with_object if t.first_object_s is not None and t.first_object_s <= budget_s]
+    answered = sum(
+        1
+        for turn in results
+        if not turn.spoken_error
+        and (turn.content.strip() or turn.components)
+        and not reply_problems(turn.question, turn.content)
+    )
+    floor = outage_floor_problem(answered, len(results))  # D-301: لا انقطاع شامل مؤجَّلاً
     blocking, deferred = split_problems(
-        [p for turn in results for p in turn.problems] + _continuity_problems(results)
+        [p for turn in results for p in turn.problems]
+        + _continuity_problems(results)
+        + ([floor] if floor else [])
     )
 
     print("\n" + "═" * 62)

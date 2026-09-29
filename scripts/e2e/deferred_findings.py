@@ -42,11 +42,18 @@ DEFERRED_FINDINGS: Final[Mapping[str, str]] = {
         "مكتوبٍ بتأجيل إصلاحه إلى جولته الخاصّة (توسيع مرمى الحارس + عقد ترانسكريبت "
         "مُثبَتٌ أحمر قبل الإصلاح — D-186#6). يعود حاجباً يوم يُغلَق البلاغ، لا قبله."
     ),
+    "ISS-206": (
+        "انقطاع الطبقة المجانية لـOpenRouter (429 · ResourceExhausted · 404 «غير متاح "
+        "مجاناً»): كل نماذج السلسلة فشلت في الدور فوصل الطالبَ إطارُ خطأٍ صريح. هذه سعةُ "
+        "مزوّدٍ خارجي لا عطبٌ في الكود، والبلاغ مفتوحٌ حتى مفتاحٍ مدفوع أو سلسلةٍ تجيب "
+        "14/14 ثلاث مرّات متتالية. يبقى حاجباً إن أجاب أقلّ من نصف الأدوار (D-301)."
+    ),
 }
 
 #: العدد المُجمَّد — يتقلّص فقط. رفعُه مِسنَنٌ مُعلَن يتطلّب قراراً مرقَّماً يسمّي السبب
 #: (D-266 L9)؛ وخفضُه يوجب حذف سطره معه، وإلّا احمرّت البوّابة في الاتجاه الآخر.
-FROZEN_DEFERRED_COUNT: Final[int] = 1
+#: رُفِع من 1 إلى 2 بـD-301: انقطاع الطبقة المجانية (ISS-206) كان يُحمِّر كل دفعة.
+FROZEN_DEFERRED_COUNT: Final[int] = 2
 
 #: صيغةُ مُعرَّف البلاغ كما تُكتب داخل نصّ المخالفة نفسها — `… (ISS-150)`.
 _ISSUE_ID: Final[re.Pattern[str]] = re.compile(r"\bISS-\d{3}\b")
@@ -84,6 +91,42 @@ def split_problems(problems: Iterable[str]) -> tuple[list[str], list[str]]:
 def mark(problem: str) -> str:
     """سطرُ العرض لمخالفةٍ واحدة — ``❌`` للحاجبة و``⚠️`` للمؤجَّلة بتصريح."""
     return f"⚠️ {problem} — مؤجَّل بتصريح" if deferring_issues(problem) else f"❌ {problem}"
+
+
+def spoken_error_problem(spoken_error: str) -> str:
+    """مخالفةُ دورٍ لم يُجَب بخطأٍ منطوق — ويُوسَم ISS-206 إن كان انقطاعَ المزوّد وحده.
+
+    الموسوم نصٌّ واحد: رسالة الـorchestrator حين تفشل **كلّ** نماذج السلسلة
+    (``PROVIDER_UNAVAILABLE_MESSAGE`` — موطنها الواحد، D-270 L5). أيّ خطأٍ آخر يبقى
+    حاجباً، ومنه ``ORCHESTRATOR_REQUIRED``: غيابُ خدمتنا عطبُ بنيتنا لا سعةُ مزوّد.
+    والمفتاح الميت يصل بالنصّ نفسه، لكنّه يُحجَب قبل المصفوفة: مسبار ``--check-key``
+    يُفشِل الوظيفة على 401، ومسبار النماذج المجانية على غياب أيّ محتوى.
+
+    الاستيراد كسول كي يبقى هذا السجلّ بلا تبعية لفارض ``guardrails`` الذي يقرؤه.
+    """
+    from microservices.orchestrator_service.src.services.llm.client import (
+        PROVIDER_UNAVAILABLE_MESSAGE,
+    )
+
+    problem = f"لم يُجَب — خطأٌ منطوق: {spoken_error[:120]!r}"
+    if spoken_error.strip() == PROVIDER_UNAVAILABLE_MESSAGE.strip():
+        return f"{problem} (ISS-206)"
+    return problem
+
+
+#: أدنى نسبةٍ من الأدوار المُجابة يُقبَل معها تأجيلُ انقطاع المزوّد. دونها ليس ضغطاً
+#: عابراً على الطبقة المجانية بل انقطاعٌ شامل — والتأجيل لا يُخفي انقطاعاً شاملاً.
+MIN_ANSWERED_SHARE: Final[float] = 0.5
+
+
+def outage_floor_problem(answered: int, total: int) -> str | None:
+    """مخالفةٌ **حاجبة** (بلا وسم) حين أجاب أقلّ من نصف الأدوار — ثقلُ التأجيل المقابل."""
+    if total > 0 and answered >= total * MIN_ANSWERED_SHARE:
+        return None
+    return (
+        f"أجاب {answered} من {total} دوراً فقط — انقطاعٌ شامل لا ضغطٌ عابر؛ "
+        "تأجيل انقطاع المزوّد لا يغطّيه"
+    )
 
 
 def render_deferred(deferred: Iterable[str]) -> list[str]:
