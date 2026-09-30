@@ -1,91 +1,72 @@
 {
   "$schema_version": 1,
-  "packet_id": "CAP-2026-09-30-d303-truthful-evaluation",
+  "packet_id": "CAP-2026-09-30-d304-outreach-truth",
   "status": "READY_FOR_GATE",
   "decision": "D-277",
-  "decision_of_change": "D-303 (المرحلة 1 · التقييم الصادق — ISS-209 مُسجَّلة مفتوحة): (1) مسبار النماذج المجانية لا يوقف المصفوفة: إن لم ينجح نموذجٌ في المرور الأوّل يُعاد ما رُفض بـ429 أو بمحتوى فارغ مرّةً واحدة بعد انتظار، ضمن ميزانيةٍ لا تمسّ احتياطيّ المصفوفة، وإن بقي الفشل تعمل المصفوفة على السلسلة المُعلَنة وتحكم هي — تسريب التفكير لا يُعاد أبداً. (2) قفل الحقيقة الأقدم من آخر قرار صار أحمر في بوّابة runtime-truth المطلوبة (--lock-only)، لا في doc-integrity وحدها. (3) بصمة التوليد: كل ردٍّ يحتاج نموذجاً يُطلب له سطرٌ «served by model=» في سجلّ الـorchestrator خلال نافذة الدور؛ ردٌّ بلا بصمة حاجب — نصٌّ لم يولّده نموذج لا يُعدّ جواباً. (4) أمر إعادة الإنتاج الذي يحمله كل حكمٍ في naas_verifier كان يخرج 2؛ صار ثابتاً واحداً يُشغَّل في اختبار. (5) حارس الطوبولوجيا كان يستبدل أيّ جوابٍ فيه كلمة «diagnostic» (فرنسيةٌ عادية) بنصٍّ جاهز؛ صار يحجب بنية سلسلة الأخطاء الداخلية لا الكلمة.",
+  "decision_of_change": "D-304 (المرحلة 3 — قيمة عميل · C5/C7/C8/C12): مواد الإرسال للإسفين الوحيد النشط (fr-be-einvoicing-referential-cleansing) صارت تقول الآلية لا النسبة: «une facture électronique peut être rejetée si…» بدل «les factures sont rejetées» و«ont fortement augmenté» و«une part significative»، وسؤالٌ بدل ادّعاءٍ غير مُتحقَّق عن مورّدٍ مُسمّى، ولا ضمان («garantir un routage sans échec»). وسعرٌ واحد بقرار المالك 2026-09-30: 290 € HT حتى 200 سجلّ باليورو، وما فوقها بعرض سعرٍ بعد العيّنة — في الحزمة وMalt والكتالوج. البريد المُرسَل إلى Balagué في 2026-09-22 يبقى سجلّاً وبجانبه تحذير. والفارض tests/unit/tools/test_outreach_truth.py أحمر على نصوص main وأخضر بعدها.",
   "standards": [
-    "system-design-primer",
     "clean-code-book"
   ],
   "evidence": [
-    "nist-ssdf-1.1",
-    "owasp-agent-security"
+    "eu-gdpr-art-28-processor-terms",
+    "anae-service-export-fx-100"
   ],
   "local_application": [
     {
-      "standard": "system-design-primer",
-      "paths": [
-        ".github/workflows/live-e2e.yml",
-        ".github/workflows/runtime_truth.yml",
-        "scripts/e2e/probe_openrouter_free_models.py",
-        "scripts/e2e/universal_answerability_live.py",
-        "microservices/orchestrator_service/src/services/llm/client.py",
-        "scripts/fitness/check_memory_coherence.py"
-      ],
-      "gate": "python scripts/runtime_truth.py --check && python scripts/fitness/check_memory_coherence.py --lock-only && python -m pytest tests/scripts/test_probe_openrouter_free_models.py tests/scripts/test_e2e_model_fingerprint.py",
-      "application_ar": "الاعتماد على مزوّدٍ خارجي متقلّب يُعامَل بإعادة محاولةٍ محدودة وبميزانية لا بإيقافٍ كامل: فشلٌ عابر (429 · محتوى فارغ) يُعاد مرّة، وفشلٌ دائم (تسريب تفكير) لا يُعاد. والحكم على الجواب يُربط بدليلٍ من الطرف الآخر (سطر السجلّ الذي يكتبه عميل النموذج بثابتٍ واحد يستورده الطرفان) بدل الحكم على النصّ وحده — فالنصّ الجاهز لا يمرّ جواباً."
-    },
-    {
       "standard": "clean-code-book",
       "paths": [
-        "naas_verifier/core/verdict.py",
-        "app/infrastructure/clients/orchestrator/text_streaming.py",
-        "tests/naas_verifier/test_verdict_reproduction.py",
-        "tests/unit/infrastructure/test_d303_diagnostic_sanitizer.py",
-        "tests/fitness/test_check_memory_coherence.py"
+        "docs/commercial/outreach/ready_to_send/01_MAILS_CABINETS_PRETS.md",
+        "docs/commercial/outreach/ready_to_send/02_PARTENARIATS_PDP.md",
+        "docs/commercial/outreach/ready_to_send/03_PROFIL_MALT.md",
+        "docs/commercial/outreach/BALAGUE_FIRST_CLIENT_KIT_2026-09-22.md",
+        "docs/commercial/OFFER_CATALOG.json",
+        "tests/unit/tools/test_outreach_truth.py"
       ],
-      "gate": "python -m pytest tests/naas_verifier tests/unit/infrastructure/test_d303_diagnostic_sanitizer.py tests/fitness/test_check_memory_coherence.py",
-      "application_ar": "لا حرفيةٌ مكرّرة لأمرٍ يُفترض أن يُشغَّل: أمر إعادة الإنتاج ثابتٌ واحد يقرؤه الحكم والاختبار معاً، والاختبار يشغّله فعلاً عبر CLI ويُثبت أن الأمر القديم كان يُرفض (برهانٌ سلبي). والحارس يطابق البنية التي تتسرّب فعلاً (عنوان URL ثم «=>» · مفتاح مُسلسَل) لا كلمةً عادية — اختباره أحمر قبل الإصلاح (5 إخفاقات) وأخضر بعده."
+      "gate": "python -m pytest tests/unit/tools/test_outreach_truth.py tests/unit/tools/test_hard_currency_engine.py",
+      "application_ar": "قيمةٌ واحدة لكلّ حقيقة: السعر رقمٌ واحد يقرؤه الاختبار من الحزمة وMalt والكتالوج، والمعرّف يُتحقَّق منه بالدالة نفسها التي تستعملها الأداة (tva_fr_check) لا بقراءة العين. والاختبار يُثبت أنه يحجب: سطر C12 الحقيقي يفشل، ونصوص main تفشل."
     }
   ],
   "production": {
-    "owner": "evaluation-truth",
-    "status": "CI_ONLY_NO_PRODUCTION_CHANGE",
+    "owner": "commercial-wedge",
+    "status": "SEND_MATERIALS_CORRECTED_NOTHING_SENT",
     "interfaces": [
-      "scripts/e2e/probe_openrouter_free_models.py --retry-after (إعادةٌ واحدة للفشل العابر)",
-      ".github/workflows/live-e2e.yml (المسبار لا يوقف الوظيفة عند خروج 1 · المصفوفة تقرأ /tmp/orchestrator.log)",
-      "scripts/e2e/universal_answerability_live.py --model-log (بصمة التوليد لكل دورٍ يحتاج نموذجاً)",
-      ".github/workflows/runtime_truth.yml (check_memory_coherence.py --lock-only)",
-      "naas_verifier.core.verdict.REPRODUCTION_COMMAND",
-      "OrchestratorClient._sanitize_text_for_user"
+      "docs/commercial/outreach/ready_to_send/01_MAILS_CABINETS_PRETS.md (سبع رسائل لم تُرسَل)",
+      "docs/commercial/outreach/ready_to_send/02_PARTENARIATS_PDP.md",
+      "docs/commercial/outreach/ready_to_send/03_PROFIL_MALT.md (290 € HT حتى 200 سجلّ)",
+      "docs/commercial/outreach/BALAGUE_FIRST_CLIENT_KIT_2026-09-22.md (مكالمة لم تُجرَ + متابعة)",
+      "docs/commercial/OFFER_CATALOG.json — hard_currency_route_ar"
     ],
     "runtime_evidence_paths": [
+      "docs/commercial/outreach/CONTACT_LEDGER.csv",
       ".memory/decisions.md",
-      ".memory/issues.md",
-      "tests/scripts/test_e2e_model_fingerprint.py"
+      "tests/unit/tools/test_outreach_truth.py"
     ],
-    "failure_behavior_ar": "لا نموذج ينجح في المسبار ⇒ تحذيرٌ مُسمّى والمصفوفة تعمل على السلسلة المُعلَنة وتحكم هي. المسبار لا يستطيع العمل أصلاً (مفتاح ميت · شبكة) ⇒ خطأٌ مُسمّى والوظيفة تتوقّف. ردٌّ بلا بصمة توليد ⇒ مخالفةٌ حاجبة باسمها. قفلٌ أقدم من آخر قرار ⇒ runtime-truth أحمر برسالةٍ تسمّي التاريخين.",
-    "observability_ar": "المسبار يطبع كل محاولة وإعادتها بعلامة ↻؛ رأس المصفوفة يطبع هل تُفحَص البصمات؛ كل دورٍ يسجّل عدد البصمات في نافذته؛ سجلّ الـorchestrator يحمل «served by model=» بصيغته السابقة حرفياً.",
-    "security_boundary_ar": "لا سرّ في أيّ ملفّ أو سجلّ؛ سطر البصمة يحمل اسم النموذج وعدد الأجزاء فقط، لا نصّ الطالب ولا الجواب. الحارس ما زال يحجب عناوين الخدمات الداخلية وسلسلة الأخطاء.",
-    "rollback_ar": "git revert للدفعة يعيد السلوك السابق كاملاً؛ لا ترحيل بيانات ولا تغيير إنتاج."
+    "failure_behavior_ar": "نسبةٌ أو ضمانٌ يعود إلى نصّ المشتري، أو رقم TVA لا يحمل الـSIREN المذكور بجانبه، أو سعرٌ ثانٍ/نطاقٌ في الحزمة أو Malt ⇒ test-monolith أحمر باسم الملفّ والسطر.",
+    "observability_ar": "كلّ إرسالٍ فعلي يبقى صفّاً في CONTACT_LEDGER.csv؛ هذه الدفعة لا تضيف صفّاً لأنها لم تُرسِل شيئاً.",
+    "security_boundary_ar": "لا بيانات عميل في المستودع؛ الـDPA التزامٌ قبل أوّل ملفٍّ حقيقي لا وثيقةٌ مُدّعاة (GDPR المادة 28)، ولا طلب مدفوع قبل جواب البنك وANAE.",
+    "rollback_ar": "git revert للدفعة يعيد النصوص السابقة؛ لا أثر خارج المستودع لأنّ شيئاً لم يُرسَل."
   },
   "commercial_trace": {
     "offer_ids": [
       "fr-be-einvoicing-referential-cleansing"
     ],
-    "customer_problem_ar": "مشترٍ يسأل «هل المنصّة تعمل؟» يستحقّ جواباً من اختبارٍ يفشل حين تفشل؛ اختبارٌ يعدّ الردّ الجاهز جواباً يجعل كل ادّعاء قدرةٍ لاحق بلا وزن.",
-    "value_hypothesis_ar": "تقييمٌ صادق شرطٌ مسبق لأيّ دليلٍ يُعرَض على مشترٍ — فرضيةٌ بلا مشترٍ بعد.",
-    "foreign_currency_path_ar": "لا مسار إيراد جديد في هذه الدفعة؛ العرض يبقى PROPOSED ولا يُدّعى إيراد قبل صفّ PAYMENT_SETTLED.",
-    "foundation_exception_ar": "استثناءٌ تأسيسيّ مُعلَن: تتمّة المرحلة 1 (التقييم الصادق) بعد D-298/D-301/D-302 — لا يُبنى دليلٌ تجاري على بوّابةٍ تكذب."
+    "customer_problem_ar": "مكتب محاسبةٍ فرنسي صغير يتلقّى رسالةً من مورّدٍ خارج الاتحاد؛ أوّل ادّعاءٍ لا يستطيع المرسِل إثباته («une part significative») أو معرّفٍ خاطئ يُسقط الثقة قبل العيّنة.",
+    "value_hypothesis_ar": "رسالةٌ صادقة بسعرٍ واحد تُحسّن احتمال الردّ على 10 اتصالات — فرضيةٌ تُقاس بالسجلّ لا تُعلَن.",
+    "foreign_currency_path_ar": "290 € HT حتى 200 سجلّ باليورو عبر Malt أو فاتورة SWIFT إلى حساب العملة الصعبة — مُعطَّل حتى جواب البنك الكتابي وتسجيل ANAE؛ لا يُدّعى إيراد قبل صفّ PAYMENT_SETTLED.",
+    "foundation_exception_ar": "شرطٌ مسبق للمرحلة 3 بنصّ الدوسييه §45: لا إرسال لمواد البيع قبل تصحيح C7/C8/C12 وحسم السعر."
   },
   "deletions": {
     "count": 0,
     "paths": [],
-    "policy_ar": "صفر حذف ملفّات: سجلّ المسبار الخارجي التاريخي (docs/research/EXTERNAL_GUARD_PROBE.json) تُرك كما هو لأنه سجلّ ما حدث يومها."
+    "policy_ar": "صفر حذف: البريد المُرسَل يبقى نصّه سجلّاً، والأروقة المُجمَّدة في 04 تُوسَم ولا تُحذَف."
   },
   "verification": {
     "result": "PASS",
     "commands": [
-      "python -m pytest tests/scripts/test_probe_openrouter_free_models.py (11 passed · 4 جديدة)",
-      "python -m pytest tests/scripts/test_e2e_model_fingerprint.py tests/scripts/test_e2e_reply_judge.py tests/fitness/test_check_e2e_deferred_findings.py (61 passed · اختبار الهدف الواحد أحمر 0≠2 قبل جعل البصمة بلا شرط)",
-      "python -m pytest tests/fitness/test_check_memory_coherence.py (12 passed)",
-      "python -m pytest tests/naas_verifier (100 passed · الأمر القديم يخرج 2 والجديد 0)",
-      "python -m pytest tests/unit/infrastructure/test_d303_diagnostic_sanitizer.py (5 failed قبل الإصلاح · passed بعده) tests/microservices/test_orchestrator_client_resilience.py",
-      "python scripts/fitness/check_memory_coherence.py --lock-only (أحمر على القفل القديم · أخضر بعد التحديث)",
-      "python scripts/runtime_truth.py --check",
-      "تشغيلٌ حيّ محلّي على Postgres مؤقّتة: orchestrator database=ok checkpointer=postgres · المصفوفة 14/14 أجابت · 0 حاجب · 12 بصمة توليد · رحلة الطالب خروج 0",
-      "برهان سلبي: نفس المصفوفة بسجلٍّ فارغ ⇒ خروج 1 و9 مخالفات D-303 حاجبة",
+      "python -m pytest tests/unit/tools/test_outreach_truth.py (4 passed · على نصوص main: 2 failed — نسبة/ضمان في نصّ المشتري، وسعر الحزمة)",
+      "tva_fr_check على كلّ SIREN/TVA في مواد الإرسال (الحزمة FR40501058812 صحيحة؛ خطأ C12 في ملف البحث فقط)",
+      "python -m pytest tests/unit/tools/test_hard_currency_engine.py",
+      "python scripts/fitness/check_outbound_before_research.py (outreach/ والكتالوج مُستثنيان)",
       "python scripts/run_fitness_gates.py",
       "ruff check . && ruff format --check . (ruff==0.14.0)"
     ]
@@ -164,57 +145,41 @@
       "harvard-cs50x-foundations",
       "harvard-cs-concentration-domains"
     ],
-    "unapplied_course_policy_ar": "كل المقررات قُرئت على مستوى الكتالوج والمصفوفة؛ ما لا ينطبق مباشرةً على دفعة احتواءٍ أمني (إغلاق باب SQL · إزالة بيانات دخول · عزل قاعدة CI) يُسجَّل كغير منطبق مع سبب، ولا يتحوّل إلى ادّعاء تطبيق أو حذف من الكتالوج.",
+    "unapplied_course_policy_ar": "كل المقررات قُرئت على مستوى الكتالوج والمصفوفة؛ ما لا ينطبق مباشرةً على دفعة تصحيح مواد الإرسال (صدق الادّعاء · صحّة المعرّف · سعرٌ واحد) يُسجَّل كغير منطبق مع سبب، ولا يتحوّل إلى ادّعاء تطبيق أو حذف من الكتالوج.",
     "applicability_result": "ALL_CATALOG_COURSES_CONSIDERED",
     "owner": "curriculum-governance"
   },
   "changed_paths": [
-    ".github/workflows/live-e2e.yml",
-    ".github/workflows/runtime_truth.yml",
     ".memory/README.md",
     ".memory/decisions.md",
-    ".memory/issues.md",
-    ".runtime/truth_table.lock.json",
     "README.ar.md",
     "README.md",
-    "app/infrastructure/clients/orchestrator/text_streaming.py",
     "docs/DOCUMENTATION_INDEX.md",
-    "microservices/orchestrator_service/src/services/llm/client.py",
-    "naas_verifier/core/verdict.py",
-    "scripts/e2e/probe_openrouter_free_models.py",
-    "scripts/e2e/universal_answerability_live.py",
-    "scripts/fitness/check_memory_coherence.py",
-    "tests/fitness/test_check_memory_coherence.py",
-    "tests/naas_verifier/test_verdict_reproduction.py",
-    "tests/scripts/test_e2e_model_fingerprint.py",
-    "tests/scripts/test_probe_openrouter_free_models.py",
-    "tests/unit/infrastructure/test_d303_diagnostic_sanitizer.py"
+    "docs/commercial/OFFER_CATALOG.json",
+    "docs/commercial/outreach/BALAGUE_FIRST_CLIENT_KIT_2026-09-22.md",
+    "docs/commercial/outreach/ready_to_send/01_MAILS_CABINETS_PRETS.md",
+    "docs/commercial/outreach/ready_to_send/02_PARTENARIATS_PDP.md",
+    "docs/commercial/outreach/ready_to_send/03_PROFIL_MALT.md",
+    "docs/commercial/outreach/ready_to_send/04_SCRIPTS_EXPANSION_GLOBAL.md",
+    "tests/unit/tools/test_outreach_truth.py"
   ],
   "git_change_snapshot": {
     "base_ref": "origin/main",
     "changed_paths_excluding_packet": [
-      ".github/workflows/live-e2e.yml",
-      ".github/workflows/runtime_truth.yml",
       ".memory/README.md",
       ".memory/decisions.md",
-      ".memory/issues.md",
-      ".runtime/truth_table.lock.json",
       "README.ar.md",
       "README.md",
-      "app/infrastructure/clients/orchestrator/text_streaming.py",
       "docs/DOCUMENTATION_INDEX.md",
-      "microservices/orchestrator_service/src/services/llm/client.py",
-      "naas_verifier/core/verdict.py",
-      "scripts/e2e/probe_openrouter_free_models.py",
-      "scripts/e2e/universal_answerability_live.py",
-      "scripts/fitness/check_memory_coherence.py",
-      "tests/fitness/test_check_memory_coherence.py",
-      "tests/naas_verifier/test_verdict_reproduction.py",
-      "tests/scripts/test_e2e_model_fingerprint.py",
-      "tests/scripts/test_probe_openrouter_free_models.py",
-      "tests/unit/infrastructure/test_d303_diagnostic_sanitizer.py"
+      "docs/commercial/OFFER_CATALOG.json",
+      "docs/commercial/outreach/BALAGUE_FIRST_CLIENT_KIT_2026-09-22.md",
+      "docs/commercial/outreach/ready_to_send/01_MAILS_CABINETS_PRETS.md",
+      "docs/commercial/outreach/ready_to_send/02_PARTENARIATS_PDP.md",
+      "docs/commercial/outreach/ready_to_send/03_PROFIL_MALT.md",
+      "docs/commercial/outreach/ready_to_send/04_SCRIPTS_EXPANSION_GLOBAL.md",
+      "tests/unit/tools/test_outreach_truth.py"
     ],
-    "content_sha256_excluding_packet": "7a6e8d77adbf718c2c5d47aded32feac067ad6f2c088143c9c05b0cd6ad43337",
+    "content_sha256_excluding_packet": "838a16919a935dd8d4924564331d882805a057d29df2eaba3bbec1569732b0e9",
     "refreshed_on": "2026-09-30",
     "refresh_command": "python3 scripts/research/refresh_acceptance_diff_snapshot.py"
   }

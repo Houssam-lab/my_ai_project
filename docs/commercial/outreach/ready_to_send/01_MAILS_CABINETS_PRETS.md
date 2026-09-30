@@ -11,10 +11,11 @@
 Bonjour Madame, Monsieur,
 
 Je me permets de vous contacter au sujet de la qualité des référentiels clients 
-dans le cadre de la facturation électronique. Depuis le 1er septembre, les 
-factures sont rejetées à cause de SIREN erronés, numéros de TVA manquants ou 
-identifiants de routage incomplets — et la vague d'émission obligatoire pour 
-vos clients PME arrive en septembre 2027.
+dans le cadre de la facturation électronique.
+Depuis le 1er septembre, une facture électronique peut être rejetée 
+si le SIREN, le numéro de TVA ou l'identifiant de routage du destinataire 
+est erroné ou manquant — et la vague d'émission obligatoire pour vos 
+clients PME arrive en septembre 2027.
 
 Vous vendez un diagnostic facture électronique : qui exécute le nettoyage des 
 référentiels clients quand 300 dossiers arrivent en même temps ?
@@ -46,13 +47,14 @@ PS : Si vous souhaitez ne plus être contacté, répondez « STOP ».
 Bonjour Madame, Monsieur,
 
 Je me permets de vous contacter au sujet de la qualité des référentiels clients 
-dans le cadre de la facturation électronique. Depuis le 1er septembre, les 
-factures sont rejetées à cause de SIREN erronés, numéros de TVA manquants ou 
-identifiants de routage incomplets — et la vague d'émission obligatoire pour 
-vos clients PME arrive en septembre 2027.
+dans le cadre de la facturation électronique.
+Depuis le 1er septembre, une facture électronique peut être rejetée 
+si le SIREN, le numéro de TVA ou l'identifiant de routage du destinataire 
+est erroné ou manquant — et la vague d'émission obligatoire pour vos 
+clients PME arrive en septembre 2027.
 
-Vous êtes 100 % Pennylane : Pennylane donne l'outil, il ne vérifie pas les 
-SIREN de vos clients.
+Vous travaillez sous Pennylane : qui vérifie, avant l'émission, que les 
+SIREN et numéros de TVA de vos clients sont à jour ?
 
 Ma proposition, sans aucun engagement : vous m'envoyez 20 fiches clients 
 (SIREN/SIRET, raison sociale, adresse uniquement), et je vous rends sous 24 h 
@@ -81,10 +83,11 @@ PS : Si vous souhaitez ne plus être contacté, répondez « STOP ».
 Bonjour Madame, Monsieur,
 
 Je me permets de vous contacter au sujet de la qualité des référentiels clients 
-dans le cadre de la facturation électronique. Depuis le 1er septembre, les 
-factures sont rejetées à cause de SIREN erronés, numéros de TVA manquants ou 
-identifiants de routage incomplets — et la vague d'émission obligatoire pour 
-vos clients PME arrive en septembre 2027.
+dans le cadre de la facturation électronique.
+Depuis le 1er septembre, une facture électronique peut être rejetée 
+si le SIREN, le numéro de TVA ou l'identifiant de routage du destinataire 
+est erroné ou manquant — et la vague d'émission obligatoire pour vos 
+clients PME arrive en septembre 2027.
 
 Votre article s'arrête au choix du logiciel. Le fichier clients, lui, reste 
 à nettoyer.
@@ -116,10 +119,11 @@ PS : Si vous souhaitez ne plus être contacté, répondez « STOP ».
 Bonjour Madame, Monsieur,
 
 Je me permets de vous contacter au sujet de la qualité des référentiels clients 
-dans le cadre de la facturation électronique. Depuis le 1er septembre, les 
-factures sont rejetées à cause de SIREN erronés, numéros de TVA manquants ou 
-identifiants de routage incomplets — et la vague d'émission obligatoire pour 
-vos clients PME arrive en septembre 2027.
+dans le cadre de la facturation électronique.
+Depuis le 1er septembre, une facture électronique peut être rejetée 
+si le SIREN, le numéro de TVA ou l'identifiant de routage du destinataire 
+est erroné ou manquant — et la vague d'émission obligatoire pour vos 
+clients PME arrive en septembre 2027.
 
 Trois sites, quarante ans de dossiers : qui contrôle les SIREN et les contacts 
 de facturation avant l'émission obligatoire ?
@@ -150,10 +154,11 @@ PS : Si vous souhaitez ne plus être contacté, répondez « STOP ».
 Bonjour Madame, Monsieur,
 
 Je me permets de vous contacter au sujet de la qualité des référentiels clients 
-dans le cadre de la facturation électronique. Depuis le 1er septembre, les 
-factures sont rejetées à cause de SIREN erronés, numéros de TVA manquants ou 
-identifiants de routage incomplets — et la vague d'émission obligatoire pour 
-vos clients PME arrive en septembre 2027.
+dans le cadre de la facturation électronique.
+Depuis le 1er septembre, une facture électronique peut être rejetée 
+si le SIREN, le numéro de TVA ou l'identifiant de routage du destinataire 
+est erroné ou manquant — et la vague d'émission obligatoire pour vos 
+clients PME arrive en septembre 2027.
 
 La facturation électronique figure dans votre catalogue : qui fiabilise les 
 référentiels en pleine campagne fiscale ?
@@ -185,10 +190,11 @@ PS : Si vous souhaitez ne plus être contacté, répondez « STOP ».
 Bonjour Madame, Monsieur,
 
 Je me permets de vous contacter au sujet de la qualité des référentiels clients 
-dans le cadre de la facturation électronique. Depuis le 1er septembre, les 
-factures sont rejetées à cause de SIREN erronés, numéros de TVA manquants ou 
-identifiants de routage incomplets — et la vague d'émission obligatoire pour 
-vos clients PME arrive en septembre 2027.
+dans le cadre de la facturation électronique.
+Depuis le 1er septembre, une facture électronique peut être rejetée 
+si le SIREN, le numéro de TVA ou l'identifiant de routage du destinataire 
+est erroné ou manquant — et la vague d'émission obligatoire pour vos 
+clients PME arrive en septembre 2027.
 
 Votre groupe accompagne des milliers d'exploitations et de PME : la 
 fiabilisation des référentiels clients/fournisseurs est-elle absorbée en 
@@ -221,10 +227,11 @@ PS : Si vous souhaitez ne plus être contacté, répondez « STOP ».
 Bonjour Madame, Monsieur,
 
 Suite à notre appel de ce matin, je vous confirme ma proposition au sujet de 
-la qualité des référentiels clients pour la facturation électronique. Depuis 
-le 1er septembre, les factures sont rejetées à cause de SIREN erronés, 
-numéros de TVA manquants ou identifiants de routage incomplets — et la vague 
-d'émission obligatoire pour vos clients PME arrive en septembre 2027.
+la qualité des référentiels clients pour la facturation électronique.
+Depuis le 1er septembre, une facture électronique peut être rejetée 
+si le SIREN, le numéro de TVA ou l'identifiant de routage du destinataire 
+est erroné ou manquant — et la vague d'émission obligatoire pour vos 
+clients PME arrive en septembre 2027.
 
 Ma proposition, sans aucun engagement : vous m'envoyez 20 fiches clients 
 (SIREN/SIRET, raison sociale, adresse uniquement), et je vous rends sous 24 h 

@@ -3,6 +3,8 @@
 
 > **التاريخ:** 24 سبتمبر 2026 · **المبدأ التنفيذي:** لا بلاغة عامة، ولا رسائل جماعية. كل رسالة مخصصة لمشكلة ملحة وعاجلة (قانون، غرامة، نقص موارد) باسم المؤسسة وصفتها، مع عرض عينة مجانية (Test 24h) تخفض كلفة التحقق للمشتري إلى الصفر.
 > **القواعد الصارمة:** نص خام فقط · بلا مرفقات في أول رسالة · سطر موضوع محدد ≤ 60 حرفاً · مستلم واحد لكل إرسال.
+>
+> ⛔ **حالة الإرسال (D-300 · D-304):** الرواقان 1 و2 وحدهما ضمن الإسفين النشط. **الأروقة 3→9 مُجمَّدة — لا تُرسَل**، وفيها نِسَبٌ وضماناتٌ غير مقيسة. وأرقام الرواق 2 القانونية (الغرامة وتاريخ نهاية التسامح في بلجيكا) **لم تُتحقَّق من مصدرها الرسمي** — تحقّق منها قبل أيّ إرسال.
 
 ---
 
@@ -16,14 +18,14 @@
 ```text
 Bonjour [Nom du responsable ou de l'équipe partenariats],
 
-Pennylane [ou nom de la PDP] déploie une technologie remarquable pour la facturation électronique. Cependant, les premiers retours terrain post-1er septembre montrent que le premier facteur de rejet des flux Factur-X provient des référentiels clients et fournisseurs incomplets : SIREN obsolètes, doublons d'adresses et identifiants de routage erronés.
+Pennylane [ou nom de la PDP] déploie une technologie remarquable pour la facturation électronique. Depuis le 1er septembre, un flux Factur-X peut être rejeté quand les référentiels clients et fournisseurs sont incomplets : SIREN obsolètes, doublons d'adresses, identifiants de routage erronés.
 
 Ces anomalies génèrent un surcoût direct de support pour votre plateforme et retardent l'onboarding des cabinets partenaires.
 
 Je propose une prise en charge opérationnelle et externalisée du nettoyage des bases de données de vos clients :
 1. Détection automatisée des SIREN/SIRET invalides ou radiés (sources INSEE).
 2. Dédoublonnage strict et normalisation des adresses de facturation.
-3. Rapprochement avec l'annuaire national pour garantir un routage sans échec.
+3. Rapprochement avec l'annuaire national pour réduire les échecs de routage.
 
 Pour juger sur pièce, je réalise un test gratuit sur un échantillon de 20 à 50 fiches clients issues de vos rejets, avec rapport d'anomalies sous 24 heures.
 

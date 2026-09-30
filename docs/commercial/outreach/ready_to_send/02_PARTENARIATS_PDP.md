@@ -24,9 +24,9 @@
 Bonjour Madame, Monsieur,
 
 Je suis consultant en fiabilité des données tiers (clients/fournisseurs) pour 
-la facturation électronique. Depuis le 1er septembre, une part significative 
-des échecs de dépôt s'explique par des référentiels incomplets : SIREN/SIRET 
-invalides ou radiés, TVA mal formées, identifiants de routage absents.
+la facturation électronique. Depuis le 1er septembre, un dépôt peut échouer 
+quand le référentiel est incomplet : SIREN/SIRET invalides ou radiés, TVA 
+mal formées, identifiants de routage absents.
 
 Je propose à [PLATEFORME] un partenariat simple, en marque blanche ou direct :
 - un service de nettoyage et de contrôle des référentiels proposé à vos 

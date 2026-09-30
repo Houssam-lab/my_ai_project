@@ -7,9 +7,9 @@ Fiabilisation des référentiels clients/fournisseurs — facturation électroni
 
 **الوصف (Description) :**
 ```
-Depuis le 1er septembre 2026, les factures électroniques sont rejetées pour 
-cause de données tiers incomplètes : SIREN/SIRET invalides ou radiés, numéros 
-de TVA mal formés, doublons, identifiants de routage absents. La vague 
+Depuis le 1er septembre 2026, une facture électronique peut être rejetée 
+quand les données tiers sont incomplètes : SIREN/SIRET invalides ou radiés, 
+numéros de TVA mal formés, doublons, identifiants de routage absents. La vague 
 d'émission obligatoire pour les PME arrive en septembre 2027.
 
 Ce que je fais :
@@ -20,14 +20,15 @@ Ce que je fais :
 - livraison d'un fichier prêt à importer + rapport avant/après avec score de 
   qualité + piste d'audit complète.
 
-Ce que je ne fais pas (garantie de compétence) :
+Ce que je ne fais pas (périmètre) :
 - aucune saisie comptable, aucun conseil fiscal, aucun paramétrage dans votre 
   outil : vous gardez la main.
 
 Format d'intervention :
 - Diagnostic test : 20 fiches, résultat sous 24 h ;
-- Base complète (200–500 fiches) : 2 à 5 jours ;
-- Suivi mensuel : veille des deltas (nouveaux tiers, radiations, changements).
+- Base jusqu'à 200 fiches : 290 € HT, 2 à 5 jours ;
+- Au-delà de 200 fiches : sur devis, après le diagnostic test ;
+- Suivi mensuel : sur devis, après une première base livrée.
 
 Données : traitement ponctuel, aucune conservation après livraison, 
 suppression confirmée par écrit. Travail à distance (fuseau horaire France).
@@ -36,8 +37,8 @@ suppression confirmée par écrit. Travail à distance (fuseau horaire France).
 **التسعير على المنصة (وفق ورقة السعر الموسومة — BPM §2.2):**
 - Diagnostic test 20 fiches : **Gratuit** (صائد الاهتمام)
 - Base 200 fiches : **290 €** للدفعة
-- Base 201–500 fiches : **450–750 €**
-- Suivi mensuel : **90–150 €/ mois**
+- ما فوق 200 سجلّ: **على عرض سعرٍ بعد العيّنة** (السعر الواحد — قرار المالك 2026-09-30)
+- Suivi mensuel : **على عرض سعر** — لا نطاق مُعلَن قبل أوّل حزمة مُسلَّمة
 - TJM معروض (إلزامي على Malt، أدنى 125 €) : **290 €/jour**
 
 **الإعدادات:**

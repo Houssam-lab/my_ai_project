@@ -9,6 +9,9 @@
 > **تحقق التاريخ:** 2026-09-22 (Pappers: لا يظهر علم رفض التسويق · الموقع: الصفحة حيّة)
 >
 > ⛔ **الحالة:** `QUALIFIED_PROSPECT_HYPOTHESIS` — ليست "عميلة مضمونة". المضمون الوحيد هو تنفيذ التسلسل وقياسه.
+>
+> 📌 **ما حدث فعلاً (`CONTACT_LEDGER.csv`):** البريد D1 أُرسل 2026-09-22؛ المكالمة لم تُجرَ؛ لا ردّ حتى 2026-09-28.
+> تواريخ §0 تجاوزها الزمن — الخطوة التالية هي المكالمة (§2)، ثم المتابعة (§4) بنفس المحادثة.
 
 ---
 
@@ -38,9 +41,10 @@
 
 ### 2.1 إذا ردّ Philippe Balagué شخصيًا (احتمال معقول في مكتب 10–19 موظفًا)
 
-> «Bonjour Monsieur Balagué. Je m'appelle [الاسم الكامل], consultant en fiabilité des données pour la facturation électronique. Je vous appelle parce que votre cabinet affiche qu'il prend les devants sur la réforme — et le premier blocage constaté depuis le 1er septembre, ce sont les rejets de factures pour cause de référentiels clients incomplets : SIREN erronés, doublons, identifiants de routage manquants. Concrètement, je propose un test sans engagement : vous m'envoyez 20 fiches clients, je vous rends un diagnostic d'erreurs sous 24 h, gratuitement. Ça vous intéresse que je vous l'envoie par mail ?»
+> «Bonjour Monsieur Balagué. Je m'appelle [الاسم الكامل], consultant en fiabilité des données pour la facturation électronique. Je vous appelle parce que votre cabinet affiche qu'il prend les devants sur la réforme — et depuis le 1er septembre, une facture électronique peut être rejetée quand le référentiel client est incomplet : SIREN erroné, doublon, identifiant de routage manquant. Concrètement, je propose un test sans engagement : vous m'envoyez 20 fiches clients, je vous rends un diagnostic d'erreurs sous 24 h, gratuitement. Ça vous intéresse que je vous l'envoie par mail ?»
 
-**لماذا هذه الصيغة:** 3 جمل — مصداقية (صفحتهم هم) + ألم موثق (رفض 32% الأسبوع الأول) + طلب صغير محدد بلا مقابل.
+**لماذا هذه الصيغة:** 3 جمل — مصداقية (صفحتهم هم) + ألمٌ قابل للتحقّق (آلية الرفض عند خطأ المعرّف) + طلب صغير محدد بلا مقابل.
+⛔ لا تذكر أيّ نسبة رفض: لا نسبة مقيسة عندنا (`OFFER_CATALOG.json` — `claims_forbidden_ar`).
 
 ### 2.2 إذا ردّ موظف استقبال
 
@@ -56,7 +60,7 @@
 | «On gère ça en interne» | «Très bien. Le test ne coûte rien et prend 24 h : s'il y a des erreurs, vous le savez avant la vague de septembre 2027 ; s'il n'y en a pas, vous êtes tranquille. Je vous l'envoie ?» |
 | «Pas le temps» | «Je vous envoie le mail aujourd'hui, vous y répondrez quand vous voulez. C'est noté pour [الاسم] ?» |
 | «C'est quoi exactement votre service ?» | «Je vérifie et nettoie les données clients/fournisseurs avant migration facturation électronique : SIREN/SIRET contre SIRENE, numéros de TVA, dédoublonnage, identifiants de routage. Je livre un fichier prêt à importer + un rapport avant/après. Je ne touche ni à la comptabilité ni au fiscal — vous gardez la main. » |
-| «Vous êtes basés où ?» | الصدق الكامل: «En Algérie — c'est justement ce qui rend le tarif très compétitif, avec un travail livré en 24 h et un accord de traitement des données. Le test de 20 fiches vous permettra de juger la qualité avant toute engagement.» (إن اعترض على خارج-EU: «Le test peut se faire sans données personnelles — seulement identifiants légaux. Et pour la suite, traitement dans votre environnement si vous préférez : je n'héberge rien.») |
+| «Vous êtes basés où ?» | الصدق الكامل: «En Algérie — c'est justement ce qui rend le tarif très compétitif, avec un diagnostic livré en 24 h ; avant tout envoi de fichier réel, nous signons un accord de traitement des données. Le test de 20 fiches vous permettra de juger la qualité avant toute engagement.» (إن اعترض على خارج-EU: «Le test peut se faire sans données personnelles — seulement identifiants légaux. Et pour la suite, traitement dans votre environnement si vous préférez : je n'héberge rien.») |
 | «Non merci» | «Merci Monsieur pour votre temps, très bonne journée.» ⇒ علّم الهدف `STOP` في الـCSV فورًا. لا عودة. |
 
 ### 2.4 إذا لم يرد (الصندوق الصوتي)
@@ -97,6 +101,8 @@
 > [بريدك] · [هاتفك مع +213]
 >
 > *PS : Cet envoi fait suite à notre appel téléphonique de ce matin. Si vous souhaitez ne plus être contacté, répondez simplement « STOP ».*
+
+⚠️ **هذا النصّ أُرسل 2026-09-22 ويبقى كما هو سجلّاً.** عبارة «ont fortement augmenté» غير مقيسة — لا تُعَد في أيّ رسالة لاحقة (المتابعة في §4 والإغلاق في §6 لا تحملانها).
 
 **ملحق اختياري قوي:** أرفق `RAPPORT_DIAGNOSTIC_DEMO.md` (النسخة التجريبية الوهمية) ليسترصد شكل التقرير — مع سطر: «Ci-joint un exemple (données 100 % fictives) du rapport que vous recevriez.»
 
@@ -143,7 +149,7 @@
 3. **TVA:** فحص الصيغة FR + 2 + 9 (الصيغة = SIREN)؛ VIES فقط عند الحاجة وبإشارة.
 4. **المكررات:** مطابقة تامة + تقريبية (اسم/عنوان/CP).
 5. **المخرجات** (نفس بنية التقرير التجريبي): ملف مصحح + تقرير قبل/بعد + قائمة نواقص + سجل تغييرات + مذكرة حدود. كل تعديل موسوم «تقرير → قرار المكتب» — لا تحذف شيئًا نهائيًا بنفسك.
-6. **رسالة التسليم** تُنهي بسؤال الإغلاق: «Souhaitez-vous que nous chiffrions ensemble le nettoyage du reste de la base ?» → عرض Pilot: **150–300 €** حسب حجم القاعدة (200–500 فتحة) — دفعة بالفاتورة، دينار رسميًا عبر التوطين أو كما يقرر البنك.
+6. **رسالة التسليم** تُنهي بسؤال الإغلاق: «Souhaitez-vous que nous chiffrions ensemble le nettoyage du reste de la base ?» → العرض بعد العيّنة: **290 € HT حتى 200 سجلّ** (السعر الواحد — قرار المالك 2026-09-30 · `PRICING HYPOTHESIS`)؛ ما فوق 200 سجلّ يُسعَّر بعد العيّنة. الدفع **باليورو** عبر Malt أو فاتورة SWIFT إلى حساب العملة الصعبة — ⛔ لا تقبل طلباً مدفوعاً قبل جواب البنك الكتابي وتسجيل ANAE ومراجعة DPA (`OFFER_CATALOG.json` — `activation_gate_ar`).
 
 ## 8) تحديث التتبع (الصف 7 في `FR_EINVOICING_TARGETS_2026-09-21.csv`)
 
