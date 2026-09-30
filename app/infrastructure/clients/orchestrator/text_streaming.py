@@ -161,6 +161,13 @@ class TextStreamingMixin:
         """
         return cls._RETRIEVAL_TAG_RE.sub("", content)
 
+    #: D-303: بنيةُ رسالة الخطأ الداخلية لا كلمةٌ فيها. كانت الكلمة المجرّدة «diagnostic»
+    #: محجوبة، فاستُبدل كلُّ جوابٍ فرنسيّ فيه «le diagnostic» — وكلُّ جوابٍ يذكر «سؤالاً
+    #: تشخيصياً» بالإنجليزية — بنصٍّ جاهز. وما يتسرّب فعلاً هو سلسلة المحاولات
+    #: ``<url> => <error>`` (``chat_turn.connection_errors``) أو مفتاحٌ مُسلسَل
+    #: ``"diagnostic":`` — والكلمة نفسها ليست في تلك السلسلة أصلاً.
+    _INTERNAL_DIAGNOSTIC_RE = __import__("re").compile(r'https?://\S+\s=>\s|"diagnostic"\s*:')
+
     @classmethod
     def _sanitize_text_for_user(cls, content: str) -> str:
         """يعقّم نصًا موجّهًا للمستخدم النهائي من أي تلميحات طوبولوجيا داخلية."""
@@ -171,9 +178,10 @@ class TextStreamingMixin:
             "127.0.0.1",
             "host.docker.internal",
             "orchestrator_service_url",
-            "diagnostic",
         )
-        if any(token in lowered for token in blocked_tokens):
+        if any(token in lowered for token in blocked_tokens) or cls._INTERNAL_DIAGNOSTIC_RE.search(
+            content
+        ):
             return SERVICE_UNAVAILABLE_REPLY
         # ISS-058: حذف tags chunks الداخلية ([ex: ex_1], [sol: ex_1], [grading: ex_1])
         return cls._strip_retrieval_tags(content)

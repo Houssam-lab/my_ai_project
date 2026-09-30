@@ -16,6 +16,9 @@ from naas_verifier.core.constraint import Constraint, ConstraintSet, Dimension, 
 from naas_verifier.core.evidence import Evidence, EvidenceKind
 from naas_verifier.core.trajectory import Trajectory
 
+#: The command a reader runs to reproduce a verdict's constraint evaluation.
+REPRODUCTION_COMMAND = "python -m naas_verifier.cli run --runs 3"
+
 __all__ = ["DimensionResult", "Verdict", "verify"]
 
 
@@ -130,7 +133,10 @@ def verify(
             f"{len(constraint_set.constraints)} constraint(s) over "
             f"{len(results)} dimension(s); outcome={outcome.value}"
         ),
-        reproduction="python -m naas_verifier.cli run --corpus ar_fr",
+        # D-303 · E10: the old command passed `--corpus ar_fr`, which the CLI never
+        # accepted — every verdict shipped a reproduction that exited 2. `run` loads
+        # the ar_fr corpus itself; the test runs this exact string through the CLI.
+        reproduction=REPRODUCTION_COMMAND,
         source_reference="docs/architecture/NAAS_VERIFICATION_LAYER.md#2",
         payload={"language": trajectory.language, "steps": len(trajectory.steps)},
     )

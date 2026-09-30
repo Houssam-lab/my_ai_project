@@ -18,6 +18,14 @@ D-298 — "working" now means *a usable Arabic answer*, not "any characters":
   carries no reasoning marker.
 * The declared production chain (``shared/ai_models/model_chain.py``) is probed
   first, so CI exercises the chain production uses whenever that chain works.
+
+D-303 — one bounded second pass. On ``main`` at 10:41 UTC on 2026-09-29 every
+candidate failed in 0.1–6 s: three with 429, one with a reasoning leak, two with an
+empty reply. The chat client already waits and retries rate-limited models once
+(D-177); the probe gave up on the first answer. When no model is usable, the models
+that failed *transiently* (429 or empty content) are probed once more after
+``--retry-after`` seconds, within the free-quota reserve. A reasoning leak or a
+non-Arabic answer is not transient and is not retried.
 """
 
 from __future__ import annotations
@@ -232,6 +240,58 @@ def probe(base_url: str, key: str, model: str, timeout: float) -> ProbeResult:
         )
 
 
+#: Probe failures worth one more attempt: the provider was busy, not wrong.
+TRANSIENT_STATUS = 429
+TRANSIENT_ERROR = "empty content"
+
+
+def is_transient(result: ProbeResult) -> bool:
+    """A failure a short wait can cure (rate limit, empty reply) — never a leak."""
+    return not result.ok and (result.status == TRANSIENT_STATUS or result.error == TRANSIENT_ERROR)
+
+
+def probe_candidates(
+    base_url: str,
+    key: str,
+    candidates: list[str],
+    timeout: float,
+    *,
+    retry_budget: int,
+    retry_after: float,
+    report=print,
+    sleep=time.sleep,
+) -> list[ProbeResult]:
+    """Probe every candidate; if none works, retry the transient failures once.
+
+    ``retry_budget`` is how many extra requests the free quota can still afford
+    without eating the matrix reserve. The second result replaces the first, so
+    the JSON artifact records what the model finally did.
+    """
+    results = [probe(base_url, key, model, timeout) for model in candidates]
+    for result in results:
+        _report(result, report)
+    if any(result.ok for result in results):
+        return results
+    retry = [i for i, result in enumerate(results) if is_transient(result)][: max(0, retry_budget)]
+    if not retry:
+        return results
+    report(
+        f"⏳ no usable model on the first pass; retrying {len(retry)} rate-limited or "
+        f"empty model(s) once after {retry_after:.0f}s"
+    )
+    sleep(retry_after)
+    for index in retry:
+        results[index] = probe(base_url, key, results[index].model, timeout)
+        _report(results[index], report, prefix="↻ ")
+    return results
+
+
+def _report(result: ProbeResult, report, prefix: str = "") -> None:
+    mark = "✅" if result.ok else "❌"
+    detail = f"chars={result.chars}" if result.ok else f"error={result.error}"
+    report(f"{prefix}{mark} {result.model} http={result.status} {result.seconds:.2f}s {detail}")
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--limit", type=int, default=6)
@@ -241,6 +301,12 @@ def main() -> int:
         type=int,
         default=14,
         help="free requests to preserve for the downstream answerability matrix",
+    )
+    parser.add_argument(
+        "--retry-after",
+        type=float,
+        default=20.0,
+        help="seconds to wait before the one retry of rate-limited or empty models (D-303)",
     )
     parser.add_argument("--base-url", default=os.getenv("OPENROUTER_BASE_URL", BASE_URL))
     parser.add_argument("--github-env", type=Path)
@@ -288,13 +354,17 @@ def main() -> int:
         print("❌ no free text-generation candidates in the live catalog")
         return 1
 
-    results: list[ProbeResult] = []
-    for model in candidates:
-        result = probe(args.base_url, key, model, args.timeout)
-        results.append(result)
-        mark = "✅" if result.ok else "❌"
-        detail = f"chars={result.chars}" if result.ok else f"error={result.error}"
-        print(f"{mark} {model} http={result.status} {result.seconds:.2f}s {detail}")
+    retry_budget = (
+        len(candidates) if remaining is None else remaining - args.reserve - len(candidates)
+    )
+    results = probe_candidates(
+        args.base_url,
+        key,
+        candidates,
+        args.timeout,
+        retry_budget=retry_budget,
+        retry_after=args.retry_after,
+    )
 
     working = [result.model for result in results if result.ok]
     document = {

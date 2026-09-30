@@ -46,6 +46,16 @@ jobs:
           set -euo pipefail
           python scripts/runtime_truth.py --check
 
+      # D-303 · E5: the drift check proves the statuses match the lock, not that the
+      # lock is current. A lock generated on 2026-09-19 while the newest decision was
+      # 2026-09-28 passed here; only doc-integrity (not in required-ci) caught it.
+      # Same function as doc-integrity (check_memory_coherence), lock rule only.
+      - name: Lock freshness (not older than the newest decision)
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/fitness/check_memory_coherence.py --lock-only
+
       - name: Upload artifacts on drift
         if: failure()
         uses: actions/upload-artifact@v7

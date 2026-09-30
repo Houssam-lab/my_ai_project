@@ -25,6 +25,8 @@ from __future__ import annotations
 
 import json
 import re
+import sys
+from collections.abc import Sequence
 from datetime import date
 from pathlib import Path
 
@@ -334,9 +336,23 @@ def _check_truth_lock_freshness(failures: list[str]) -> None:
         )
 
 
-def main() -> int:
-    """يشغّل فحوص تماسك الذاكرة ويرجع 0 عند السلامة و1 عند أي انحراف."""
+def main(argv: Sequence[str] = ()) -> int:
+    """يشغّل فحوص تماسك الذاكرة ويرجع 0 عند السلامة و1 عند أي انحراف.
+
+    ``--lock-only`` (D-303 · E5): فحصُ تقادم القفل وحده، بالدالّة نفسها لا بنسخةٍ ثانية.
+    تُشغِّله وظيفة ``runtime-truth`` المطلوبة في ``required-ci`` — فقد بقي القفل مولَّداً
+    في 2026-09-19 وآخرُ قرارٍ في 2026-09-28 بينما ``runtime-truth-drift-check`` أخضر،
+    لأنّ هذا الفحص لم يكن يُشغَّل إلا في ``doc-integrity`` غير المطلوبة.
+    """
     failures: list[str] = []
+
+    if "--lock-only" in argv:
+        _check_truth_lock_freshness(failures)
+        for failure in failures:
+            print(f"❌ {failure}")
+        if not failures:
+            print("✅ truth lock current: not older than the newest decision.")
+        return 1 if failures else 0
 
     _check_index_freshness(failures)
     _check_index_cell_size(failures)
@@ -357,4 +373,4 @@ def main() -> int:
 
 
 if __name__ == "__main__":
-    raise SystemExit(main())
+    raise SystemExit(main(sys.argv[1:]))

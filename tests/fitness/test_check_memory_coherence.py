@@ -164,6 +164,19 @@ def test_stale_truth_lock_fails(tmp_path: Path) -> None:
         assert gate.main() == 1
 
 
+def test_lock_only_mode_fails_on_a_stale_lock(tmp_path: Path) -> None:
+    """D-303 · E5: the required runtime-truth job runs `--lock-only` — a stale lock is red there."""
+    with _sandbox(tmp_path, lock_date="2026-07-21T13:21:28+00:00"):
+        assert gate.main(["--lock-only"]) == 1
+
+
+def test_lock_only_mode_ignores_the_other_rules(tmp_path: Path) -> None:
+    """`--lock-only` judges the lock and nothing else — a stale index stays doc-integrity's."""
+    with _sandbox(tmp_path, index_decision=184):
+        assert gate.main(["--lock-only"]) == 0
+        assert gate.main() == 1
+
+
 def test_missing_index_row_fails(tmp_path: Path) -> None:
     """حذف صفّ سجلّ ملزِم من الفهرس ⇒ فشل، لا تجاهل صامت."""
     with _sandbox(tmp_path):

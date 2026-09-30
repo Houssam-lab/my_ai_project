@@ -213,18 +213,30 @@ jobs:
       # Catalog presence is not generation. Invoke today's free text models with
       # the same key, then boot the graph with the first model that returned real
       # content. This also leaves a machine-readable experiment artifact.
+      #
+      # D-303: exit 1 means "no model gave a clean answer to the probe prompt", not
+      # "the chain cannot answer". On main at 10:41 UTC on 2026-09-29 that stopped
+      # the job before the matrix ran; in a local run of the same workflow an hour
+      # later, the probe again found no usable model while the declared chain
+      # answered 9 of 14 matrix turns. So exit 1 is reported and the job continues on
+      # the declared chain: the matrix (with its half-answered floor, D-301) is the
+      # arbiter. A missing key or catalog (2) and an exhausted quota (3) still stop.
       - name: "Invoke current OpenRouter free models"
         shell: bash
         run: |
           set -o pipefail
           rc=0
           python scripts/e2e/probe_openrouter_free_models.py \
-            --limit 6 --reserve 20 --timeout 35 --github-env "$GITHUB_ENV" \
+            --limit 6 --reserve 20 --timeout 35 --retry-after 20 --github-env "$GITHUB_ENV" \
             --json-output /tmp/openrouter-free-probe.json \
             2>&1 | tee /tmp/openrouter-free-probe.log || rc="${PIPESTATUS[0]}"
           summary="$(tail -n 8 /tmp/openrouter-free-probe.log | tr '\n' ' ' | sed 's/%/%25/g; s/\r/%0D/g; s/\n/%0A/g')"
+          if [ "$rc" -eq 1 ]; then
+            echo "::warning title=No free model passed the probe — matrix runs on the declared chain::${summary:0:4000}"
+            exit 0
+          fi
           if [ "$rc" -ne 0 ]; then
-            echo "::error title=No working OpenRouter free model::${summary:0:4000}"
+            echo "::error title=Free-model probe could not run::${summary:0:4000}"
             exit "$rc"
           fi
           echo "::notice title=OpenRouter free-model experiment::${summary:0:4000}"
@@ -320,7 +332,9 @@ jobs:
           # قابلة للاسترجاع عبر GitHub API، من دون أسرار أو أجسام HTTP خام.
           set -o pipefail
           rc=0
+          # D-303 · E2b: --model-log makes every model-bound answer prove it was generated.
           python scripts/e2e/universal_answerability_live.py --base http://127.0.0.1:8000 \
+            --model-log /tmp/orchestrator.log \
             2>&1 | tee /tmp/answerability-matrix.log || rc="${PIPESTATUS[0]}"
           if [ "$rc" -ne 0 ]; then
             summary="$(grep -E '^(أدوار:|   •|❌|⚠️)' /tmp/answerability-matrix.log \

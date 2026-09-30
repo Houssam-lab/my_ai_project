@@ -18,6 +18,7 @@
 | إطارٌ نهائي **واحد** — لا صفر ولا اثنان | §6.5 (`_emit_terminal_frames`) |
 | محتوى غير فارغ — لا دورَ صامت | ISS-145 · ISS-154 |
 | لا نصَّ جاهزاً بثوب إجابة، ولا ردَّ بلا حرفٍ عربي على سؤالٍ عربي | D-298 (`reply_judge`) |
+| جوابٌ **وَلَّده نموذج**: بصمة التوليد في سجلّ الـorchestrator داخل نافذة الدور | D-303 · E2b |
 | صفر خطف موضوع: سؤال فيزياء لا يُجاب بمفردات الاحتمالات | **ISS-159** |
 | صفر نصّ نظامٍ بدور الطالب | D-117 · D-229 · ISS-146 |
 | صفر تسريب إجابة التمرين المرجعي | D-113 · ISS-148 |
@@ -100,12 +101,16 @@ class Probe:
     #: هل يُمنع أن يحمل الجواب مفردات الاحتمالات؟ (كل ما ليس رياضيات احتمالية)
     forbid_probability_vocabulary: bool = False
     note: str = ""
+    #: هل يجب أن يُولِّد الجوابَ نموذجٌ لغوي؟ (D-303 · E2b) — الافتراضي **نعم**: سؤالٌ
+    #: جديد يُطالَب بالبرهان ما لم يُصرَّح بمساره الحتمي. كان الحارس يقبل أيّ نصٍّ
+    #: غير جاهز، فجوابٌ من قالبٍ أو مخزنٍ ثابت يجتازه كأنه تعليم.
+    needs_llm: bool = True
 
 
 #: المصفوفة. كلّ صفٍّ زاويةٌ مختلفة — لا تكرارٌ لنفس المسار بصياغةٍ أخرى (D-207).
 MATRIX: tuple[Probe, ...] = (
-    Probe("السلام عليكم", "—", note="التحية: مسارٌ حتمي قبل أيّ LLM (D-067)"),
-    Probe("اعطني تمرين الاحتمالات 2024", "mathematics", note="الاسترجاع المُفهرَس"),
+    Probe("السلام عليكم", "—", note="التحية: مسارٌ حتمي قبل أيّ LLM (D-067)", needs_llm=False),
+    Probe("اعطني تمرين الاحتمالات 2024", "mathematics", note="الاسترجاع المُفهرَس", needs_llm=False),
     Probe("لم أفهم", "mathematics", note="الحيرة: تشخيصٌ لا إعادة اشتقاق (D-113)"),
     Probe("كيف نحسب عدد الحالات الممكنة", "mathematics", note="سؤالٌ إجرائي (D-207)"),
     Probe("اشرح لي قانون أوم", "physics", True, "ISS-159: كان يُجاب بتمرين الكرات"),
@@ -131,6 +136,8 @@ class TurnResult:
     problems: list[str] = field(default_factory=list)
     #: نصّ خطأٍ **منطوق** للطالب (`error.payload.message`) — فشلٌ مُعلَن لا صمت.
     spoken_error: str = ""
+    #: عدد بصمات التوليد في سجلّ الـorchestrator خلال الدور؛ ``None`` = لم يُقَس (لا سجلّ).
+    model_fingerprints: int | None = None
 
 
 def _latin_leak(text: str) -> str | None:
@@ -207,14 +214,59 @@ def _component_problems(result: TurnResult) -> list[str]:
     ]
 
 
+def _generation_problems(result: TurnResult) -> list[str]:
+    """جوابٌ وصل ولم يُولِّده نموذج — D-303 · E2b.
+
+    يُطبَّق على ما يُعَدّ «أجاب» فقط: الدور الذي فشل صراحةً مُبلَّغٌ عنه أصلاً، ولا يُضاف
+    إليه سببٌ ثانٍ. ولا حكم بلا قياس: سجلٌّ لم يُمرَّر ⇒ ``None`` ⇒ لا مخالفة، ويُطبَع ذلك
+    في رأس التشغيل لأن الغياب لا يُقرأ نجاحاً (D-206 L11).
+    """
+    if result.model_fingerprints is None or not result.probe.needs_llm:
+        return []
+    if result.model_fingerprints == 0 and _answered(result):
+        return ["أُجيب بلا بصمة توليد في سجلّ الـorchestrator — نصٌّ لم يولّده نموذج (D-303 · E2b)"]
+    return []
+
+
 def _turn_violations(result: TurnResult) -> list[str]:
-    """كل ما يخالف عقد الدور — أربع عائلاتٍ مستقلّة، كلٌّ تُقرأ وحدها."""
+    """كل ما يخالف عقد الدور — خمس عائلاتٍ مستقلّة، كلٌّ تُقرأ وحدها."""
     return [
         *_delivery_problems(result),
         *_purity_problems(result),
         *_topic_problems(result),
         *_component_problems(result),
+        *_generation_problems(result),
     ]
+
+
+class ModelLog:
+    """نافذةُ الدور على سجلّ الـorchestrator: كم بصمة توليدٍ كُتبت منذ بدأ الدور."""
+
+    def __init__(self, path: Path) -> None:
+        self.path = path
+
+    def offset(self) -> int:
+        return self.path.stat().st_size if self.path.exists() else 0
+
+    def _count_since(self, start: int) -> int:
+        from microservices.orchestrator_service.src.services.llm.client import (
+            MODEL_SERVED_MARKER,
+        )
+
+        if not self.path.exists():
+            return 0
+        with self.path.open("rb") as handle:
+            handle.seek(start)
+            return handle.read().decode("utf-8", errors="replace").count(MODEL_SERVED_MARKER)
+
+    async def served_since(self, start: int, *, wait_s: float = 3.0) -> int:
+        """البصمة تُكتب قبل الإطار النهائي؛ المهلة القصيرة احتياطٌ من تأخّر الكتابة لا غير."""
+        deadline = time.monotonic() + wait_s
+        while True:
+            count = self._count_since(start)
+            if count or time.monotonic() >= deadline:
+                return count
+            await asyncio.sleep(0.25)
 
 
 async def _login(base: str, email: str, password: str) -> str:
@@ -277,9 +329,12 @@ async def _stream_turn(ws: Any, result: TurnResult) -> None:
             return
 
 
-async def _run_turn(ws_url: str, token: str, probe: Probe) -> TurnResult:
+async def _run_turn(
+    ws_url: str, token: str, probe: Probe, model_log: ModelLog | None = None
+) -> TurnResult:
     """دورٌ واحد كامل: اتصال · إرسال · قراءةٌ حتى النهاية · حكم."""
     result = TurnResult(probe=probe)
+    log_start = model_log.offset() if model_log else 0
     started = time.perf_counter()
     try:
         async with websockets.connect(
@@ -290,6 +345,8 @@ async def _run_turn(ws_url: str, token: str, probe: Probe) -> TurnResult:
     except Exception as exc:  # نُبلِّغ ولا نبتلع (§0)
         result.problems.append(f"انقطاع الاتصال: {exc.__class__.__name__}: {exc}")
     result.total_s = time.perf_counter() - started
+    if model_log is not None and probe.needs_llm:
+        result.model_fingerprints = await model_log.served_since(log_start)
     result.problems.extend(_turn_violations(result))
     return result
 
@@ -360,6 +417,12 @@ async def main() -> int:
     parser.add_argument("--base", default=os.environ.get("E2E_BACKEND", "http://localhost:8000"))
     parser.add_argument("--email", default=os.environ.get("DIAG_EMAIL", ""))
     parser.add_argument("--password", default=os.environ.get("DIAG_PASSWORD", ""))
+    parser.add_argument(
+        "--model-log",
+        type=Path,
+        default=os.environ.get("E2E_MODEL_LOG") or None,
+        help="سجلّ الـorchestrator لإثبات أنّ نموذجاً وَلَّد كل جوابٍ يحتاجه (D-303)",
+    )
     args = parser.parse_args()
 
     if not args.email or not args.password:
@@ -368,11 +431,17 @@ async def main() -> int:
     token = await _login(args.base, args.email, args.password)
     ws_url = args.base.replace("http://", "ws://").replace("https://", "wss://") + "/api/chat/ws"
 
-    print(f"▶ الخادم: {args.base} · أسئلة: {len(MATRIX)}\n")
+    model_log = ModelLog(args.model_log) if args.model_log else None
+    print(f"▶ الخادم: {args.base} · أسئلة: {len(MATRIX)}")
+    print(
+        f"▶ بصمة التوليد: تُفحَص في {args.model_log}\n"
+        if model_log
+        else "▶ بصمة التوليد: لم تُفحَص — لا سجلّ orchestrator (--model-log)\n"
+    )
     results: list[TurnResult] = []
     for probe in MATRIX:
         print(f"▶ «{probe.question}»  — {probe.note}", flush=True)
-        result = await _run_turn(ws_url, token, probe)
+        result = await _run_turn(ws_url, token, probe, model_log)
         results.append(result)
         _print_turn(result)
     return _verdict(results)

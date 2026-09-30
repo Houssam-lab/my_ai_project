@@ -104,6 +104,11 @@ PROVIDER_UNAVAILABLE_MESSAGE = (
     "الدورة. السؤال سليم والعطل في الخدمة — أعد المحاولة بعد لحظات."
 )
 
+#: بصمةُ التوليد في السجلّ: سطرٌ يُكتب حين يُنهي نموذجٌ حقيقيّ توليده بنجاح. يقرؤها
+#: ``scripts/e2e/universal_answerability_live.py`` ليُثبت أنّ الجواب وَلَّده نموذج لا قالب
+#: (D-303 · E2b) — فموطنها هنا، ولا تُكتب حرفيّتها في موضعٍ ثانٍ.
+MODEL_SERVED_MARKER = "served by model="
+
 
 class AIClient:
     """
@@ -245,8 +250,9 @@ class AIClient:
                     **kwargs,
                 )
                 self.last_model = target_model
-                if len(targets) > 1:
-                    logger.info("AI generate served by model=%s", target_model)
+                # D-303: unconditional — the E2E matrix reads this line as proof of
+                # generation, so it must not depend on how many models are in the chain.
+                logger.info("AI generate %s%s", MODEL_SERVED_MARKER, target_model)
                 return resp
             except Exception as e:
                 attempts.append((target_model, self._describe(e)))
@@ -318,8 +324,7 @@ class AIClient:
                 if emitted == 0:
                     # نموذج بلا أي content (reasoning-only أو فراغ) = فشل، لا إجابة.
                     raise ValueError(f"empty_completion model={target_model} (content_chunks=0)")
-                if len(targets) > 1:
-                    logger.info("AI stream served by model=%s chunks=%d", target_model, emitted)
+                logger.info("AI stream %s%s chunks=%d", MODEL_SERVED_MARKER, target_model, emitted)
                 return
             except Exception as e:
                 if emitted > 0:
