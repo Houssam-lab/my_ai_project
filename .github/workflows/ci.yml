@@ -190,7 +190,15 @@ jobs:
           # ever sent to a buyer. A research/commercial document may enter the repo
           # only in the same diff as a new outbound row in CONTACT_LEDGER.csv; the
           # ledger obeys a closed schema and the scorecard must equal its derivation.
-          python scripts/fitness/check_outbound_before_research.py
+          # The gate reads the diff against a base SHA; on a clean checkout without
+          # one it sees nothing and passes every PR (found on #2533).
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            CODE_ACCEPTANCE_BASE_SHA="${{ github.event.pull_request.base.sha }}" python scripts/fitness/check_outbound_before_research.py
+          elif [ -n "${{ github.event.before }}" ] && [ "${{ github.event.before }}" != "0000000000000000000000000000000000000000" ]; then
+            CODE_ACCEPTANCE_BASE_SHA="${{ github.event.before }}" python scripts/fitness/check_outbound_before_research.py
+          else
+            python scripts/fitness/check_outbound_before_research.py
+          fi
           # D-279: engineering evidence and foreign-currency production evidence
           # must meet before a capability can advance.
           python scripts/fitness/check_dual_track_alignment.py

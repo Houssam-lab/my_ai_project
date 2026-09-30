@@ -189,3 +189,48 @@ def test_e2e_malformed_ledger_is_rejected(repo: Path, monkeypatch: pytest.Monkey
 def test_e2e_clean_repo_passes(repo: Path, monkeypatch: pytest.MonkeyPatch):
     code, out = _run_gate(repo, monkeypatch)
     assert code == 0, out
+
+
+# ---------------------------------------------------------------- CI wiring (found on PR #2533)
+
+
+def test_e2e_committed_research_without_row_exits_1_in_base_mode(
+    repo: Path, monkeypatch: pytest.MonkeyPatch
+):
+    """CI sees commits, not a dirty tree: the same breach must fail against a base SHA."""
+    seed_sha = subprocess.run(
+        ["git", "rev-parse", "HEAD"], cwd=repo, check=True, capture_output=True, text=True
+    ).stdout.strip()
+    (repo / "docs" / "research").mkdir(parents=True)
+    (repo / "docs" / "research" / "BATCH_13.md").write_text("# research\n", encoding="utf-8")
+    _git(repo, "add", "-A")
+    _git(repo, "commit", "-q", "-m", "research only")
+    monkeypatch.setattr(gate, "REPO_ROOT", repo)
+    monkeypatch.setenv(gate.BASE_ENV, seed_sha)
+    buffer = io.StringIO()
+    with contextlib.redirect_stdout(buffer):
+        code = gate.main()
+    assert code == 1, buffer.getvalue()
+    assert "BATCH_13.md" in buffer.getvalue()
+
+
+def test_ci_hands_the_gate_the_diff_base_on_pull_requests_and_pushes():
+    """Without a base the gate reads a clean checkout and passes every PR.
+
+    PR #2533 added two commercial documents without a contact row, and
+    ``guardrails`` went green: the job ran the gate with no ``BASE_ENV``.
+    """
+    ci = (REPO_ROOT / ".github" / "workflows" / "ci.yml").read_text(encoding="utf-8")
+    calls = [
+        line.strip()
+        for line in ci.splitlines()
+        if "check_outbound_before_research.py" in line and not line.strip().startswith("#")
+    ]
+    assert (
+        f'{gate.BASE_ENV}="${{{{ github.event.pull_request.base.sha }}}}" python scripts/fitness/check_outbound_before_research.py'
+        in calls
+    ), calls
+    assert (
+        f'{gate.BASE_ENV}="${{{{ github.event.before }}}}" python scripts/fitness/check_outbound_before_research.py'
+        in calls
+    ), calls
