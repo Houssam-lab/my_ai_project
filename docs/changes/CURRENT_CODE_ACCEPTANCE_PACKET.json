@@ -3,7 +3,7 @@
   "packet_id": "CAP-2026-09-29-dossier-completion",
   "status": "READY_FOR_GATE",
   "decision": "D-277",
-  "decision_of_change": "إكمال D-297 بلا قرارٍ جديد (سؤال المالك 2026-09-29 «هل نفّذتَ كلّ ما طُلب؟»): خمسة بنود توجيهٍ نقصت من الدوسييه — خريطة 19 مساراً بأعمدة التوجيه (CSV) · صافي القيمة · رسم التتبّع الاقتصادي · خريطة فجوات المال · مراجعة الكود من المال إلى الخلف — مع مواءمتها بـD-299→D-302 (PR #2529، دُمج 2026-09-30). وثائق فقط: صفر كود · صفر بوّابة · صفر حذف.",
+  "decision_of_change": "إكمال D-297 بلا قرارٍ جديد (سؤال المالك 2026-09-29 «هل نفّذتَ كلّ ما طُلب؟»): خمسة بنود توجيهٍ نقصت من الدوسييه — خريطة 19 مساراً بأعمدة التوجيه (CSV) · صافي القيمة · رسم التتبّع الاقتصادي · خريطة فجوات المال · مراجعة الكود من المال إلى الخلف — مع مواءمتها بـD-299→D-302 (PR #2529، دُمج 2026-09-30). وثائق فقط: صفر كود · صفر بوّابة · صفر حذف. ومعه إصلاح ISS-208: بوّابة تجميد البحث كانت تُشغَّل في CI بلا أساس فتنجح على كلّ PR؛ صارت تستلم pull_request.base.sha أو event.before كـcheck_code_acceptance، باختبار أسلاكٍ أحمر قبل الإصلاح واختبار e2e بوضع الأساس.",
   "standards": [
     "free-programming-books",
     "system-design-primer"
@@ -28,10 +28,12 @@
       "paths": [
         "docs/commercial/CODEBASE_ECONOMIC_AUDIT_2026-09-29.md",
         "tools/hard_currency_engine/cli.py",
-        "shared/research/contact_ledger.py"
+        "shared/research/contact_ledger.py",
+        ".github/workflows/ci.yml",
+        "tests/fitness/test_check_outbound_before_research.py"
       ],
-      "gate": "python -m pytest tests/unit/tools/test_hard_currency_engine.py tests/shared/test_contact_ledger.py",
-      "application_ar": "مراجعة كلّ مساحة بمسار المال الذي تخدمه وكلفتها، ومراجعة سطرٍ بسطر لكود مسار العميل فقط، بإعادة قياسٍ بأمرٍ واحد ولقطةٍ مؤرَّخة لا جدول حالةٍ حيّ."
+      "gate": "python -m pytest tests/fitness/test_check_outbound_before_research.py tests/unit/tools/test_hard_currency_engine.py tests/shared/test_contact_ledger.py",
+      "application_ar": "مراجعة كلّ مساحة بمسار المال الذي تخدمه وكلفتها، ومراجعة سطرٍ بسطر لكود مسار العميل فقط، بإعادة قياسٍ بأمرٍ واحد ولقطةٍ مؤرَّخة لا جدول حالةٍ حيّ. والفارض يُقرأ كما يُشغَّل في CI لا كما يُشغَّل محلياً: الأساس يُمرَّر، واختبارٌ يقرأ ci.yml يمنع عودة الاستدعاء الأعمى."
     }
   ],
   "production": {
@@ -47,7 +49,7 @@
       "docs/commercial/HARD_CURRENCY_SCORECARD.json",
       "tests/unit/tools/test_hard_currency_engine.py"
     ],
-    "failure_behavior_ar": "لا سلوك تشغيل: الدفعة وثائق. وثيقة بحثٍ بلا صفّ اتصالٍ جديد ⇒ check_outbound_before_research يخرج 1 ويسمّي الملفّ.",
+    "failure_behavior_ar": "وثيقة بحثٍ أو عرضٍ بلا صفّ اتصالٍ جديد في فارق الـPR ⇒ check_outbound_before_research يخرج 1 في CI (بعد إصلاح ISS-208) ويسمّي الملفّ.",
     "observability_ar": "الأرقام في المراجعة مُعاد قياسها بأمرٍ واحد مكتوب في رأسها ومربوطة بـcommit؛ اللوحة تبقى مُشتقّة من السجلّ.",
     "security_boundary_ar": "لا بيانات شخصية ولا أسرار: الوثائق تذكر ISS-204 وD-299 بأرقامهما ولا تنسخ أيّ بيانات دخول.",
     "rollback_ar": "git revert للدفعة؛ لا حالة ولا بيانات تتأثّر."
@@ -64,12 +66,13 @@
   "deletions": {
     "count": 0,
     "paths": [],
-    "policy_ar": "صفر حذف: المراجعة توصي بحذف ≈1,900 سطر بلا مستورد وتترك القرار للمالك؛ لا ملفّ حُذف ولا نُقل."
+    "policy_ar": "صفر حذف: المراجعة توصي بحذف ≈1,900 سطر بلا مستورد وتترك القرار للمالك؛ ولا ملفّ حُذف ولا نُقل، وإصلاح ci.yml يستبدل سطر استدعاءٍ بكتلة شرطية تحفظه في الفرع الأخير."
   },
   "verification": {
     "result": "PASS",
     "commands": [
       "python scripts/run_fitness_gates.py",
+      "python -m pytest tests/fitness/test_check_outbound_before_research.py  # 15 passed; wiring test red before the ci.yml fix",
       "python -m pytest tests scripts/ci --ignore=tests/microservices (CI deselects)",
       "python scripts/research/hard_currency_scorecard.py --check",
       "uvx ruff@0.14.0 check . && uvx ruff@0.14.0 format --check ."
@@ -154,20 +157,32 @@
     "owner": "curriculum-governance"
   },
   "changed_paths": [
+    ".github/workflows/ci.yml",
+    ".memory/README.md",
+    ".memory/issues.md",
+    "README.ar.md",
+    "README.md",
     "docs/DOCUMENTATION_INDEX.md",
     "docs/commercial/CODEBASE_ECONOMIC_AUDIT_2026-09-29.md",
     "docs/commercial/HARD_CURRENCY_OPPORTUNITY_DOSSIER_2026-09-28.md",
-    "docs/commercial/REVENUE_OPPORTUNITY_MAP_2026-09-29.csv"
+    "docs/commercial/REVENUE_OPPORTUNITY_MAP_2026-09-29.csv",
+    "tests/fitness/test_check_outbound_before_research.py"
   ],
   "git_change_snapshot": {
     "base_ref": "origin/main",
     "changed_paths_excluding_packet": [
+      ".github/workflows/ci.yml",
+      ".memory/README.md",
+      ".memory/issues.md",
+      "README.ar.md",
+      "README.md",
       "docs/DOCUMENTATION_INDEX.md",
       "docs/commercial/CODEBASE_ECONOMIC_AUDIT_2026-09-29.md",
       "docs/commercial/HARD_CURRENCY_OPPORTUNITY_DOSSIER_2026-09-28.md",
-      "docs/commercial/REVENUE_OPPORTUNITY_MAP_2026-09-29.csv"
+      "docs/commercial/REVENUE_OPPORTUNITY_MAP_2026-09-29.csv",
+      "tests/fitness/test_check_outbound_before_research.py"
     ],
-    "content_sha256_excluding_packet": "1e52c62bf2c14cf732d85533402efaa3fb595876b73e3156391e8b2c88e7e986",
+    "content_sha256_excluding_packet": "125bcba9e7dd1ca4af33c22ba3c133d068ad1ddd6a8a32606ee533019dcd76b1",
     "refreshed_on": "2026-09-30",
     "refresh_command": "python3 scripts/research/refresh_acceptance_diff_snapshot.py"
   }
