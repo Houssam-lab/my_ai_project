@@ -25,7 +25,8 @@
     "app/services/hard_currency/einvoicing_audit.py",
     "app/services/hard_currency/cbam_explorer.py",
     "app/services/hard_currency/frontier.py",
-    "tests/api/test_hard_currency_center.py"
+    "tests/api/test_hard_currency_center.py",
+    "docs/contracts/openapi/core-api-v1.yaml"
    ],
    "gate": "python scripts/fitness/check_value_chain.py && python -m pytest tests/shared/test_value_chain.py tests/fitness/test_check_value_chain.py tests/api/test_hard_currency_center.py",
    "application_ar": "قاعدةٌ واحدة في موطنٍ واحد: تعريف الحلقات والتصنيف في shared/research/value_chain.py، والبوّابة والسكربت يستدعيانه ولا يكرّرانه؛ الاشتقاق حتميّ بلا ساعة؛ والحرفية PAYMENT_SETTLED صار لها موطنٌ واحد في contact_ledger. والبوّابة تُثبت أنّها تحجب بتسع حالاتٍ مكسورة عمداً. والموجِّه رقيق: لا منطق حسابٍ فيه، والأغلفة لا تعيد كتابة الأدوات، والأخطاء صنفان مُسمّيان (InputRejectedError ⇒ 4xx · SourceUnavailableError ⇒ 503)."
@@ -172,6 +173,7 @@
   "app/services/hard_currency/redteam_classes.py",
   "app/services/hard_currency/sources.py",
   "docs/commercial/VALUE_CHAIN.json",
+  "docs/contracts/openapi/core-api-v1.yaml",
   "docs/contracts/openapi/monolith_api-openapi.json",
   "docs/governance/NEGATIVE_PROOFS.json",
   "scripts/fitness/check_value_chain.py",
@@ -199,6 +201,7 @@
    "app/services/hard_currency/redteam_classes.py",
    "app/services/hard_currency/sources.py",
    "docs/commercial/VALUE_CHAIN.json",
+   "docs/contracts/openapi/core-api-v1.yaml",
    "docs/contracts/openapi/monolith_api-openapi.json",
    "docs/governance/NEGATIVE_PROOFS.json",
    "scripts/fitness/check_value_chain.py",
@@ -209,7 +212,7 @@
    "tests/fitness/test_check_value_chain.py",
    "tests/shared/test_value_chain.py"
   ],
-  "content_sha256_excluding_packet": "347192c38bd8ca1a8eb0abac4dda0dc1e75ffda5ae60d9b43e7ba6c0d0d327a9",
+  "content_sha256_excluding_packet": "9efc58b94fae02a963b8e08b74652d3b6977f4004b07efdcca14b2776337e8c2",
   "refreshed_on": "2026-10-01",
   "refresh_command": "python3 scripts/research/refresh_acceptance_diff_snapshot.py"
  }
