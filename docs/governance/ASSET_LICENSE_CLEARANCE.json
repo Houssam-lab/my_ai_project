@@ -1888,6 +1888,42 @@
       "finding_ar": "وثيقةُ استراتيجيةٍ داخليّة أُنتِجت داخل المشروع (نصٌّ أصليّ بالعربية)، لا محتوى طرفٍ ثالث.",
       "remediation_ar": "",
       "reviewed_on": "2026-09-21"
+    },
+    {
+      "path": "docs/evidence/d305-hard-currency-frontier-2026-10-01.png",
+      "kind": "own_work_image",
+      "size_bytes": 93513,
+      "distribution": "OWN_WORK_MIT",
+      "finding_ar": "أصلٌ مُولَّدٌ داخل المشروع (لقطةُ شاشةٍ أو صورةُ دليل)، لا محتوى طرفٍ ثالث.",
+      "remediation_ar": "",
+      "reviewed_on": "2026-10-01"
+    },
+    {
+      "path": "docs/evidence/d305-hard-currency-cbam-2026-10-01.png",
+      "kind": "own_work_image",
+      "size_bytes": 97077,
+      "distribution": "OWN_WORK_MIT",
+      "finding_ar": "أصلٌ مُولَّدٌ داخل المشروع (لقطةُ شاشةٍ أو صورةُ دليل)، لا محتوى طرفٍ ثالث.",
+      "remediation_ar": "",
+      "reviewed_on": "2026-10-01"
+    },
+    {
+      "path": "docs/evidence/d305-hard-currency-einvoicing-2026-10-01.png",
+      "kind": "own_work_image",
+      "size_bytes": 83186,
+      "distribution": "OWN_WORK_MIT",
+      "finding_ar": "أصلٌ مُولَّدٌ داخل المشروع (لقطةُ شاشةٍ أو صورةُ دليل)، لا محتوى طرفٍ ثالث.",
+      "remediation_ar": "",
+      "reviewed_on": "2026-10-01"
+    },
+    {
+      "path": "docs/evidence/d305-student-menu-no-center-2026-10-01.png",
+      "kind": "own_work_image",
+      "size_bytes": 105837,
+      "distribution": "OWN_WORK_MIT",
+      "finding_ar": "أصلٌ مُولَّدٌ داخل المشروع (لقطةُ شاشةٍ أو صورةُ دليل)، لا محتوى طرفٍ ثالث.",
+      "remediation_ar": "",
+      "reviewed_on": "2026-10-01"
     }
   ],
   "offer_clearance": [
