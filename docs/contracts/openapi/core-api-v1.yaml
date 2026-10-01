@@ -1142,6 +1142,145 @@ paths:
         '200':
           description: Admin conversation details
       description: Admin Conversation Details
+  /admin/api/hard-currency/frontier:
+    get:
+      tags:
+      - Admin
+      summary: Hard-Currency Frontier
+      operationId: adminHardCurrencyFrontier
+      security:
+      - BearerAuth: []
+      responses:
+        '200':
+          description: Value-chain frontier re-derived from the contact ledger (D-305)
+        '503':
+          description: A source file is absent from this deployment
+      description: Hard-Currency Frontier
+  /admin/api/hard-currency/einvoicing-audits:
+    post:
+      tags:
+      - Admin
+      summary: E-Invoicing Audit
+      operationId: adminHardCurrencyEinvoicingAudit
+      security:
+      - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+              - file
+              - corridor
+              properties:
+                file:
+                  type: string
+                  format: binary
+                corridor:
+                  type: string
+                  enum:
+                  - fr
+                  - be
+      responses:
+        '200':
+          description: Deterministic audit, in memory, nothing stored
+        '413':
+          description: File too large
+        '415':
+          description: Not a CSV file
+        '422':
+          description: Unreadable CSV or unknown corridor
+      description: E-Invoicing Audit
+  /admin/api/hard-currency/cbam/codes:
+    get:
+      tags:
+      - Admin
+      summary: CBAM Pinned Codes
+      operationId: adminHardCurrencyCbamCodes
+      security:
+      - BearerAuth: []
+      responses:
+        '200':
+          description: Pinned CN codes with provenance
+      description: CBAM Pinned Codes
+  /admin/api/hard-currency/cbam/codes/{cn}:
+    get:
+      tags:
+      - Admin
+      summary: CBAM Code Detail
+      operationId: adminHardCurrencyCbamCodeDetail
+      security:
+      - BearerAuth: []
+      parameters:
+      - name: cn
+        in: path
+        description: Pinned CN code.
+        required: true
+        schema:
+          type: string
+      - name: year
+        in: query
+        required: false
+        schema:
+          type: integer
+          default: 2026
+      responses:
+        '200':
+          description: Pinned default, crossover threshold and trajectory
+        '404':
+          description: CN code is not pinned
+        '422':
+          description: Year outside the pinned horizon
+      description: CBAM Code Detail
+  /admin/api/hard-currency/cbam/codes/{cn}/decision:
+    post:
+      tags:
+      - Admin
+      summary: CBAM Decision
+      operationId: adminHardCurrencyCbamDecision
+      security:
+      - BearerAuth: []
+      parameters:
+      - name: cn
+        in: path
+        description: Pinned CN code.
+        required: true
+        schema:
+          type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - see_actual
+              properties:
+                see_actual:
+                  type: number
+                  exclusiveMinimum: 0
+                  maximum: 50
+      responses:
+        '200':
+          description: First year declaring actual data is cheaper, or none within the horizon
+        '404':
+          description: CN code is not pinned
+        '422':
+          description: Measured emissions out of range or code not computable
+      description: CBAM Decision
+  /admin/api/hard-currency/redteam/classes:
+    get:
+      tags:
+      - Admin
+      summary: AR/FR Exploit Classes
+      operationId: adminHardCurrencyRedteamClasses
+      security:
+      - BearerAuth: []
+      responses:
+        '200':
+          description: Exploit classes with publication status; probe texts are never returned
+      description: AR/FR Exploit Classes
   /api/v1/admin/ai-config:
     get:
       tags:
