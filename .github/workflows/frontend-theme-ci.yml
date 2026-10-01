@@ -276,18 +276,24 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          css_file=$(find .next/static/chunks -name "*.css" | head -1)
-          if [ -z "$css_file" ]; then
+          # D-305: the build emits one CSS chunk per stylesheet, not one file. A CSS
+          # module (the admin Hard-Currency Center) added a second chunk, and
+          # `find | head -1` then read *that* file and reported the global tokens as
+          # missing although they were compiled. The check reads every chunk.
+          mapfile -t css_files < <(find .next/static/chunks -name "*.css" | sort)
+          if [ "${#css_files[@]}" -eq 0 ]; then
             echo "❌ No compiled CSS found"
             exit 1
           fi
-          echo "Checking: $css_file ($(wc -c < "$css_file") bytes)"
+          for css_file in "${css_files[@]}"; do
+            echo "Checking: $css_file ($(wc -c < "$css_file") bytes)"
+          done
           # `grep -q -e "--token" --` is mandatory: without `-e`, patterns
           # starting with `--` are eaten as long-options on Ubuntu's
           # ugrep/grep and the entire check silently fails with
           # "unrecognized option --code-bg".
           for token in "header-theme-btn" "--code-bg" "--pre-bg" "data-theme"; do
-            if ! grep -q -e "$token" -- "$css_file"; then
+            if ! grep -q -e "$token" -- "${css_files[@]}"; then
               echo "❌ '$token' missing from compiled CSS"
               exit 1
             fi
