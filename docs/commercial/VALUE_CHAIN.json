@@ -204,7 +204,8 @@
         "3": {
           "status": "REACHED",
           "evidence": [
-            "naas_verifier/corpus/ar_fr_exploit_classes.json"
+            "naas_verifier/corpus/ar_fr_exploit_classes.json",
+            "naas_verifier/corpus/canary_probes.json"
           ],
           "note_ar": "مسابير مُنشأة لا تحمل نصّ طالب (DATA_POLICY.md §4)",
           "contains_user_data": false
@@ -213,9 +214,11 @@
           "status": "REACHED",
           "evidence": [
             "naas_verifier/cli.py",
-            "tests/naas_verifier/test_verdict_reproduction.py"
+            "tests/naas_verifier/test_verdict_reproduction.py",
+            "naas_verifier/benchmarks/canary_range.json",
+            "tests/naas_verifier/test_canary_range.py"
           ],
-          "note_ar": "ثلاث تشغيلاتٍ حتمية على أهدافٍ مرجعية — حدّها: ليست نظام عميل"
+          "note_ar": "ثلاث تشغيلاتٍ حتمية على أهدافٍ مرجعية — حدّها: ليست نظام عميل · وميدان الكناري (D-305): 190 مسباراً عربياً/فرنسياً/دارجاً على المقطع الحتمي لمعلّمنا — صفر تسريب، وكلّ عائلةٍ ≥30 مقيساً. حدّه: نظامُنا نحن، فلا يُحتسَب للحلقة 5"
         },
         "5": {
           "status": "REACHED",

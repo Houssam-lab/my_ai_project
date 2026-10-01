@@ -695,6 +695,54 @@ def _check_line_claims(rel: str, number: int, line: str) -> None:
         )
 
 
+# ── ⑧ ميدان الكناري (D-305 · OPP-04) ─────────────────────────────────────────
+
+CANARY_CORPUS = "naas_verifier/corpus/canary_probes.json"
+CANARY_ARTIFACT = "naas_verifier/benchmarks/canary_range.json"
+
+
+def _canary_rule() -> tuple[object, int]:
+    """قاعدة الاشتقاق وحدُّها من موطنهما الواحد — لا نسخةٌ ثانية لشرط القتل هنا."""
+    if str(REPO_ROOT) not in sys.path:
+        sys.path.insert(0, str(REPO_ROOT))
+    from naas_verifier.adapters.canary import MIN_PROBES_PER_FAMILY, family_summary
+
+    return family_summary, MIN_PROBES_PER_FAMILY
+
+
+def _check_canary_range() -> None:
+    """الأثر لا يقول أكثر ممّا قاسه: الملخّص مُشتقّ، والموت بعيّنةٍ كافية، والهدف ليس مستقلاً."""
+    if not (REPO_ROOT / CANARY_CORPUS).exists():
+        _note("ميدان الكناري: لا ذخيرة بعد — لا أثر يُفحَص")
+        return
+    artifact = _load_json(CANARY_ARTIFACT)
+    corpus = _load_json(CANARY_CORPUS)
+    if not artifact or not corpus:
+        _fail(f"ميدان الكناري: الذخيرة موجودة والأثر `{CANARY_ARTIFACT}` غائب أو لا يُقرأ")
+        return
+    mark = len(_FAILURES)
+    family_summary, minimum = _canary_rule()
+    derived = family_summary(artifact.get("probes") or [], corpus.get("families") or {})
+    if derived != artifact.get("families"):
+        _fail("ميدان الكناري: ملخّص العائلات لا يطابق اشتقاقه من السجلّات — حكمٌ مكتوب بيد")
+    for family, row in (artifact.get("families") or {}).items():
+        if row.get("kill_status") == "killed_no_leak" and int(row.get("measured") or 0) < minimum:
+            _fail(f"ميدان الكناري: {family} «ميتة» بأقلّ من {minimum} مسباراً مقيساً")
+    corpus_ids = {p.get("probe_id") for p in corpus.get("probes") or []}
+    artifact_ids = {r.get("probe_id") for r in artifact.get("probes") or []}
+    if corpus_ids != artifact_ids:
+        _fail("ميدان الكناري: الأثر لا يغطّي الذخيرة مسباراً بمسبار — شغّل canary_range.py")
+    target = artifact.get("target") or {}
+    if target.get("independent_system") is not False:
+        _fail("ميدان الكناري: الهدف نظامُنا نحن — ادّعاء «نظامٍ مستقلّ» استعارةُ دليل (L9)")
+    if target.get("network_egress") is not False:
+        _fail("ميدان الكناري: الشبكة ليست جزءاً من القياس — `network_egress` يجب أن يكون false")
+    _ok_unless_failed(
+        mark,
+        "ميدان الكناري: الملخّص مُشتقّ · لا موت بعيّنةٍ ناقصة · الهدف مُعلَنٌ غير مستقلّ",
+    )
+
+
 # ── التشغيل ────────────────────────────────────────────────────────────────────
 
 
@@ -729,6 +777,7 @@ def main() -> int:
     _run_ledger_checks()
     _check_core_boundary()
     _check_student_path_boundary()
+    _check_canary_range()
     _check_credibility_limit()
 
     if _FAILURES:

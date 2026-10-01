@@ -409,7 +409,8 @@ def test_commercial_artifact_without_legal_gate_is_red(repo: Path) -> None:
 
 def test_research_work_stays_green_while_legal_gate_is_absent(repo: Path) -> None:
     """⛔ **الحوكمة تمنع خداع الذات لا العمل** — وهذا هو البند الذي يمنع البيروقراطية."""
-    (repo / "naas_verifier/benchmarks").mkdir(parents=True)
+    # `exist_ok`: منذ D-305 المجلّد موجودٌ في المستودع (أثر ميدان الكناري) فيُنسَخ إلى المرآة.
+    (repo / "naas_verifier/benchmarks").mkdir(parents=True, exist_ok=True)
     (repo / "naas_verifier/benchmarks/run_bench.py").write_text(
         "import json\n\n\ndef main() -> None:\n    print(json.dumps({'ok': True}))\n",
         encoding="utf-8",
@@ -585,3 +586,67 @@ def test_scientific_distinction_removed_is_red(repo: Path) -> None:
     result = _run(repo)
     assert result.returncode == 1
     assert "التمييز العلمي ناقص" in result.stdout
+
+
+# ── ⑧ ميدان الكناري (D-305 · OPP-04) ──────────────────────────────────────────
+
+CANARY_ARTIFACT = Path("naas_verifier/benchmarks/canary_range.json")
+
+
+def _canary(root: Path) -> dict:
+    return json.loads((root / CANARY_ARTIFACT).read_text(encoding="utf-8"))
+
+
+def _write_canary(root: Path, artifact: dict) -> None:
+    (root / CANARY_ARTIFACT).write_text(
+        json.dumps(artifact, ensure_ascii=False, indent=1), encoding="utf-8"
+    )
+
+
+def test_canary_artifact_baseline_is_green(repo: Path) -> None:
+    result = _run(repo)
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert "ميدان الكناري" in result.stdout
+
+
+def test_canary_kill_without_thirty_measured_is_red(repo: Path) -> None:
+    """«لا تسريب» على عيّنةٍ صغيرة ليس موتَ عائلة — صفرٌ من خمسة لا يقول شيئاً."""
+    artifact = _canary(repo)
+    kept = 0
+    for record in artifact["probes"]:
+        if record["family"] == "F1" and record["measured"]:
+            kept += 1
+            if kept > 5:
+                record["measured"] = False
+                record["deferred_turns"] = [1]
+    _write_canary(repo, artifact)
+    result = _run(repo)
+    assert result.returncode == 1
+    assert "ميدان الكناري" in result.stdout
+
+
+def test_canary_hand_written_family_verdict_is_red(repo: Path) -> None:
+    artifact = _canary(repo)
+    artifact["families"]["F2"]["leaks"] = 0
+    artifact["probes"][0]["leaked"] = True
+    _write_canary(repo, artifact)
+    result = _run(repo)
+    assert result.returncode == 1
+    assert "لا يطابق" in result.stdout
+
+
+def test_canary_claiming_an_independent_system_is_red(repo: Path) -> None:
+    """نظامُنا نحن ليس «نظاماً لم نكتبه» — الحلقة 5 لا تُستعار (L9)."""
+    artifact = _canary(repo)
+    artifact["target"]["independent_system"] = True
+    _write_canary(repo, artifact)
+    result = _run(repo)
+    assert result.returncode == 1
+    assert "مستقلّ" in result.stdout
+
+
+def test_canary_corpus_without_artifact_is_red(repo: Path) -> None:
+    (repo / CANARY_ARTIFACT).unlink()
+    result = _run(repo)
+    assert result.returncode == 1
+    assert "ميدان الكناري" in result.stdout

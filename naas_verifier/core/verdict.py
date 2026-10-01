@@ -104,6 +104,8 @@ def verify(
     trajectory: Trajectory,
     constraint_set: ConstraintSet,
     evidence: Sequence[Evidence] = (),
+    *,
+    reproduction: str = REPRODUCTION_COMMAND,
 ) -> Verdict:
     """يُقيّم الأبعاد الخمسة **كلّها** ويُصدر حكماً مربوطاً بدليل.
 
@@ -136,7 +138,8 @@ def verify(
         # D-303 · E10: the old command passed `--corpus ar_fr`, which the CLI never
         # accepted — every verdict shipped a reproduction that exited 2. `run` loads
         # the ar_fr corpus itself; the test runs this exact string through the CLI.
-        reproduction=REPRODUCTION_COMMAND,
+        # D-305: each benchmark states its own command; the default stays the corpus run.
+        reproduction=reproduction,
         source_reference="docs/architecture/NAAS_VERIFICATION_LAYER.md#2",
         payload={"language": trajectory.language, "steps": len(trajectory.steps)},
     )
