@@ -44,7 +44,9 @@
     "frontend/app/components/hard-currency/CbamDecisionExplorer.jsx",
     "frontend/app/components/hard-currency/RedTeamClasses.jsx",
     "frontend/app/components/hard-currency/LockedPathCard.jsx",
-    "frontend/app/components/hard-currency/StatusPanel.jsx"
+    "frontend/app/components/hard-currency/StatusPanel.jsx",
+    "scripts/e2e/hard_currency_center_live.py",
+    "scripts/e2e/hard_currency_center_ui.cjs"
    ],
    "gate": "python scripts/fitness/check_value_chain.py && python -m pytest tests/shared/test_value_chain.py tests/fitness/test_check_value_chain.py tests/api/test_hard_currency_center.py tests/services/test_admin_bootstrap_guard.py && python scripts/fitness/check_design_tokens.py && npm run build --prefix frontend && python scripts/fitness/check_bundle_budget.py",
    "application_ar": "قاعدةٌ واحدة في موطنٍ واحد: تعريف الحلقات والتصنيف في shared/research/value_chain.py، والبوّابة والسكربت يستدعيانه ولا يكرّرانه؛ الاشتقاق حتميّ بلا ساعة؛ والحرفية PAYMENT_SETTLED صار لها موطنٌ واحد في contact_ledger. والبوّابة تُثبت أنّها تحجب بتسع حالاتٍ مكسورة عمداً. والموجِّه رقيق: لا منطق حسابٍ فيه، والأغلفة لا تعيد كتابة الأدوات، والأخطاء صنفان مُسمّيان (InputRejectedError ⇒ 4xx · SourceUnavailableError ⇒ 503). ومسارٌ واحد يهيّئ المدير (ISS-210): السكربت المكرَّر صار تفويضاً، والحرفية الافتراضية موطنها واحد، والحارس يرفض قبل أيّ عبارة SQL."
@@ -182,6 +184,7 @@
   ".memory/ci-gates.md",
   ".memory/decisions.md",
   ".memory/issues.md",
+  ".memory/runtime_truth.md",
   ".runtime/truth_table.lock.json",
   "app/api/routers/hard_currency.py",
   "app/api/routers/registry.py",
@@ -211,6 +214,8 @@
   "frontend/app/components/hard-currency/StatusPanel.jsx",
   "frontend/app/hooks/useHardCurrencyApi.js",
   "frontend/types/api.d.ts",
+  "scripts/e2e/hard_currency_center_live.py",
+  "scripts/e2e/hard_currency_center_ui.cjs",
   "scripts/ensure_admin.py",
   "scripts/fitness/check_value_chain.py",
   "scripts/research/value_chain.py",
@@ -229,6 +234,7 @@
    ".memory/ci-gates.md",
    ".memory/decisions.md",
    ".memory/issues.md",
+   ".memory/runtime_truth.md",
    ".runtime/truth_table.lock.json",
    "app/api/routers/hard_currency.py",
    "app/api/routers/registry.py",
@@ -258,6 +264,8 @@
    "frontend/app/components/hard-currency/StatusPanel.jsx",
    "frontend/app/hooks/useHardCurrencyApi.js",
    "frontend/types/api.d.ts",
+   "scripts/e2e/hard_currency_center_live.py",
+   "scripts/e2e/hard_currency_center_ui.cjs",
    "scripts/ensure_admin.py",
    "scripts/fitness/check_value_chain.py",
    "scripts/research/value_chain.py",
@@ -268,7 +276,7 @@
    "tests/services/test_admin_bootstrap_guard.py",
    "tests/shared/test_value_chain.py"
   ],
-  "content_sha256_excluding_packet": "bf3b0fcd5b7bfe7bb97b2145d12137a23cd4e8214f43d7da2c570daca2811cd5",
+  "content_sha256_excluding_packet": "dcafbb02364be3f91e7358c5dc96efd5bea2785e5a195237770ef9aa36c7925e",
   "refreshed_on": "2026-10-01",
   "refresh_command": "python3 scripts/research/refresh_acceptance_diff_snapshot.py"
  }
