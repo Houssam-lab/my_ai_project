@@ -209,7 +209,7 @@
    "tests/fitness/test_check_value_chain.py",
    "tests/shared/test_value_chain.py"
   ],
-  "content_sha256_excluding_packet": "3aa6750a1a44d51187801e47e9bbbacccade39b39a856994ca669e293e3aedae",
+  "content_sha256_excluding_packet": "347192c38bd8ca1a8eb0abac4dda0dc1e75ffda5ae60d9b43e7ba6c0d0d327a9",
   "refreshed_on": "2026-10-01",
   "refresh_command": "python3 scripts/research/refresh_acceptance_diff_snapshot.py"
  }
