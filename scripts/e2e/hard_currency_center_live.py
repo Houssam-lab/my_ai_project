@@ -13,7 +13,8 @@
 
 ⛔ لا كلمة سرّ في الكود ولا قيمةٌ افتراضية لها — البيئة وحدها:
 ``E2E_ADMIN_EMAIL`` · ``E2E_ADMIN_PASSWORD`` · ``E2E_STUDENT_EMAIL`` · ``E2E_STUDENT_PASSWORD``
-· ``E2E_BACKEND`` · ``APP_DATABASE_URL`` (للعدّ قبل/بعد في جداول الرسائل).
+· ``E2E_BACKEND`` · ``APP_DATABASE_URL`` (للعدّ قبل/بعد في جداول الرسائل)
+· ``ORCHESTRATOR_SERVICE_URL`` (لقراءة جاهزية رسم LangGraph من الخدمة نفسها).
 
     python scripts/e2e/hard_currency_center_live.py --json-output /tmp/hc-live.json
 """
@@ -275,6 +276,29 @@ async def _check_redteam(j: Journey, headers: dict[str, str]) -> None:
     )
 
 
+async def _check_graph(j: Journey, orchestrator: str) -> None:
+    """هل LangGraph يعمل؟ — يُقرأ من الخدمة نفسها لا من سجلّها (سؤال المالك 2026-10-01)."""
+    started = time.perf_counter()
+    try:
+        async with httpx.AsyncClient(timeout=15.0) as client:
+            health = (await client.get(f"{orchestrator}/health")).json()
+    except Exception as exc:
+        j.record("رسم LangGraph جاهز", False, f"{type(exc).__name__}: {str(exc)[:160]}", started)
+        return
+    ok = (
+        health.get("graph_ready") is True
+        and health.get("checkpointer_backend") == "postgres"
+        and health.get("database") == "ok"
+    )
+    j.record(
+        "رسم LangGraph جاهز",
+        ok,
+        f"graph_ready={health.get('graph_ready')} · checkpointer={health.get('checkpointer_backend')}"
+        f" · database={health.get('database')} · startup={health.get('startup_state')}",
+        started,
+    )
+
+
 async def _check_chat(j: Journey, admin_token: str, student_token: str) -> None:
     ws = j.base.replace("http://", "ws://").replace("https://", "wss://")
     for label, path, token, question in (
@@ -323,6 +347,7 @@ async def main() -> int:
         j.record(
             "لا صفّ في جداول الرسائل من المركز", before == after, f"{before} ⇒ {after}", started
         )
+        await _check_graph(j, os.environ.get("ORCHESTRATOR_SERVICE_URL", "http://127.0.0.1:8006"))
         await _check_chat(j, admin_token, student_token)
     finally:
         await j.client.aclose()
