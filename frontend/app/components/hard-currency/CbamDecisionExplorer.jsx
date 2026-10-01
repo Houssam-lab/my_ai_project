@@ -92,7 +92,12 @@ function TrajectoryChart({ trajectory, plant }) {
                     ))}
                 </svg>
                 {active != null && (
-                    <div className={styles.tooltip} role="status">
+                    <div
+                        className={styles.tooltip}
+                        role="status"
+                        // فوق السنة المحوَّم عليها، مقيَّداً كي لا يخرج من الإطار.
+                        style={{ left: `${Math.min(85, Math.max(15, (x(active) / W) * 100))}%` }}
+                    >
                         <strong>{fmt(trajectory[active].crossover_see_t)}</strong> عتبة العبور · {trajectory[active].year}
                         {plant != null && (
                             <div>

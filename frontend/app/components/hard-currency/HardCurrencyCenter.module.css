@@ -507,8 +507,10 @@
     border-top: 2px dashed var(--ink);
 }
 
+/* مساحةٌ محجوزة فوق الرسم للتلميح: لا يغطّي المحور ولا الخطّ. */
 .chartWrap {
     position: relative;
+    padding-top: var(--space-xl);
 }
 
 .chart {
@@ -566,7 +568,8 @@
 .tooltip {
     position: absolute;
     top: 0;
-    left: 0;
+    transform: translateX(-50%);
+    white-space: nowrap;
     padding: var(--space-3xs) var(--space-2xs);
     background: var(--paper-raised);
     border: 1px solid var(--rule);
