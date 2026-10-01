@@ -142,10 +142,23 @@ def route_of(target_ref: str) -> str:
     return target_ref.split("#", 1)[0].strip()
 
 
+def _mapping(value: object) -> Mapping[str, object]:
+    """تضييق قيمة JSON إلى كائن — وغير الكائن يُقرأ فارغاً لا يُفترَض شكله."""
+    return value if isinstance(value, Mapping) else {}
+
+
+def _items(value: object) -> list[object]:
+    return list(value) if isinstance(value, (list, tuple)) else []
+
+
+def _paths(doc: Mapping[str, object]) -> list[Mapping[str, object]]:
+    return [entry for entry in _items(doc.get("paths")) if isinstance(entry, Mapping)]
+
+
 def _route_table(paths: Sequence[Mapping[str, object]]) -> dict[str, list[str]]:
     table: dict[str, list[str]] = {}
     for entry in paths:
-        for route in entry.get("ledger_routes", []) or []:
+        for route in _items(entry.get("ledger_routes")):
             table.setdefault(str(route), []).append(str(entry.get("id")))
     return table
 
@@ -163,9 +176,9 @@ def _rows_by_path(
 
 
 def _raw_links(entry: Mapping[str, object], rows: Sequence[LedgerRow]) -> dict[int, bool]:
-    declared = entry.get("links", {}) or {}
+    declared = _mapping(entry.get("links"))
     raw = {
-        number: (declared.get(str(number)) or {}).get("status") == REACHED for number in _DECLARED
+        number: _mapping(declared.get(str(number))).get("status") == REACHED for number in _DECLARED
     }
     actions = {row.action for row in rows}
     raw[7] = bool(actions & INBOUND)
@@ -207,7 +220,7 @@ def compute_derived(
     doc: Mapping[str, object], ledger_rows: Sequence[LedgerRow]
 ) -> dict[str, object]:
     """الكتلة ``derived`` كاملةً — لا تعتمد على الساعة ولا على وجود الملفّات (حتمية)."""
-    paths = list(doc.get("paths", []) or [])
+    paths = _paths(doc)
     grouped = _rows_by_path(paths, ledger_rows)
     derived_paths = [_derive_path(entry, grouped[str(entry.get("id"))]) for entry in paths]
     counts = dict.fromkeys(CLASSIFICATIONS, 0)
@@ -263,7 +276,7 @@ def _link_problems(pid: str, entry: Mapping[str, object], root: Path) -> list[st
             found.append(f"{pid}: الحلقة {number} بحالةٍ خارج المجموعة: {status!r}")
             continue
         if status == REACHED:
-            evidence = link.get("evidence") or []
+            evidence = _items(link.get("evidence"))
             if not evidence:
                 found.append(f"{pid}: الحلقة {number} REACHED بلا دليل")
             for rel in evidence:
@@ -288,7 +301,7 @@ def _entry_problems(entry: Mapping[str, object], root: Path) -> list[str]:
         found.append(f"{pid}: `title_ar` فارغ")
     if _missing(root, entry.get("source")):
         found.append(f"{pid}: `source` غير موجود: {entry.get('source')!r}")
-    for asset in entry.get("reused_assets", []) or []:
+    for asset in _items(entry.get("reused_assets")):
         if not isinstance(asset, Mapping) or _missing(root, asset.get("path")):
             found.append(f"{pid}: أصلٌ مُعاد استعماله غير موجود: {asset!r}")
         elif not str(asset.get("role_ar") or "").strip():
@@ -321,8 +334,12 @@ def _catalog_problems(
     catalog: Mapping[str, object],
     ledger_rows: Sequence[LedgerRow],
 ) -> list[str]:
-    offers = {str(o.get("id")): o for o in catalog.get("offers", []) or []}
-    by_id = {str(item["id"]): item for item in derived.get("paths", [])}  # type: ignore[union-attr]
+    offers = {
+        str(offer.get("id")): offer
+        for offer in _items(catalog.get("offers"))
+        if isinstance(offer, Mapping)
+    }
+    by_id = {str(item.get("id")): item for item in _paths({"paths": derived.get("paths")})}
     grouped = _rows_by_path(paths, ledger_rows)
     found: list[str] = []
     for entry in paths:
@@ -334,7 +351,7 @@ def _catalog_problems(
             found.append(f"{entry.get('id')}: `catalog_id` غير موجود في الكتالوج: {catalog_id!r}")
             continue
         status = str(offer.get("status"))
-        raw = set(by_id[str(entry.get("id"))]["raw_links"])
+        raw = set(_items(_mapping(by_id.get(str(entry.get("id")))).get("raw_links")))
         if missing := [n for n in _CATALOG_REQUIRES.get(status, ()) if n not in raw]:
             found.append(
                 f"{entry.get('id')}: الكتالوج يقول {status} والحلقات {missing} غير مبلوغة — "
@@ -349,11 +366,11 @@ def _catalog_problems(
 def _wording_problems(
     paths: Sequence[Mapping[str, object]], derived: Mapping[str, object]
 ) -> list[str]:
-    by_id = {str(item["id"]): item for item in derived.get("paths", [])}  # type: ignore[union-attr]
+    by_id = {str(item.get("id")): item for item in _paths({"paths": derived.get("paths")})}
     found: list[str] = []
     for entry in paths:
         pid = str(entry.get("id"))
-        if by_id.get(pid, {}).get("classification") == "commercial_evidence":
+        if _mapping(by_id.get(pid)).get("classification") == "commercial_evidence":
             continue
         for text in _strings(entry):
             for line in text.splitlines():
@@ -376,11 +393,14 @@ def problems(
     catalog: Mapping[str, object],
 ) -> list[str]:
     """كلّ ما يمنع قبول ``VALUE_CHAIN.json`` — قائمةٌ كاملة لا أوّل خطأ."""
-    paths = doc.get("paths")
-    if not isinstance(paths, list) or not paths:
+    raw_paths = _items(doc.get("paths"))
+    if not raw_paths:
         return ["`paths` فارغ أو مفقود — سلسلةٌ بلا مسارات لا تشهد لشيء"]
-    ids = [str(entry.get("id")) for entry in paths]
+    paths = _paths(doc)
     found: list[str] = []
+    if len(paths) != len(raw_paths):
+        found.append("مدخلٌ في `paths` ليس كائناً — لا يُقرأ ولا يُشهَد له")
+    ids = [str(entry.get("id")) for entry in paths]
     if duplicates := sorted({pid for pid in ids if ids.count(pid) > 1}):
         found.append(f"مُعرِّفات مكرَّرة: {duplicates}")
     for entry in paths:
@@ -408,8 +428,11 @@ def map_decisions(text: str) -> dict[str, str]:
 
 def load_json(path: Path) -> dict[str, object]:
     try:
-        return json.loads(path.read_text(encoding="utf-8"))
+        payload: object = json.loads(path.read_text(encoding="utf-8"))
     except FileNotFoundError as exc:
         raise ValueChainError(f"ملفّ غير موجود: {path}") from exc
     except json.JSONDecodeError as exc:
         raise ValueChainError(f"{path}: ليس JSON صالحاً ({exc})") from exc
+    if not isinstance(payload, dict):
+        raise ValueChainError(f"{path}: الجذر ليس كائناً")
+    return payload

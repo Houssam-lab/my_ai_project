@@ -12,6 +12,7 @@ from app.api.routers import (
     customer_chat,
     data_mesh,
     guardian,
+    hard_currency,
     observability,
     review,
     security,
@@ -55,4 +56,6 @@ def base_router_registry() -> list[RouterSpec]:
         (analytics.router, ""),
         # D-198: القسائم المدفوعة مسبقاً + حقوق الوصول.
         (vouchers.router, ""),
+        # D-305: مركز العملة الصعبة — للمدير وحده، أغلفةٌ فوق محرّكاتٍ حتمية.
+        (hard_currency.router, ""),
     ]

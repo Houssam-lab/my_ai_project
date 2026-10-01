@@ -2762,6 +2762,218 @@
           }
         }
       }
+    },
+    "/admin/api/hard-currency/frontier": {
+      "get": {
+        "tags": [
+          "Hard-Currency Center"
+        ],
+        "summary": "Value-chain frontier",
+        "description": "\u0643\u0644\u0651 \u0645\u0633\u0627\u0631\u064d \u0628\u062a\u0635\u0646\u064a\u0641\u0647 \u0627\u0644\u0645\u064f\u0634\u062a\u0642\u0651 \u0648\u062d\u0644\u0642\u062a\u0647 \u0627\u0644\u062a\u0627\u0644\u064a\u0629 \u0648\u0641\u0627\u0639\u0644\u0647\u0627 \u2014 \u0648\u0627\u0644\u0642\u0645\u0639 \u0627\u0644\u062d\u0642\u064a\u0642\u064a \u0641\u064a \u0627\u0644\u0623\u0639\u0644\u0649.",
+        "operationId": "get_frontier_admin_api_hard_currency_frontier_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FrontierResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/api/hard-currency/einvoicing-audits": {
+      "post": {
+        "tags": [
+          "Hard-Currency Center"
+        ],
+        "summary": "E-invoicing audit",
+        "description": "\u062a\u062f\u0642\u064a\u0642\u064c \u062d\u062a\u0645\u064a \u0628\u0644\u0627 \u0634\u0628\u0643\u0629. \u26d4 \u0627\u0644\u0645\u0644\u0641\u0651 \u0644\u0627 \u064a\u064f\u062e\u0632\u064e\u0651\u0646 \u0648\u0644\u0627 \u064a\u064f\u0633\u062c\u064e\u0651\u0644 \u0645\u062d\u062a\u0648\u0627\u0647.",
+        "operationId": "post_einvoicing_audit_admin_api_hard_currency_einvoicing_audits_post",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_post_einvoicing_audit_admin_api_hard_currency_einvoicing_audits_post"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuditResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/api/hard-currency/cbam/codes": {
+      "get": {
+        "tags": [
+          "Hard-Currency Center"
+        ],
+        "summary": "Pinned CBAM codes",
+        "operationId": "get_cbam_codes_admin_api_hard_currency_cbam_codes_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CbamCodesResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/api/hard-currency/cbam/codes/{cn}": {
+      "get": {
+        "tags": [
+          "Hard-Currency Center"
+        ],
+        "summary": "Pinned CBAM detail",
+        "operationId": "get_cbam_detail_admin_api_hard_currency_cbam_codes__cn__get",
+        "parameters": [
+          {
+            "name": "cn",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "maxLength": 12,
+              "title": "Cn"
+            }
+          },
+          {
+            "name": "year",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 2026,
+              "title": "Year"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CbamDetailResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/api/hard-currency/cbam/codes/{cn}/decision": {
+      "post": {
+        "tags": [
+          "Hard-Currency Center"
+        ],
+        "summary": "CBAM decision",
+        "operationId": "post_cbam_decision_admin_api_hard_currency_cbam_codes__cn__decision_post",
+        "parameters": [
+          {
+            "name": "cn",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "maxLength": 12,
+              "title": "Cn"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CbamDecisionRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CbamDecisionResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/api/hard-currency/redteam/classes": {
+      "get": {
+        "tags": [
+          "Hard-Currency Center"
+        ],
+        "summary": "AR/FR exploit classes",
+        "operationId": "get_redteam_classes_admin_api_hard_currency_redteam_classes_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RedTeamResponse"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -3089,6 +3301,74 @@
           }
         ]
       },
+      "AuditResponse": {
+        "properties": {
+          "corridor": {
+            "type": "string",
+            "title": "Corridor"
+          },
+          "filename": {
+            "type": "string",
+            "title": "Filename"
+          },
+          "summary": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Summary"
+          },
+          "anomalies": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Anomalies"
+          },
+          "anomalies_truncated": {
+            "type": "boolean",
+            "title": "Anomalies Truncated"
+          },
+          "report_markdown": {
+            "type": "string",
+            "title": "Report Markdown"
+          },
+          "cleaned_csv": {
+            "type": "string",
+            "title": "Cleaned Csv"
+          },
+          "cleaned_filename": {
+            "type": "string",
+            "title": "Cleaned Filename"
+          },
+          "stored": {
+            "type": "boolean",
+            "title": "Stored"
+          },
+          "online_checks": {
+            "type": "boolean",
+            "title": "Online Checks"
+          }
+        },
+        "type": "object",
+        "required": [
+          "corridor",
+          "filename",
+          "summary",
+          "anomalies",
+          "anomalies_truncated",
+          "report_markdown",
+          "cleaned_csv",
+          "cleaned_filename",
+          "stored",
+          "online_checks"
+        ],
+        "title": "AuditResponse",
+        "examples": [
+          {
+            "_comment": "Extra fields are ignored by design (Postel's Law)."
+          }
+        ]
+      },
       "AuthResponse": {
         "properties": {
           "access_token": {
@@ -3131,6 +3411,264 @@
           "user"
         ],
         "title": "AuthResponse",
+        "examples": [
+          {
+            "_comment": "Extra fields are ignored by design (Postel's Law)."
+          }
+        ]
+      },
+      "Body_post_einvoicing_audit_admin_api_hard_currency_einvoicing_audits_post": {
+        "properties": {
+          "file": {
+            "type": "string",
+            "format": "binary",
+            "title": "File",
+            "description": "\u0645\u0644\u0641\u0651 \u0623\u0637\u0631\u0627\u0641\u064d \u062b\u0627\u0644\u062b\u0629 CSV"
+          },
+          "corridor": {
+            "type": "string",
+            "title": "Corridor",
+            "description": "fr \u0623\u0648 be"
+          }
+        },
+        "type": "object",
+        "required": [
+          "file",
+          "corridor"
+        ],
+        "title": "Body_post_einvoicing_audit_admin_api_hard_currency_einvoicing_audits_post"
+      },
+      "CbamCodesResponse": {
+        "properties": {
+          "provenance": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Provenance"
+          },
+          "codes": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Codes"
+          }
+        },
+        "type": "object",
+        "required": [
+          "provenance",
+          "codes"
+        ],
+        "title": "CbamCodesResponse",
+        "examples": [
+          {
+            "_comment": "Extra fields are ignored by design (Postel's Law)."
+          }
+        ]
+      },
+      "CbamDecisionRequest": {
+        "properties": {
+          "see_actual": {
+            "type": "number",
+            "maximum": 50.0,
+            "exclusiveMinimum": 0.0,
+            "title": "See Actual",
+            "description": "tCO\u2082e/t \u0645\u0642\u064a\u0633\u064c \u0644\u0644\u0645\u0646\u0634\u0623\u0629"
+          }
+        },
+        "type": "object",
+        "required": [
+          "see_actual"
+        ],
+        "title": "CbamDecisionRequest",
+        "examples": [
+          {
+            "_comment": "Extra fields are ignored by design (Postel's Law)."
+          }
+        ]
+      },
+      "CbamDecisionResponse": {
+        "properties": {
+          "cn": {
+            "type": "string",
+            "title": "Cn"
+          },
+          "see_actual_t": {
+            "type": "number",
+            "title": "See Actual T"
+          },
+          "first_sellable_year": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "First Sellable Year"
+          },
+          "never_within_horizon": {
+            "type": "boolean",
+            "title": "Never Within Horizon"
+          },
+          "trajectory": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Trajectory"
+          },
+          "provenance": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Provenance"
+          },
+          "reading_ar": {
+            "type": "string",
+            "title": "Reading Ar"
+          }
+        },
+        "type": "object",
+        "required": [
+          "cn",
+          "see_actual_t",
+          "first_sellable_year",
+          "never_within_horizon",
+          "trajectory",
+          "provenance",
+          "reading_ar"
+        ],
+        "title": "CbamDecisionResponse",
+        "examples": [
+          {
+            "_comment": "Extra fields are ignored by design (Postel's Law)."
+          }
+        ]
+      },
+      "CbamDetailResponse": {
+        "properties": {
+          "cn": {
+            "type": "string",
+            "title": "Cn"
+          },
+          "sector": {
+            "type": "string",
+            "title": "Sector"
+          },
+          "description": {
+            "type": "string",
+            "title": "Description"
+          },
+          "default_see_t": {
+            "additionalProperties": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "type": "object",
+            "title": "Default See T"
+          },
+          "computable": {
+            "type": "boolean",
+            "title": "Computable"
+          },
+          "absent_reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Absent Reason"
+          },
+          "provenance": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Provenance"
+          },
+          "year": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Year"
+          },
+          "certificates_default": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Certificates Default"
+          },
+          "crossover": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Crossover"
+          },
+          "path_toll": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Path Toll"
+          },
+          "trajectory": {
+            "anyOf": [
+              {
+                "items": {
+                  "additionalProperties": true,
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Trajectory"
+          }
+        },
+        "type": "object",
+        "required": [
+          "cn",
+          "sector",
+          "description",
+          "default_see_t",
+          "computable",
+          "absent_reason",
+          "provenance"
+        ],
+        "title": "CbamDetailResponse",
         "examples": [
           {
             "_comment": "Extra fields are ignored by design (Postel's Law)."
@@ -4207,6 +4745,97 @@
         "title": "ExerciseScope",
         "description": "\u0646\u0637\u0627\u0642 \u0627\u0644\u062a\u0645\u0631\u064a\u0646 \u0627\u0644\u062d\u0627\u0644\u064a \u2014 \u064a\u064f\u0637\u0628\u0650\u0651\u0642 \u0639\u0632\u0644 \u0627\u0644\u0645\u0648\u0636\u0648\u0639 (Topic Isolation \u00a7V).\n\n\u0639\u0646\u062f \u062a\u062d\u062f\u064a\u062f \u0627\u0644\u0646\u0637\u0627\u0642\u060c \u062a\u064f\u0645\u0646\u0639 \u0643\u0644 \u0627\u0644\u0645\u0641\u0627\u0647\u064a\u0645 \u062e\u0627\u0631\u062c\u0647 \u0645\u0646\u0639\u0627\u064b \u0628\u0627\u062a\u0627\u064b."
       },
+      "FrontierResponse": {
+        "properties": {
+          "as_of": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "As Of"
+          },
+          "gate_c": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Gate C"
+          },
+          "funnel": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Funnel"
+          },
+          "by_classification": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "type": "object",
+            "title": "By Classification"
+          },
+          "next_actor_human": {
+            "type": "integer",
+            "title": "Next Actor Human"
+          },
+          "next_actor_code": {
+            "type": "integer",
+            "title": "Next Actor Code"
+          },
+          "committed_snapshot_current": {
+            "type": "boolean",
+            "title": "Committed Snapshot Current"
+          },
+          "links": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Links"
+          },
+          "paths": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Paths"
+          }
+        },
+        "type": "object",
+        "required": [
+          "as_of",
+          "gate_c",
+          "funnel",
+          "by_classification",
+          "next_actor_human",
+          "next_actor_code",
+          "committed_snapshot_current",
+          "links",
+          "paths"
+        ],
+        "title": "FrontierResponse",
+        "examples": [
+          {
+            "_comment": "Extra fields are ignored by design (Postel's Law)."
+          }
+        ]
+      },
       "FunnelStepItem": {
         "properties": {
           "event_name": {
@@ -5239,6 +5868,63 @@
           "expires_in"
         ],
         "title": "ReauthResponse"
+      },
+      "RedTeamResponse": {
+        "properties": {
+          "source": {
+            "type": "string",
+            "title": "Source"
+          },
+          "decision": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Decision"
+          },
+          "classes": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Classes"
+          },
+          "publishable_count": {
+            "type": "integer",
+            "title": "Publishable Count"
+          },
+          "external_probe": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "External Probe"
+          }
+        },
+        "type": "object",
+        "required": [
+          "source",
+          "decision",
+          "classes",
+          "publishable_count",
+          "external_probe"
+        ],
+        "title": "RedTeamResponse",
+        "examples": [
+          {
+            "_comment": "Extra fields are ignored by design (Postel's Law)."
+          }
+        ]
       },
       "RedeemRequest": {
         "properties": {
