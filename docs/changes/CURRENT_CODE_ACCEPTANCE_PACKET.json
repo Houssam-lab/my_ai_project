@@ -20,28 +20,37 @@
     "scripts/fitness/check_value_chain.py",
     "docs/commercial/VALUE_CHAIN.json",
     "tests/shared/test_value_chain.py",
-    "tests/fitness/test_check_value_chain.py"
+    "tests/fitness/test_check_value_chain.py",
+    "app/api/routers/hard_currency.py",
+    "app/services/hard_currency/einvoicing_audit.py",
+    "app/services/hard_currency/cbam_explorer.py",
+    "app/services/hard_currency/frontier.py",
+    "tests/api/test_hard_currency_center.py"
    ],
-   "gate": "python scripts/fitness/check_value_chain.py && python -m pytest tests/shared/test_value_chain.py tests/fitness/test_check_value_chain.py",
-   "application_ar": "قاعدةٌ واحدة في موطنٍ واحد: تعريف الحلقات والتصنيف في shared/research/value_chain.py، والبوّابة والسكربت يستدعيانه ولا يكرّرانه؛ الاشتقاق حتميّ بلا ساعة؛ والحرفية PAYMENT_SETTLED صار لها موطنٌ واحد في contact_ledger. والبوّابة تُثبت أنّها تحجب بتسع حالاتٍ مكسورة عمداً."
+   "gate": "python scripts/fitness/check_value_chain.py && python -m pytest tests/shared/test_value_chain.py tests/fitness/test_check_value_chain.py tests/api/test_hard_currency_center.py",
+   "application_ar": "قاعدةٌ واحدة في موطنٍ واحد: تعريف الحلقات والتصنيف في shared/research/value_chain.py، والبوّابة والسكربت يستدعيانه ولا يكرّرانه؛ الاشتقاق حتميّ بلا ساعة؛ والحرفية PAYMENT_SETTLED صار لها موطنٌ واحد في contact_ledger. والبوّابة تُثبت أنّها تحجب بتسع حالاتٍ مكسورة عمداً. والموجِّه رقيق: لا منطق حسابٍ فيه، والأغلفة لا تعيد كتابة الأدوات، والأخطاء صنفان مُسمّيان (InputRejectedError ⇒ 4xx · SourceUnavailableError ⇒ 503)."
   }
  ],
  "production": {
   "owner": "commercial-wedge",
-  "status": "INTERNAL_EVIDENCE_LAYER_NO_EXTERNAL_ACTION",
+  "status": "ADMIN_ONLY_CENTER_API_NO_CUSTOMER_PORTAL",
   "interfaces": [
    "docs/commercial/VALUE_CHAIN.json — المصدر المُعلَن + الكتلة derived",
    "python3 scripts/research/value_chain.py [--check]",
-   "scripts/fitness/check_value_chain.py في guardrails"
+   "scripts/fitness/check_value_chain.py في guardrails",
+   "GET /admin/api/hard-currency/frontier",
+   "POST /admin/api/hard-currency/einvoicing-audits (CSV · بلا تخزين)",
+   "GET/POST /admin/api/hard-currency/cbam/codes[/{cn}[/decision]] (قراءة فقط فوق cbam_pin)",
+   "GET /admin/api/hard-currency/redteam/classes"
   ],
   "runtime_evidence_paths": [
    "docs/commercial/VALUE_CHAIN.json",
    "docs/commercial/outreach/CONTACT_LEDGER.csv",
    "tests/fitness/test_check_value_chain.py"
   ],
-  "failure_behavior_ar": "دليلٌ محذوف · حلقة 7–8 مكتوبة بيد · تصنيفٌ يُعدَّل يدوياً · حالة كتالوجٍ تتجاوز الدليل · وصفٌ «ثوري» دون commercial_evidence · صفّ سجلٍّ غير موجَّه ⇒ guardrails أحمر باسم المسار والسبب.",
+  "failure_behavior_ar": "دليلٌ محذوف · حلقة 7–8 مكتوبة بيد · تصنيفٌ يُعدَّل يدوياً · حالة كتالوجٍ تتجاوز الدليل · وصفٌ «ثوري» دون commercial_evidence · صفّ سجلٍّ غير موجَّه ⇒ guardrails أحمر باسم المسار والسبب. ومصدرٌ غائب في نشرٍ ما ⇒ 503 بسببه لا قائمةٌ فارغة.",
   "observability_ar": "كلّ ارتفاعٍ في السلسلة يمرّ بصفٍّ في CONTACT_LEDGER.csv؛ والكتلة derived تُعاد بالسكربت فيظهر الفرق في الـdiff.",
-  "security_boundary_ar": "لا بيانات عميلٍ ولا طالب في السلسلة؛ الحلقة 3 تتطلّب تصريح contains_user_data=false ولا تفترضه.",
+  "security_boundary_ar": "دور ADMIN على كلّ نقطة (401/403 مُختبَران)؛ ملفّ المكتب يُعالَج في دليلٍ مؤقّت ويُحذَف ولا يُكتب في جداول الرسائل؛ تحييد حقن صيغ CSV؛ حدود الحجم/الصفوف/النوع؛ حدّ معدّل لكلّ مدير؛ لا نموذج لغوي ولا شبكة.",
   "rollback_ar": "git revert للدفعة يحذف الطبقة والبوّابة معاً؛ لا أثر خارج المستودع."
  },
  "commercial_trace": {
@@ -63,11 +72,11 @@
   "result": "PASS",
   "commands": [
    "python scripts/fitness/check_value_chain.py",
-   "python -m pytest tests/shared/test_value_chain.py tests/fitness/test_check_value_chain.py tests/shared/test_contact_ledger.py tests/fitness/test_check_outbound_before_research.py (61 passed)",
-   "python scripts/research/hard_currency_scorecard.py --check",
-   "python scripts/fitness/check_gate_negative_proof.py · check_governance_registry.py · check_memory_coherence.py · check_no_magic_strings.py",
+   "python -m pytest tests/shared/test_value_chain.py tests/fitness/test_check_value_chain.py tests/api/test_hard_currency_center.py (65 passed)",
+   "mypy --config-file mypy.ini --follow-imports=silent shared/ app/integration/ (0 issues)",
+   "python scripts/contracts/export_openapi.py + python scripts/fitness/check_openapi_parity.py (15/15)",
    "make gates (run_fitness_gates.py)",
-   "ruff check && ruff format --check (ruff==0.14.0)"
+   "ruff check . && ruff format --check . (ruff==0.14.0)"
   ]
  },
  "curriculum": {
@@ -154,12 +163,22 @@
   ".memory/ci-gates.md",
   ".memory/decisions.md",
   ".runtime/truth_table.lock.json",
+  "app/api/routers/hard_currency.py",
+  "app/api/routers/registry.py",
+  "app/services/hard_currency/__init__.py",
+  "app/services/hard_currency/cbam_explorer.py",
+  "app/services/hard_currency/einvoicing_audit.py",
+  "app/services/hard_currency/frontier.py",
+  "app/services/hard_currency/redteam_classes.py",
+  "app/services/hard_currency/sources.py",
   "docs/commercial/VALUE_CHAIN.json",
+  "docs/contracts/openapi/monolith_api-openapi.json",
   "docs/governance/NEGATIVE_PROOFS.json",
   "scripts/fitness/check_value_chain.py",
   "scripts/research/value_chain.py",
   "shared/research/contact_ledger.py",
   "shared/research/value_chain.py",
+  "tests/api/test_hard_currency_center.py",
   "tests/fitness/test_check_value_chain.py",
   "tests/shared/test_value_chain.py"
  ],
@@ -171,16 +190,26 @@
    ".memory/ci-gates.md",
    ".memory/decisions.md",
    ".runtime/truth_table.lock.json",
+   "app/api/routers/hard_currency.py",
+   "app/api/routers/registry.py",
+   "app/services/hard_currency/__init__.py",
+   "app/services/hard_currency/cbam_explorer.py",
+   "app/services/hard_currency/einvoicing_audit.py",
+   "app/services/hard_currency/frontier.py",
+   "app/services/hard_currency/redteam_classes.py",
+   "app/services/hard_currency/sources.py",
    "docs/commercial/VALUE_CHAIN.json",
+   "docs/contracts/openapi/monolith_api-openapi.json",
    "docs/governance/NEGATIVE_PROOFS.json",
    "scripts/fitness/check_value_chain.py",
    "scripts/research/value_chain.py",
    "shared/research/contact_ledger.py",
    "shared/research/value_chain.py",
+   "tests/api/test_hard_currency_center.py",
    "tests/fitness/test_check_value_chain.py",
    "tests/shared/test_value_chain.py"
   ],
-  "content_sha256_excluding_packet": "b60e54b869f481e4921ab8ce7bc088def5b1e434d3bd498777b6c564ea2892be",
+  "content_sha256_excluding_packet": "3aa6750a1a44d51187801e47e9bbbacccade39b39a856994ca669e293e3aedae",
   "refreshed_on": "2026-10-01",
   "refresh_command": "python3 scripts/research/refresh_acceptance_diff_snapshot.py"
  }
