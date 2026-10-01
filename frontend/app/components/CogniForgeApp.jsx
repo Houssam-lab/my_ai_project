@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
+import dynamic from 'next/dynamic';
 import { errorTracker } from '../utils/errorTracker';
 import { useAgentSocket } from '../hooks/useAgentSocket';
 import { ChatInterface } from './ChatInterface';
@@ -12,6 +13,12 @@ import { computeRefreshDelay, rotateSession } from '../utils/sessionRefresh';
 
 const API_ORIGIN = process.env.NEXT_PUBLIC_API_URL ?? '';
 const apiUrl = (path) => `${API_ORIGIN}${path}`;
+
+// D-305: «مركز العملة الصعبة» للمدير وحده — يُحمَّل عند الطلب، فلا يدخل حزمة الطالب الأولى.
+const HardCurrencyCenter = dynamic(() => import('./hard-currency/HardCurrencyCenter'), {
+    ssr: false,
+    loading: () => <div className="chat-area" role="status">جارٍ تحميل المركز…</div>,
+});
 
 class ErrorBoundary extends React.Component {
     constructor(props) {
@@ -141,6 +148,8 @@ const DashboardLayout = ({ user, token, onLogout }) => {
         return localStorage.getItem('theme') === 'light' ? 'light' : 'dark';
     });
     const [conversations, setConversations] = useState([]);
+    // D-305: `hard-currency` لا يُبلَغ إلّا من قائمة المدير؛ والطالب لا يرى المدخل ولا المكوّن.
+    const [view, setView] = useState('chat');
     const menuRef = useRef(null);
 
     const endpoint = user.is_admin ? '/admin/api/chat/ws' : '/api/chat/ws';
@@ -180,6 +189,7 @@ const DashboardLayout = ({ user, token, onLogout }) => {
 
     const loadConversation = async (id) => {
         setIsSidebarOpen(false);
+        setView('chat');
         setConversationId(id);
         try {
             const res = await fetch(apiUrl(historyEndpoint(id)), {
@@ -202,6 +212,7 @@ const DashboardLayout = ({ user, token, onLogout }) => {
         setConversations([]);
         setIsSidebarOpen(false);
         setIsMenuOpen(false);
+        setView('chat');
     };
 
     // ISS-097 (D-WS-KICK-001): استعادة آخر محادثة عند التحميل.
@@ -364,6 +375,15 @@ const DashboardLayout = ({ user, token, onLogout }) => {
                                 <i className="fas fa-history"></i>
                                 <span>المحادثات السابقة</span>
                             </button>
+                            {user.is_admin && (
+                                <button
+                                    className="header-menu-item"
+                                    onClick={() => { setView((v) => (v === 'hard-currency' ? 'chat' : 'hard-currency')); setIsMenuOpen(false); }}
+                                >
+                                    <i className={`fas ${view === 'hard-currency' ? 'fa-comments' : 'fa-coins'}`}></i>
+                                    <span>{view === 'hard-currency' ? 'العودة إلى المحادثة' : 'مركز العملة الصعبة'}</span>
+                                </button>
+                            )}
                             <button className="header-menu-item" onClick={handleToggleTheme}>
                                 <i className={`fas ${theme === 'dark' ? 'fa-sun' : 'fa-moon'}`}></i>
                                 <span>{theme === 'dark' ? 'الوضع النهاري' : 'الوضع المظلم'}</span>
@@ -408,14 +428,18 @@ const DashboardLayout = ({ user, token, onLogout }) => {
                      </div>
                 </div>
 
-                <div className="chat-area">
-                    <ChatInterface
-                        messages={messages}
-                        onSendMessage={sendMessage}
-                        status={status}
-                        user={user}
-                    />
-                </div>
+                {user.is_admin && view === 'hard-currency' ? (
+                    <HardCurrencyCenter token={token} onBack={() => setView('chat')} />
+                ) : (
+                    <div className="chat-area">
+                        <ChatInterface
+                            messages={messages}
+                            onSendMessage={sendMessage}
+                            status={status}
+                            user={user}
+                        />
+                    </div>
+                )}
             </div>
         </div>
     );
