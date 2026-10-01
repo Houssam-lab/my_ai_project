@@ -1,5 +1,18 @@
 # Runtime Truth Lock
-> Last updated: **2026-08-18** | Branch: claude/naas-bareme-verifier-7wvyk8 (D-267)
+> Last updated: **2026-10-01** | Branch: ccr-0ff8dc1c-wm5oty (D-305 · ISS-210)
+> Previous: claude/naas-bareme-verifier-7wvyk8 (D-267)
+
+## D-305 — مركز العملة الصعبة + سلسلة القيمة + حارس تهيئة المدير (2026-10-01 · ISS-210)
+
+| المسار الحيّ | الحالة | الدليل (import + call chain + runtime) |
+|---------|--------|----------------------------------------|
+| **`app/api/routers/hard_currency.py`** + `app/services/hard_currency/` (D-305 — جديد) | **ACTIVE (للمدير وحده)** | مُسجَّل في `app/api/routers/registry.py`؛ كلّ نقطةٍ خلف `require_roles(ADMIN_ROLE)`. **برهانٌ حيّ** (2026-10-01 · Postgres 16 محلية · مونوليث :8000 + orchestrator :8006 · `scripts/e2e/hard_currency_center_live.py` **17/17**): دخول المدير بكلمة سرّه 200 بدور `ADMIN` · خاطئة 401 ثمّ الصحيحة 200 · بلا رمز 401 · رمز الطالب على النقاط الستّ 403 · الجبهة = الاشتقاق المُلتزَم (25 مساراً · `commercial_evidence=0`) · تدقيق FR/BE مطابقٌ للمحرّك حرفياً · 415/413 · CBAM `2523100090` مطابقٌ لـ`first_sellable_year` (0.6 ⇒ 2026 · 5.0 ⇒ لا ضمن الأفق) · صفر صفٍّ في جداول الرسائل |
+| **`frontend/app/components/hard-currency/`** (D-305 — جديد) | **ACTIVE (للمدير وحده · تحميلٌ عند الطلب)** | `CogniForgeApp.jsx` يحمّله بـ`next/dynamic` من قائمة المدير. **برهانٌ في متصفّح** (`scripts/e2e/hard_currency_center_ui.cjs` **11/11** على الحزمة المبنيّة): دخولٌ من النموذج · 25 مساراً · رفع ملفّ العرض FR وتنزيل المنظَّف بعلامة BOM · رفض غير CSV بنصّه · قرار CBAM بالرسم والتلميح · عرض 375px بلا تمريرٍ أفقي · **الطالب لا يرى المدخل**. لقطاتٌ نهاراً وليلاً |
+| **`scripts/fitness/check_value_chain.py`** (D-305 — جديد) | **ACTIVE (CI · guardrails)** | في `ci.yml` (وظيفة `guardrails`) وبرهانه السلبي في `NEGATIVE_PROOFS.json` |
+| **`app/services/bootstrap.py:ensure_admin_email_allowed`** (ISS-210 — جديد) | **ACTIVE** | يُنادى من `bootstrap_admin_account` (إقلاع النواة · `scripts/ensure_admin.py` · `db seed`). وحيّاً: المدير الحقيقي أُنشئ على القاعدة المحلية بلا رفض. وفي الإنتاج (قراءةٌ عبر الموصِّل): الحسابان النائبان 8 و20 `is_active=false`، والمالك المدير النشط **الوحيد** بتجزئةٍ لم تتغيّر |
+| **`microservices/orchestrator_service` → `CONVERSATION_SERVICE_URL`** | **PARTIAL (سابقٌ لهذا العمل)** | الافتراضي `http://conversation-service:8010` (اسم Docker)؛ في الطوبولوجيا (أ) وفي `live-e2e.yml` لا يُضبَط ⇒ `[HISTORY_RETRY] Name or service not known` في كلّ دور. لا يكسر الإجابة، ويُبلَّغ ولا يُصلَح هنا |
+| **الطبقة المجانية لـOpenRouter** | **PARTIAL (سعةٌ لا كود)** | 2026-10-01: `gemma-4-31b`/`gemma-4-26b` ⇒ 429 من المزوّد في المحاولتين على السلسلة المُعلَنة؛ مسبار `probe_openrouter_free_models.py` (كما في CI) اختار `qwen3.8-27b` ⇒ 429 ثمّ دار إلى `nemotron-3-ultra-550b` فأجاب. صنف ISS-206 |
+
 > Previous: claude/documentation-system-review-5qqlzw (D-266)
 
 ## D-267 — دستور طبقة التحقّق (2026-08-18 · ISS-187 → ISS-190)
