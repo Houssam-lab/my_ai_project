@@ -1,186 +1,187 @@
 {
-  "$schema_version": 1,
-  "packet_id": "CAP-2026-09-30-d304-outreach-truth",
-  "status": "READY_FOR_GATE",
-  "decision": "D-277",
-  "decision_of_change": "D-304 (المرحلة 3 — قيمة عميل · C5/C7/C8/C12): مواد الإرسال للإسفين الوحيد النشط (fr-be-einvoicing-referential-cleansing) صارت تقول الآلية لا النسبة: «une facture électronique peut être rejetée si…» بدل «les factures sont rejetées» و«ont fortement augmenté» و«une part significative»، وسؤالٌ بدل ادّعاءٍ غير مُتحقَّق عن مورّدٍ مُسمّى، ولا ضمان («garantir un routage sans échec»). وسعرٌ واحد بقرار المالك 2026-09-30: 290 € HT حتى 200 سجلّ باليورو، وما فوقها بعرض سعرٍ بعد العيّنة — في الحزمة وMalt والكتالوج. البريد المُرسَل إلى Balagué في 2026-09-22 يبقى سجلّاً وبجانبه تحذير. والفارض tests/unit/tools/test_outreach_truth.py أحمر على نصوص main وأخضر بعدها.",
-  "standards": [
-    "clean-code-book"
-  ],
-  "evidence": [
-    "eu-gdpr-art-28-processor-terms",
-    "anae-service-export-fx-100"
-  ],
-  "local_application": [
-    {
-      "standard": "clean-code-book",
-      "paths": [
-        "docs/commercial/outreach/ready_to_send/01_MAILS_CABINETS_PRETS.md",
-        "docs/commercial/outreach/ready_to_send/02_PARTENARIATS_PDP.md",
-        "docs/commercial/outreach/ready_to_send/03_PROFIL_MALT.md",
-        "docs/commercial/outreach/BALAGUE_FIRST_CLIENT_KIT_2026-09-22.md",
-        "docs/commercial/OFFER_CATALOG.json",
-        "tests/unit/tools/test_outreach_truth.py"
-      ],
-      "gate": "python -m pytest tests/unit/tools/test_outreach_truth.py tests/unit/tools/test_hard_currency_engine.py",
-      "application_ar": "قيمةٌ واحدة لكلّ حقيقة: السعر رقمٌ واحد يقرؤه الاختبار من الحزمة وMalt والكتالوج، والمعرّف يُتحقَّق منه بالدالة نفسها التي تستعملها الأداة (tva_fr_check) لا بقراءة العين. والاختبار يُثبت أنه يحجب: سطر C12 الحقيقي يفشل، ونصوص main تفشل."
-    }
-  ],
-  "production": {
-    "owner": "commercial-wedge",
-    "status": "SEND_MATERIALS_CORRECTED_NOTHING_SENT",
-    "interfaces": [
-      "docs/commercial/outreach/ready_to_send/01_MAILS_CABINETS_PRETS.md (سبع رسائل لم تُرسَل)",
-      "docs/commercial/outreach/ready_to_send/02_PARTENARIATS_PDP.md",
-      "docs/commercial/outreach/ready_to_send/03_PROFIL_MALT.md (290 € HT حتى 200 سجلّ)",
-      "docs/commercial/outreach/BALAGUE_FIRST_CLIENT_KIT_2026-09-22.md (مكالمة لم تُجرَ + متابعة)",
-      "docs/commercial/OFFER_CATALOG.json — hard_currency_route_ar"
-    ],
-    "runtime_evidence_paths": [
-      "docs/commercial/outreach/CONTACT_LEDGER.csv",
-      ".memory/decisions.md",
-      "tests/unit/tools/test_outreach_truth.py"
-    ],
-    "failure_behavior_ar": "نسبةٌ أو ضمانٌ يعود إلى نصّ المشتري، أو رقم TVA لا يحمل الـSIREN المذكور بجانبه، أو سعرٌ ثانٍ/نطاقٌ في الحزمة أو Malt ⇒ test-monolith أحمر باسم الملفّ والسطر.",
-    "observability_ar": "كلّ إرسالٍ فعلي يبقى صفّاً في CONTACT_LEDGER.csv؛ هذه الدفعة لا تضيف صفّاً لأنها لم تُرسِل شيئاً.",
-    "security_boundary_ar": "لا بيانات عميل في المستودع؛ الـDPA التزامٌ قبل أوّل ملفٍّ حقيقي لا وثيقةٌ مُدّعاة (GDPR المادة 28)، ولا طلب مدفوع قبل جواب البنك وANAE.",
-    "rollback_ar": "git revert للدفعة يعيد النصوص السابقة؛ لا أثر خارج المستودع لأنّ شيئاً لم يُرسَل."
-  },
-  "commercial_trace": {
-    "offer_ids": [
-      "fr-be-einvoicing-referential-cleansing"
-    ],
-    "customer_problem_ar": "مكتب محاسبةٍ فرنسي صغير يتلقّى رسالةً من مورّدٍ خارج الاتحاد؛ أوّل ادّعاءٍ لا يستطيع المرسِل إثباته («une part significative») أو معرّفٍ خاطئ يُسقط الثقة قبل العيّنة.",
-    "value_hypothesis_ar": "رسالةٌ صادقة بسعرٍ واحد تُحسّن احتمال الردّ على 10 اتصالات — فرضيةٌ تُقاس بالسجلّ لا تُعلَن.",
-    "foreign_currency_path_ar": "290 € HT حتى 200 سجلّ باليورو عبر Malt أو فاتورة SWIFT إلى حساب العملة الصعبة — مُعطَّل حتى جواب البنك الكتابي وتسجيل ANAE؛ لا يُدّعى إيراد قبل صفّ PAYMENT_SETTLED.",
-    "foundation_exception_ar": "شرطٌ مسبق للمرحلة 3 بنصّ الدوسييه §45: لا إرسال لمواد البيع قبل تصحيح C7/C8/C12 وحسم السعر."
-  },
-  "deletions": {
-    "count": 0,
-    "paths": [],
-    "policy_ar": "صفر حذف: البريد المُرسَل يبقى نصّه سجلّاً، والأروقة المُجمَّدة في 04 تُوسَم ولا تُحذَف."
-  },
-  "verification": {
-    "result": "PASS",
-    "commands": [
-      "python -m pytest tests/unit/tools/test_outreach_truth.py (4 passed · على نصوص main: 2 failed — نسبة/ضمان في نصّ المشتري، وسعر الحزمة)",
-      "tva_fr_check على كلّ SIREN/TVA في مواد الإرسال (الحزمة FR40501058812 صحيحة؛ خطأ C12 في ملف البحث فقط)",
-      "python -m pytest tests/unit/tools/test_hard_currency_engine.py",
-      "python scripts/fitness/check_outbound_before_research.py (outreach/ والكتالوج مُستثنيان)",
-      "python scripts/run_fitness_gates.py",
-      "ruff check . && ruff format --check . (ruff==0.14.0)"
-    ]
-  },
-  "curriculum": {
-    "catalog_path": "docs/research/UNIVERSITY_CURRICULUM_CATALOG.json",
-    "application_matrix_path": "docs/research/CURRICULUM_APPLICATION_MATRIX.json",
-    "all_catalog_courses_loaded": true,
-    "catalog_course_count": 59,
-    "considered_course_ids": [
-      "COMPSCI 20",
-      "COMPSCI 32",
-      "COMPSCI 50",
-      "COMPSCI 51",
-      "COMPSCI 61",
-      "COMPSCI 79",
-      "COMPSCI 85",
-      "COMPSCI 91R",
-      "COMPSCI 1050",
-      "COMPSCI 1066",
-      "COMPSCI 1090A",
-      "COMPSCI 1090B",
-      "COMPSCI 1200",
-      "COMPSCI 1210",
-      "COMPSCI 1240",
-      "COMPSCI 1251",
-      "COMPSCI 1261",
-      "COMPSCI 1280",
-      "COMPSCI 1410",
-      "COMPSCI 1411",
-      "COMPSCI 1440R",
-      "COMPSCI 1450",
-      "COMPSCI 1520",
-      "COMPSCI 1530",
-      "COMPSCI 1710",
-      "COMPSCI 1750",
-      "COMPSCI 1810",
-      "COMPSCI 1820",
-      "COMPSCI 1840",
-      "COMPSCI 1960",
-      "COMPSCI 2050",
-      "COMPSCI 2211",
-      "COMPSCI 2242",
-      "COMPSCI 2243",
-      "COMPSCI 2280",
-      "COMPSCI 2360R",
-      "COMPSCI 2370",
-      "COMPSCI 2380",
-      "COMPSCI 2411",
-      "COMPSCI 2420",
-      "COMPSCI 2430",
-      "COMPSCI 2440R",
-      "COMPSCI 2470R",
-      "COMPSCI 2520R",
-      "COMPSCI 2630",
-      "COMPSCI 2680",
-      "COMPSCI 2710",
-      "COMPSCI 2760",
-      "COMPSCI 2822R",
-      "COMPSCI 2823R",
-      "COMPSCI 2824",
-      "COMPSCI 2831",
-      "COMPSCI 2860",
-      "COMPSCI 2880",
-      "COMPSCI 2881R",
-      "COMPSCI 2883R",
-      "COMPSCI 2901",
-      "COMPSCI 2902",
-      "COMPSCI 2990R"
-    ],
-    "baseline_evidence_ids": [
-      "harvard-cs50x-foundations",
-      "harvard-cs-concentration-domains"
-    ],
-    "task_specific_evidence_ids": [
-      "harvard-cs50x-foundations",
-      "harvard-cs-concentration-domains"
-    ],
-    "unapplied_course_policy_ar": "كل المقررات قُرئت على مستوى الكتالوج والمصفوفة؛ ما لا ينطبق مباشرةً على دفعة تصحيح مواد الإرسال (صدق الادّعاء · صحّة المعرّف · سعرٌ واحد) يُسجَّل كغير منطبق مع سبب، ولا يتحوّل إلى ادّعاء تطبيق أو حذف من الكتالوج.",
-    "applicability_result": "ALL_CATALOG_COURSES_CONSIDERED",
-    "owner": "curriculum-governance"
-  },
-  "changed_paths": [
-    ".memory/README.md",
-    ".memory/decisions.md",
-    "README.ar.md",
-    "README.md",
-    "docs/DOCUMENTATION_INDEX.md",
-    "docs/commercial/OFFER_CATALOG.json",
-    "docs/commercial/outreach/BALAGUE_FIRST_CLIENT_KIT_2026-09-22.md",
-    "docs/commercial/outreach/ready_to_send/01_MAILS_CABINETS_PRETS.md",
-    "docs/commercial/outreach/ready_to_send/02_PARTENARIATS_PDP.md",
-    "docs/commercial/outreach/ready_to_send/03_PROFIL_MALT.md",
-    "docs/commercial/outreach/ready_to_send/04_SCRIPTS_EXPANSION_GLOBAL.md",
-    "tests/unit/tools/test_outreach_truth.py"
-  ],
-  "git_change_snapshot": {
-    "base_ref": "origin/main",
-    "changed_paths_excluding_packet": [
-      ".memory/README.md",
-      ".memory/decisions.md",
-      "README.ar.md",
-      "README.md",
-      "docs/DOCUMENTATION_INDEX.md",
-      "docs/commercial/OFFER_CATALOG.json",
-      "docs/commercial/outreach/BALAGUE_FIRST_CLIENT_KIT_2026-09-22.md",
-      "docs/commercial/outreach/ready_to_send/01_MAILS_CABINETS_PRETS.md",
-      "docs/commercial/outreach/ready_to_send/02_PARTENARIATS_PDP.md",
-      "docs/commercial/outreach/ready_to_send/03_PROFIL_MALT.md",
-      "docs/commercial/outreach/ready_to_send/04_SCRIPTS_EXPANSION_GLOBAL.md",
-      "tests/unit/tools/test_outreach_truth.py"
-    ],
-    "content_sha256_excluding_packet": "838a16919a935dd8d4924564331d882805a057d29df2eaba3bbec1569732b0e9",
-    "refreshed_on": "2026-09-30",
-    "refresh_command": "python3 scripts/research/refresh_acceptance_diff_snapshot.py"
+ "$schema_version": 1,
+ "packet_id": "CAP-2026-10-01-d305-value-chain-hard-currency-center",
+ "status": "READY_FOR_GATE",
+ "decision": "D-277",
+ "decision_of_change": "D-305 (توجيه المالك 2026-10-01 · استثناءٌ محدود من D-300): سلسلة القيمة لكلّ مسارات العملة الصعبة الـ25 (19 في خريطة المسارات + 6 عروضٍ خارج الكتالوج). الحلقات 1–6 تُعلَن بدليلٍ موجود أو بسببٍ منطوق، و7–8 تُشتقّ من CONTACT_LEDGER.csv وحده، والتصنيف والحلقة التالية وفاعلها تُشتقّ ولا تُكتب. ما يتوقّف عند المراحل الداخلية أصلٌ بحثي أو قدرةٌ هندسية: commercial_evidence = 0 اليوم، والحلقة التالية بشرية في 23 مساراً.",
+ "standards": [
+  "clean-code-book"
+ ],
+ "evidence": [
+  "nist-ai-rmf-1.0",
+  "eu-gdpr-art-28-processor-terms"
+ ],
+ "local_application": [
+  {
+   "standard": "clean-code-book",
+   "paths": [
+    "shared/research/value_chain.py",
+    "scripts/research/value_chain.py",
+    "scripts/fitness/check_value_chain.py",
+    "docs/commercial/VALUE_CHAIN.json",
+    "tests/shared/test_value_chain.py",
+    "tests/fitness/test_check_value_chain.py"
+   ],
+   "gate": "python scripts/fitness/check_value_chain.py && python -m pytest tests/shared/test_value_chain.py tests/fitness/test_check_value_chain.py",
+   "application_ar": "قاعدةٌ واحدة في موطنٍ واحد: تعريف الحلقات والتصنيف في shared/research/value_chain.py، والبوّابة والسكربت يستدعيانه ولا يكرّرانه؛ الاشتقاق حتميّ بلا ساعة؛ والحرفية PAYMENT_SETTLED صار لها موطنٌ واحد في contact_ledger. والبوّابة تُثبت أنّها تحجب بتسع حالاتٍ مكسورة عمداً."
   }
+ ],
+ "production": {
+  "owner": "commercial-wedge",
+  "status": "INTERNAL_EVIDENCE_LAYER_NO_EXTERNAL_ACTION",
+  "interfaces": [
+   "docs/commercial/VALUE_CHAIN.json — المصدر المُعلَن + الكتلة derived",
+   "python3 scripts/research/value_chain.py [--check]",
+   "scripts/fitness/check_value_chain.py في guardrails"
+  ],
+  "runtime_evidence_paths": [
+   "docs/commercial/VALUE_CHAIN.json",
+   "docs/commercial/outreach/CONTACT_LEDGER.csv",
+   "tests/fitness/test_check_value_chain.py"
+  ],
+  "failure_behavior_ar": "دليلٌ محذوف · حلقة 7–8 مكتوبة بيد · تصنيفٌ يُعدَّل يدوياً · حالة كتالوجٍ تتجاوز الدليل · وصفٌ «ثوري» دون commercial_evidence · صفّ سجلٍّ غير موجَّه ⇒ guardrails أحمر باسم المسار والسبب.",
+  "observability_ar": "كلّ ارتفاعٍ في السلسلة يمرّ بصفٍّ في CONTACT_LEDGER.csv؛ والكتلة derived تُعاد بالسكربت فيظهر الفرق في الـdiff.",
+  "security_boundary_ar": "لا بيانات عميلٍ ولا طالب في السلسلة؛ الحلقة 3 تتطلّب تصريح contains_user_data=false ولا تفترضه.",
+  "rollback_ar": "git revert للدفعة يحذف الطبقة والبوّابة معاً؛ لا أثر خارج المستودع."
+ },
+ "commercial_trace": {
+  "offer_ids": [
+   "fr-be-einvoicing-referential-cleansing",
+   "ai-red-teaming-multilingual"
+  ],
+  "customer_problem_ar": "المالك لا يرى أين يقف كلّ مسارٍ فعلاً ولا ما الحلقة التالية ولا من يسدّها؛ فيُوصَف المسار بما يُتمنّى.",
+  "value_hypothesis_ar": "خريطةٌ مُشتقّة تُظهر أنّ الحلقة التالية بشرية في معظم المسارات — فتوجّه الجهد إلى التواصل لا إلى وثيقةٍ أخرى. فرضيةٌ تُقاس بالسجلّ.",
+  "foreign_currency_path_ar": "لا إيراد هنا؛ الطبقة تمنع ادّعاءه قبل صفّ PAYMENT_SETTLED، وتجعل كلّ ارتفاعٍ مرئياً حين يتحرّك السجلّ.",
+  "foundation_exception_ar": "قاعدة المالك 2026-10-01: كلّ مخرَجٍ يُختبَر على السلسلة الكاملة قبل أيّ وصف."
+ },
+ "deletions": {
+  "count": 0,
+  "paths": [],
+  "policy_ar": "صفر حذف: الطبقة إضافةٌ تحت السُّلَّم القائم لا بديلٌ عنه."
+ },
+ "verification": {
+  "result": "PASS",
+  "commands": [
+   "python scripts/fitness/check_value_chain.py",
+   "python -m pytest tests/shared/test_value_chain.py tests/fitness/test_check_value_chain.py tests/shared/test_contact_ledger.py tests/fitness/test_check_outbound_before_research.py (61 passed)",
+   "python scripts/research/hard_currency_scorecard.py --check",
+   "python scripts/fitness/check_gate_negative_proof.py · check_governance_registry.py · check_memory_coherence.py · check_no_magic_strings.py",
+   "make gates (run_fitness_gates.py)",
+   "ruff check && ruff format --check (ruff==0.14.0)"
+  ]
+ },
+ "curriculum": {
+  "catalog_path": "docs/research/UNIVERSITY_CURRICULUM_CATALOG.json",
+  "application_matrix_path": "docs/research/CURRICULUM_APPLICATION_MATRIX.json",
+  "all_catalog_courses_loaded": true,
+  "catalog_course_count": 59,
+  "considered_course_ids": [
+   "COMPSCI 20",
+   "COMPSCI 32",
+   "COMPSCI 50",
+   "COMPSCI 51",
+   "COMPSCI 61",
+   "COMPSCI 79",
+   "COMPSCI 85",
+   "COMPSCI 91R",
+   "COMPSCI 1050",
+   "COMPSCI 1066",
+   "COMPSCI 1090A",
+   "COMPSCI 1090B",
+   "COMPSCI 1200",
+   "COMPSCI 1210",
+   "COMPSCI 1240",
+   "COMPSCI 1251",
+   "COMPSCI 1261",
+   "COMPSCI 1280",
+   "COMPSCI 1410",
+   "COMPSCI 1411",
+   "COMPSCI 1440R",
+   "COMPSCI 1450",
+   "COMPSCI 1520",
+   "COMPSCI 1530",
+   "COMPSCI 1710",
+   "COMPSCI 1750",
+   "COMPSCI 1810",
+   "COMPSCI 1820",
+   "COMPSCI 1840",
+   "COMPSCI 1960",
+   "COMPSCI 2050",
+   "COMPSCI 2211",
+   "COMPSCI 2242",
+   "COMPSCI 2243",
+   "COMPSCI 2280",
+   "COMPSCI 2360R",
+   "COMPSCI 2370",
+   "COMPSCI 2380",
+   "COMPSCI 2411",
+   "COMPSCI 2420",
+   "COMPSCI 2430",
+   "COMPSCI 2440R",
+   "COMPSCI 2470R",
+   "COMPSCI 2520R",
+   "COMPSCI 2630",
+   "COMPSCI 2680",
+   "COMPSCI 2710",
+   "COMPSCI 2760",
+   "COMPSCI 2822R",
+   "COMPSCI 2823R",
+   "COMPSCI 2824",
+   "COMPSCI 2831",
+   "COMPSCI 2860",
+   "COMPSCI 2880",
+   "COMPSCI 2881R",
+   "COMPSCI 2883R",
+   "COMPSCI 2901",
+   "COMPSCI 2902",
+   "COMPSCI 2990R"
+  ],
+  "baseline_evidence_ids": [
+   "harvard-cs50x-foundations",
+   "harvard-cs-concentration-domains"
+  ],
+  "task_specific_evidence_ids": [
+   "harvard-cs50x-foundations",
+   "harvard-cs-concentration-domains"
+  ],
+  "unapplied_course_policy_ar": "كل المقررات قُرئت على مستوى الكتالوج والمصفوفة؛ ما لا ينطبق مباشرةً على طبقة أدلّةٍ حتمية (اشتقاقٌ · تحقّقٌ · برهانٌ سلبي) يُسجَّل غير منطبقٍ بسبب، ولا يتحوّل إلى ادّعاء تطبيق.",
+  "applicability_result": "ALL_CATALOG_COURSES_CONSIDERED",
+  "owner": "curriculum-governance"
+ },
+ "changed_paths": [
+  ".github/workflows/ci.yml",
+  ".memory/README.md",
+  ".memory/ci-gates.md",
+  ".memory/decisions.md",
+  ".runtime/truth_table.lock.json",
+  "docs/commercial/VALUE_CHAIN.json",
+  "docs/governance/NEGATIVE_PROOFS.json",
+  "scripts/fitness/check_value_chain.py",
+  "scripts/research/value_chain.py",
+  "shared/research/contact_ledger.py",
+  "shared/research/value_chain.py",
+  "tests/fitness/test_check_value_chain.py",
+  "tests/shared/test_value_chain.py"
+ ],
+ "git_change_snapshot": {
+  "base_ref": "origin/main",
+  "changed_paths_excluding_packet": [
+   ".github/workflows/ci.yml",
+   ".memory/README.md",
+   ".memory/ci-gates.md",
+   ".memory/decisions.md",
+   ".runtime/truth_table.lock.json",
+   "docs/commercial/VALUE_CHAIN.json",
+   "docs/governance/NEGATIVE_PROOFS.json",
+   "scripts/fitness/check_value_chain.py",
+   "scripts/research/value_chain.py",
+   "shared/research/contact_ledger.py",
+   "shared/research/value_chain.py",
+   "tests/fitness/test_check_value_chain.py",
+   "tests/shared/test_value_chain.py"
+  ],
+  "content_sha256_excluding_packet": "b60e54b869f481e4921ab8ce7bc088def5b1e434d3bd498777b6c564ea2892be",
+  "refreshed_on": "2026-10-01",
+  "refresh_command": "python3 scripts/research/refresh_acceptance_diff_snapshot.py"
+ }
 }
