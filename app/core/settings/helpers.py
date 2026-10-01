@@ -328,6 +328,31 @@ def _normalize_csv_or_list(value: list[str] | str | None) -> list[str]:
     return []
 
 
+#: بريد المدير الافتراضي في الكود — موطنٌ واحد يقرؤه الإعداد والحارسان (D-192 · ISS-210).
+DEFAULT_ADMIN_EMAIL = "admin@cogniforge.com"
+
+#: نطاقاتٌ محجوزة للأمثلة (RFC 2606 · RFC 6761): لا يملكها أحد، فلا يكون بريدها مديراً حقيقياً.
+_RESERVED_EMAIL_DOMAINS = ("example.com", "example.net", "example.org")
+_RESERVED_EMAIL_TLDS = ("test", "example", "invalid", "localhost")
+
+
+def is_placeholder_admin_email(value: str) -> bool:
+    """بريدٌ نائب: الافتراضيّ في الكود، أو بريدٌ على نطاقٍ محجوز للأمثلة.
+
+    مثل هذا البريد لا يملكه إنسان، فمديرٌ به على قاعدةٍ مشتركة حسابٌ بلا مالك —
+    وكلمة سرّه الافتراضية منشورةٌ في المستودع نفسه (ISS-210).
+    """
+    candidate = (value or "").strip().lower()
+    if candidate == DEFAULT_ADMIN_EMAIL:
+        return True
+    domain = candidate.rpartition("@")[2]
+    if not domain:
+        return False
+    if any(domain == d or domain.endswith(f".{d}") for d in _RESERVED_EMAIL_DOMAINS):
+        return True
+    return domain.rsplit(".", 1)[-1] in _RESERVED_EMAIL_TLDS
+
+
 def _is_valid_email(value: str) -> bool:
     """يتحقق من تنسيق بريد إلكتروني بسيط وآمن للاستخدام الإداري."""
     candidate = value.strip().lower()

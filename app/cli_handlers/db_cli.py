@@ -18,6 +18,7 @@ from app import models
 from app.cli_handlers.context import CLIContext, get_cli_context
 from app.core.config import AppSettings
 from app.core.database import engine
+from app.services.bootstrap import ensure_admin_email_allowed
 
 SessionFactory = Callable[[], AsyncGenerator[AsyncSession, None]]
 
@@ -102,6 +103,9 @@ def _build_admin_seed_plan(settings: AppSettings) -> AdminSeedPlan:
 
 async def _ensure_admin_user(session: AsyncSession, logger: Logger, plan: AdminSeedPlan) -> None:
     """يضمن وجود مستخدم مشرف واحد على الأقل وفق الخطة المحددة."""
+
+    # ISS-210: نفس حارس الإقلاع — لا مدير ببريدٍ نائب على قاعدةٍ غير محلّية.
+    ensure_admin_email_allowed(plan.email, session)
 
     result = await session.execute(select(models.User).filter_by(email=plan.email))
     user = result.scalar()

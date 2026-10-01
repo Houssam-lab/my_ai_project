@@ -13,7 +13,7 @@ from typing import TYPE_CHECKING
 
 from app.core.db_schema import validate_schema_on_startup
 from app.core.redis_bus import get_redis_bridge
-from app.services.bootstrap import bootstrap_admin_account
+from app.services.bootstrap import AdminBootstrapRefusedError, bootstrap_admin_account
 from app.telemetry.unified_observability import get_unified_observability
 
 if TYPE_CHECKING:
@@ -119,6 +119,9 @@ async def run_startup_phase(settings_obj: AppSettings) -> RelayHandle | None:
         async with async_session_factory() as session:
             await bootstrap_admin_account(session, settings=settings_obj)
             logger.info("✅ Admin account bootstrapped and validated")
+    except AdminBootstrapRefusedError as refused:
+        # ISS-210: رفضٌ مقصود لا عطل — يُعلَن بسببه ولا يوقف الإقلاع.
+        logger.warning("⚠️ Admin bootstrap refused: %s", refused)
     except Exception:
         logger.exception("❌ Failed to bootstrap admin account")
 

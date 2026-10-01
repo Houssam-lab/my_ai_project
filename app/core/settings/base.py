@@ -30,6 +30,7 @@ from pydantic import Field, ValidationInfo, computed_field, field_validator, mod
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 from .helpers import (
+    DEFAULT_ADMIN_EMAIL,
     _ensure_database_url,
     _get_or_create_dev_secret_key,
     _is_valid_email,
@@ -233,7 +234,7 @@ class AppSettings(BaseServiceSettings):
     DB_MAX_OVERFLOW: int = Field(60, description="DB Max Overflow")
 
     # Admin
-    ADMIN_EMAIL: str = "admin@cogniforge.com"
+    ADMIN_EMAIL: str = DEFAULT_ADMIN_EMAIL
     ADMIN_PASSWORD: str = "change_me_please_123!"
     ADMIN_NAME: str = "Supreme Administrator"
 
@@ -451,7 +452,7 @@ class AppSettings(BaseServiceSettings):
                 raise ValueError("ADMIN_PASSWORD must be changed from default in production")
             if len(admin_password) < 12:
                 raise ValueError("ADMIN_PASSWORD must be at least 12 characters in production")
-            if not admin_email or admin_email == "admin@cogniforge.com":
+            if not admin_email or admin_email == DEFAULT_ADMIN_EMAIL:
                 raise ValueError("ADMIN_EMAIL must be customized in production")
             if not _is_valid_email(admin_email):
                 raise ValueError("ADMIN_EMAIL must be a valid email address in production")

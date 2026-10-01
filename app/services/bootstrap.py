@@ -9,16 +9,81 @@
 
 from __future__ import annotations
 
+import ipaddress
+import logging
 from collections.abc import Mapping
 from hashlib import sha256
 
 from sqlalchemy import select
+from sqlalchemy.engine import URL
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import AppSettings, get_settings
 from app.core.domain.user import User, UserStatus
+from app.core.settings.helpers import is_placeholder_admin_email
 from app.services.audit import AuditService
 from app.services.rbac import ADMIN_ROLE, RBACService
+
+logger = logging.getLogger(__name__)
+
+
+class AdminBootstrapRefusedError(ValueError):
+    """بريدٌ نائب على قاعدةٍ غير محلّية: لا إنشاء ولا إعادة تفعيل ولا ترقية (ISS-210)."""
+
+
+def _bind_url(session: AsyncSession) -> URL | None:
+    bind = session.bind
+    url = getattr(bind, "url", None)
+    if url is None:
+        url = getattr(getattr(bind, "engine", None), "url", None)
+    return url if isinstance(url, URL) else None
+
+
+def is_local_database_url(url: URL | None) -> bool:
+    """قاعدةٌ لا يشاركها أحد: sqlite، أو حلقةٌ راجعة، أو عنوانٌ خاصّ، أو اسم خدمةٍ داخلي بلا نقطة.
+
+    ما لا يُعرَف مضيفه يُعامَل بعيداً — الشكّ يمنع ولا يمنح.
+    """
+    if url is None:
+        return False
+    if url.get_backend_name() == "sqlite":
+        return True
+    host = (url.host or "").strip().lower()
+    if not host:
+        return False
+    if host == "localhost":
+        return True
+    try:
+        address = ipaddress.ip_address(host)
+    except ValueError:
+        # اسم خدمةٍ في شبكة Docker (`postgres` · `db`) لا يُحلّ على الإنترنت.
+        return "." not in host
+    return address.is_loopback or address.is_private
+
+
+def ensure_admin_email_allowed(admin_email: str, session: AsyncSession) -> None:
+    """يرفض مديراً ببريدٍ نائب على قاعدةٍ مشتركة — قبل أيّ قراءةٍ أو كتابة.
+
+    الجذر (ISS-210): بيئة تطويرٍ تُقلِع على قاعدة الإنتاج بلا `ADMIN_EMAIL` كانت تُنشئ
+    مديراً ببريدٍ لا يملكه أحد وكلمة سرٍّ منشورة في المستودع، وتُعيد تفعيله وترقيته عند
+    كلّ إقلاع فيُلغى أيّ تعطيلٍ يدويّ. المحلّية (sqlite/localhost) تبقى كما هي.
+    """
+    if not is_placeholder_admin_email(admin_email):
+        return
+    url = _bind_url(session)
+    if is_local_database_url(url):
+        return
+    logger.warning(
+        "admin_bootstrap_refused_placeholder",
+        extra={
+            "email_hash": sha256(admin_email.encode("utf-8")).hexdigest(),
+            "db_backend": url.get_backend_name() if url is not None else "unknown",
+        },
+    )
+    raise AdminBootstrapRefusedError(
+        "ADMIN_EMAIL is a placeholder address and the database is not local: set ADMIN_EMAIL "
+        "to a real administrator's address before booting against a shared database."
+    )
 
 
 async def bootstrap_admin_account(
@@ -39,14 +104,16 @@ async def bootstrap_admin_account(
     rbac = RBACService(session)
     audit = AuditService(session)
 
-    await rbac.ensure_seed()
-
     admin_email = cfg.ADMIN_EMAIL.lower().strip()
     admin_password = cfg.ADMIN_PASSWORD
     admin_name = cfg.ADMIN_NAME or "Root Administrator"
 
     if not admin_email or not admin_password:
         raise ValueError("Admin credentials are not configured; cannot bootstrap root access")
+
+    ensure_admin_email_allowed(admin_email, session)
+
+    await rbac.ensure_seed()
 
     result = await session.execute(select(User).where(User.email == admin_email))
     admin = result.scalar_one_or_none()
