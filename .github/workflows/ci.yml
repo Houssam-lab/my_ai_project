@@ -199,6 +199,14 @@ jobs:
           else
             python scripts/fitness/check_outbound_before_research.py
           fi
+          # D-305 (owner rule 2026-10-01): every hard-currency path is tested on one
+          # eight-link chain (incident → pattern → privacy-preserving probe → reliable
+          # test → result on a system we did not write → buyer decision → external
+          # interest → paid commitment). Links 7-8 derive from CONTACT_LEDGER.csv only,
+          # the classification is derived (never hand-written), a catalog status may
+          # not outrun its evidence, and "revolutionary" is refused below commercial
+          # evidence. Before this, 25 paths carried decisions and no link to evidence.
+          python scripts/fitness/check_value_chain.py
           # D-279: engineering evidence and foreign-currency production evidence
           # must meet before a capability can advance.
           python scripts/fitness/check_dual_track_alignment.py

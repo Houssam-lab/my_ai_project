@@ -1,0 +1,1423 @@
+{
+  "$schema_version": 1,
+  "decision": "D-305",
+  "purpose_ar": "سلسلة القيمة لكلّ مسارات العملة الصعبة: الحلقات 1–6 تُعلَن بدليلٍ موجود أو بسببٍ منطوق، والحلقتان 7–8 تُشتقّان من CONTACT_LEDGER.csv وحده، والتصنيف يُشتقّ بـshared/research/value_chain.py ولا يُكتب بيد. ما يتوقّف عند المراحل الداخلية أصلٌ بحثي أو قدرةٌ هندسية، لا منتجٌ ولا دليلُ إيراد.",
+  "paths": [
+    {
+      "id": "OPP-01",
+      "title_ar": "تنظيف مرجعيات الأطراف الثالثة للفوترة الإلكترونية — فرنسا",
+      "source": "docs/commercial/REVENUE_OPPORTUNITY_MAP_2026-09-29.csv",
+      "catalog_id": "fr-be-einvoicing-referential-cleansing",
+      "workbench": "einvoicing",
+      "ledger_routes": [
+        "FR_EINVOICING_TARGETS_2026-09-21.csv"
+      ],
+      "links": {
+        "1": {
+          "status": "REACHED",
+          "evidence": [
+            "تقرير-صيد-الفرص-المدفوعة.md"
+          ],
+          "note_ar": "الاستقبال إلزامي في فرنسا منذ 2026-09-01 والإصدار للـPME في 2027-09-01 (D-300)"
+        },
+        "2": {
+          "status": "REACHED",
+          "evidence": [
+            "docs/commercial/HARD_CURRENCY_OPPORTUNITY_DOSSIER_2026-09-28.md"
+          ],
+          "note_ar": "معرّفٌ غير صالح أو مشطوب أو مكرَّر يمنع توجيه الفاتورة — آليةٌ لا نسبة (D-304)"
+        },
+        "3": {
+          "status": "REACHED",
+          "evidence": [
+            "docs/commercial/outreach/demo/DEMO_20_FICHES.csv"
+          ],
+          "note_ar": "عيّنة عرضٍ مُصنَّعة",
+          "contains_user_data": false
+        },
+        "4": {
+          "status": "REACHED",
+          "evidence": [
+            "tools/hard_currency_engine/france_validator.py",
+            "tests/unit/tools/test_hard_currency_engine.py"
+          ]
+        },
+        "5": {
+          "status": "NOT_REACHED",
+          "reason_ar": "ملفّا العرض مُصنَّعان (D-300)؛ يلزم ملفّ أطرافٍ ثالثة حقيقي من مكتب محاسبة، ونسبة الأخطاء في الملفّات الحقيقية مجهولة"
+        },
+        "6": {
+          "status": "NOT_REACHED",
+          "reason_ar": "لا قرار مشترٍ قبل نتيجةٍ على نظامٍ مستقلّ"
+        }
+      }
+    },
+    {
+      "id": "OPP-02",
+      "title_ar": "تنظيف بيانات أطراف Peppol — بلجيكا",
+      "source": "docs/commercial/REVENUE_OPPORTUNITY_MAP_2026-09-29.csv",
+      "catalog_id": "fr-be-einvoicing-referential-cleansing",
+      "workbench": "einvoicing",
+      "ledger_routes": [],
+      "links": {
+        "1": {
+          "status": "REACHED",
+          "evidence": [
+            "docs/research/HARD_CURRENCY_NEW_KNOWLEDGE_BPM.md"
+          ],
+          "note_ar": "⛔ أرقام بلجيكا القانونية (الغرامات) لم تُتحقَّق من مصدرٍ أوّلي بعد (D-304)"
+        },
+        "2": {
+          "status": "REACHED",
+          "evidence": [
+            "docs/research/HARD_CURRENCY_NEW_KNOWLEDGE_BPM.md"
+          ],
+          "note_ar": "رقم BCE/TVA غير صالح يمنع التوجيه"
+        },
+        "3": {
+          "status": "REACHED",
+          "evidence": [
+            "docs/commercial/outreach/demo/DEMO_BELGIUM_PEPPOL_20_FICHES.csv"
+          ],
+          "note_ar": "عيّنة عرضٍ مُصنَّعة",
+          "contains_user_data": false
+        },
+        "4": {
+          "status": "REACHED",
+          "evidence": [
+            "tools/hard_currency_engine/belgium_validator.py",
+            "tests/unit/tools/test_hard_currency_engine.py"
+          ]
+        },
+        "5": {
+          "status": "NOT_REACHED",
+          "reason_ar": "لا ملفّ حقيقي؛ والأداة تبني معرّفات Peppol وروابط البحث ولا تستعلم دليل Peppol"
+        },
+        "6": {
+          "status": "NOT_REACHED",
+          "reason_ar": "لا قرار مشترٍ قبل نتيجةٍ على نظامٍ مستقلّ"
+        }
+      }
+    },
+    {
+      "id": "OPP-03",
+      "title_ar": "عمل تقييم الذكاء الاصطناعي على المنصّات — قناة تمويل",
+      "source": "docs/commercial/REVENUE_OPPORTUNITY_MAP_2026-09-29.csv",
+      "links": {
+        "1": {
+          "status": "REACHED",
+          "evidence": [
+            "تقرير-صيد-الفرص-المدفوعة.md"
+          ],
+          "note_ar": "قناة تمويلٍ شخصية لا خطّ إيراد (D-282)"
+        },
+        "2": {
+          "status": "NOT_REACHED",
+          "reason_ar": "عملٌ بالساعة خارج D-300 وبلا أصلٍ في المستودع بقرار"
+        },
+        "3": {
+          "status": "NOT_REACHED",
+          "reason_ar": "لا دليل — والحلقة السابقة غير مبلوغة"
+        },
+        "4": {
+          "status": "NOT_REACHED",
+          "reason_ar": "لا دليل — والحلقة السابقة غير مبلوغة"
+        },
+        "5": {
+          "status": "NOT_REACHED",
+          "reason_ar": "لا دليل — والحلقة السابقة غير مبلوغة"
+        },
+        "6": {
+          "status": "NOT_REACHED",
+          "reason_ar": "لا دليل — والحلقة السابقة غير مبلوغة"
+        }
+      }
+    },
+    {
+      "id": "OPP-04",
+      "title_ar": "اختبار الاختراق العربي/الفرنسي للذكاء الاصطناعي",
+      "source": "docs/commercial/REVENUE_OPPORTUNITY_MAP_2026-09-29.csv",
+      "catalog_id": "ai-red-teaming-multilingual",
+      "workbench": "redteam",
+      "ledger_routes": [],
+      "reused_assets": [
+        {
+          "path": ".memory/issues.md",
+          "role_ar": "أرشيف حوادث الدردشة التعليمية — مصدر أصناف الاختراق (D-280)"
+        },
+        {
+          "path": "scripts/research/extract_incident_corpus.py",
+          "role_ar": "يستخرج الذخيرة من الأرشيف بياناتٍ لا استيراداً"
+        }
+      ],
+      "links": {
+        "1": {
+          "status": "REACHED",
+          "evidence": [
+            ".memory/issues.md"
+          ],
+          "note_ar": "حوادث الدردشة التعليمية ISS-133 · ISS-079 · ISS-146 · ISS-150 (D-280)"
+        },
+        "2": {
+          "status": "REACHED",
+          "evidence": [
+            "naas_verifier/corpus/ar_fr_exploit_classes.json"
+          ],
+          "note_ar": "خمسة أصنافٍ بجذرٍ مُعمَّم؛ اثنان غير قابلين للنشر لأنّ ISS-146 وISS-150 مفتوحتان"
+        },
+        "3": {
+          "status": "REACHED",
+          "evidence": [
+            "naas_verifier/corpus/ar_fr_exploit_classes.json"
+          ],
+          "note_ar": "مسابير مُنشأة لا تحمل نصّ طالب (DATA_POLICY.md §4)",
+          "contains_user_data": false
+        },
+        "4": {
+          "status": "REACHED",
+          "evidence": [
+            "naas_verifier/cli.py",
+            "tests/naas_verifier/test_verdict_reproduction.py"
+          ],
+          "note_ar": "ثلاث تشغيلاتٍ حتمية على أهدافٍ مرجعية — حدّها: ليست نظام عميل"
+        },
+        "5": {
+          "status": "REACHED",
+          "evidence": [
+            "docs/research/EXTERNAL_GUARD_PROBE.json",
+            "tests/naas_verifier/test_external_guard_probe.py"
+          ],
+          "note_ar": "حارسٌ مفتوح المصدر لم نكتبه (better_profanity · D-285) يقبل قاعدة حظرٍ عربية ولا يفرضها. حدّه: صانعه يوثّق قيده اللغوي، فهذا برهانُ آليةٍ لا ثغرةٌ غير مُفصَحٍ عنها"
+        },
+        "6": {
+          "status": "NOT_REACHED",
+          "reason_ar": "لا وثيقة قرارٍ لمشترٍ مربوطة بهذه النتيجة ولا مشترٍ مُسمّى (القرار: DEFER)"
+        }
+      }
+    },
+    {
+      "id": "OPP-05",
+      "title_ar": "بيانات وتقييم RLHF متخصّصة",
+      "source": "docs/commercial/REVENUE_OPPORTUNITY_MAP_2026-09-29.csv",
+      "catalog_id": "niche-rlhf-data",
+      "links": {
+        "1": {
+          "status": "REACHED",
+          "evidence": [
+            "studies/market-first-sales-reality/ranking_mf_all_rounds.csv"
+          ],
+          "note_ar": "S11 في ترتيب السوق"
+        },
+        "2": {
+          "status": "NOT_REACHED",
+          "reason_ar": "لا مجموعة بيانات ولا بروتوكول جودة ولا إطار حقوق"
+        },
+        "3": {
+          "status": "NOT_REACHED",
+          "reason_ar": "لا دليل — والحلقة السابقة غير مبلوغة"
+        },
+        "4": {
+          "status": "NOT_REACHED",
+          "reason_ar": "لا دليل — والحلقة السابقة غير مبلوغة"
+        },
+        "5": {
+          "status": "NOT_REACHED",
+          "reason_ar": "لا دليل — والحلقة السابقة غير مبلوغة"
+        },
+        "6": {
+          "status": "NOT_REACHED",
+          "reason_ar": "لا دليل — والحلقة السابقة غير مبلوغة"
+        }
+      }
+    },
+    {
+      "id": "OPP-06",
+      "title_ar": "ذكاء اصطناعي محلّي لقطاع الطاقة",
+      "source": "docs/commercial/REVENUE_OPPORTUNITY_MAP_2026-09-29.csv",
+      "catalog_id": "on-premise-energy-ai",
+      "links": {
+        "1": {
+          "status": "NOT_REACHED",
+          "reason_ar": "سطرُ كتالوجٍ بلا ملاحظةٍ مؤرَّخة (القرار: DROP for now)"
+        },
+        "2": {
+          "status": "NOT_REACHED",
+          "reason_ar": "لا دليل — والحلقة السابقة غير مبلوغة"
+        },
+        "3": {
+          "status": "NOT_REACHED",
+          "reason_ar": "لا دليل — والحلقة السابقة غير مبلوغة"
+        },
+        "4": {
+          "status": "NOT_REACHED",
+          "reason_ar": "لا دليل — والحلقة السابقة غير مبلوغة"
+        },
+        "5": {
+          "status": "NOT_REACHED",
+          "reason_ar": "لا دليل — والحلقة السابقة غير مبلوغة"
+        },
+        "6": {
+          "status": "NOT_REACHED",
+          "reason_ar": "لا دليل — والحلقة السابقة غير مبلوغة"
+        }
+      }
+    },
+    {
+      "id": "OPP-07",
+      "title_ar": "ذكاء اصطناعي مُستنير بالفيزياء",
+      "source": "docs/commercial/REVENUE_OPPORTUNITY_MAP_2026-09-29.csv",
+      "catalog_id": "physics-informed-ai",
+      "links": {
+        "1": {
+          "status": "NOT_REACHED",
+          "reason_ar": "سطرُ كتالوجٍ بلا ملاحظةٍ مؤرَّخة ولا نموذجٍ ولا بيانات (القرار: DROP for now)"
+        },
+        "2": {
+          "status": "NOT_REACHED",
+          "reason_ar": "لا دليل — والحلقة السابقة غير مبلوغة"
+        },
+        "3": {
+          "status": "NOT_REACHED",
+          "reason_ar": "لا دليل — والحلقة السابقة غير مبلوغة"
+        },
+        "4": {
+          "status": "NOT_REACHED",
+          "reason_ar": "لا دليل — والحلقة السابقة غير مبلوغة"
+        },
+        "5": {
+          "status": "NOT_REACHED",
+          "reason_ar": "لا دليل — والحلقة السابقة غير مبلوغة"
+        },
+        "6": {
+          "status": "NOT_REACHED",
+          "reason_ar": "لا دليل — والحلقة السابقة غير مبلوغة"
+        }
+      }
+    },
+    {
+      "id": "OPP-08",
+      "title_ar": "التحقّق الصوري لبرمجيات الذكاء الاصطناعي",
+      "source": "docs/commercial/REVENUE_OPPORTUNITY_MAP_2026-09-29.csv",
+      "catalog_id": "formal-verification-ai",
+      "links": {
+        "1": {
+          "status": "NOT_REACHED",
+          "reason_ar": "لا ملاحظة سوقٍ مؤرَّخة؛ وNAAS_VERIFICATION_LAYER.md معماريةٌ لا رصد (القرار: DROP for now)"
+        },
+        "2": {
+          "status": "NOT_REACHED",
+          "reason_ar": "لا دليل — والحلقة السابقة غير مبلوغة"
+        },
+        "3": {
+          "status": "NOT_REACHED",
+          "reason_ar": "لا دليل — والحلقة السابقة غير مبلوغة"
+        },
+        "4": {
+          "status": "NOT_REACHED",
+          "reason_ar": "لا دليل — والحلقة السابقة غير مبلوغة"
+        },
+        "5": {
+          "status": "NOT_REACHED",
+          "reason_ar": "لا دليل — والحلقة السابقة غير مبلوغة"
+        },
+        "6": {
+          "status": "NOT_REACHED",
+          "reason_ar": "لا دليل — والحلقة السابقة غير مبلوغة"
+        }
+      }
+    },
+    {
+      "id": "OPP-09",
+      "title_ar": "حزمة أدلّة قانون الذكاء الاصطناعي الأوروبي",
+      "source": "docs/commercial/REVENUE_OPPORTUNITY_MAP_2026-09-29.csv",
+      "catalog_id": "eu-ai-act-compliance",
+      "links": {
+        "1": {
+          "status": "REACHED",
+          "evidence": [
+            "studies/market-first-sales-reality/ranking_mf_all_rounds.csv"
+          ],
+          "note_ar": "S06/S07/S08 ضمن العشرة الأولى"
+        },
+        "2": {
+          "status": "NOT_REACHED",
+          "reason_ar": "لا قالب ولا صيغة دليلٍ للعميل؛ مُجمَّد (D-300)"
+        },
+        "3": {
+          "status": "NOT_REACHED",
+          "reason_ar": "لا دليل — والحلقة السابقة غير مبلوغة"
+        },
+        "4": {
+          "status": "NOT_REACHED",
+          "reason_ar": "لا دليل — والحلقة السابقة غير مبلوغة"
+        },
+        "5": {
+          "status": "NOT_REACHED",
+          "reason_ar": "لا دليل — والحلقة السابقة غير مبلوغة"
+        },
+        "6": {
+          "status": "NOT_REACHED",
+          "reason_ar": "لا دليل — والحلقة السابقة غير مبلوغة"
+        }
+      }
+    },
+    {
+      "id": "OPP-10",
+      "title_ar": "تسويق بالعمولة عالي العائد",
+      "source": "docs/commercial/REVENUE_OPPORTUNITY_MAP_2026-09-29.csv",
+      "catalog_id": "high-rpm-ai-affiliation",
+      "links": {
+        "1": {
+          "status": "NOT_REACHED",
+          "reason_ar": "سطرُ كتالوجٍ بلا ملاحظةٍ مؤرَّخة (القرار: DROP)"
+        },
+        "2": {
+          "status": "NOT_REACHED",
+          "reason_ar": "لا دليل — والحلقة السابقة غير مبلوغة"
+        },
+        "3": {
+          "status": "NOT_REACHED",
+          "reason_ar": "لا دليل — والحلقة السابقة غير مبلوغة"
+        },
+        "4": {
+          "status": "NOT_REACHED",
+          "reason_ar": "لا دليل — والحلقة السابقة غير مبلوغة"
+        },
+        "5": {
+          "status": "NOT_REACHED",
+          "reason_ar": "لا دليل — والحلقة السابقة غير مبلوغة"
+        },
+        "6": {
+          "status": "NOT_REACHED",
+          "reason_ar": "لا دليل — والحلقة السابقة غير مبلوغة"
+        }
+      }
+    },
+    {
+      "id": "OPP-11",
+      "title_ar": "CBAM — أداة قرار المستورد الأوروبي من القيم الرسمية المدبوسة",
+      "source": "docs/commercial/REVENUE_OPPORTUNITY_MAP_2026-09-29.csv",
+      "workbench": "cbam",
+      "ledger_routes": [],
+      "locked_extensions": [
+        {
+          "title_ar": "المحادثة واجهةٌ لجمع أدلّة CBAM بالعربية والفرنسية",
+          "unlock_ar": "الحلقة 5 لهذا المسار: شريك بيانات منشأة",
+          "constraint_ar": "⛔ خدمةٌ مستقلّة لا تدخل منصّة الطلبة، والنموذج اللغوي لا يحسب انبعاثاً"
+        }
+      ],
+      "links": {
+        "1": {
+          "status": "REACHED",
+          "evidence": [
+            "studies/cbam-client-map-003/SOURCES.md"
+          ],
+          "note_ar": "مصادر الالتزام بتواريخ تحقّقها"
+        },
+        "2": {
+          "status": "REACHED",
+          "evidence": [
+            "studies/cbam-default-pin-004/README.md"
+          ],
+          "note_ar": "⛔ ترك القيم الافتراضية ليس وفراً تلقائياً: رسمُ مسارٍ موجب في 73 من 90 زوجاً مدبوساً"
+        },
+        "3": {
+          "status": "REACHED",
+          "evidence": [
+            "docs/research/CPN_MEASUREMENTS.json"
+          ],
+          "note_ar": "قيمٌ رسمية مدبوسة من ملحق IR 2025/2620 — بلا بيانات منشأة",
+          "contains_user_data": false
+        },
+        "4": {
+          "status": "REACHED",
+          "evidence": [
+            "shared/research/cbam_pin.py",
+            "tests/shared/test_cpn_cbam_pin.py"
+          ]
+        },
+        "5": {
+          "status": "NOT_REACHED",
+          "reason_ar": "لا بيانات منشأة — شرطُ المالك المكتوب لـOPP-11: شريك بيانات منشأة. والأداة القديمة مسحوبة (انحراف ≈71× — D-297 §4)"
+        },
+        "6": {
+          "status": "NOT_REACHED",
+          "reason_ar": "لا قرار مشترٍ قبل نتيجةٍ على نظامٍ مستقلّ"
+        }
+      }
+    },
+    {
+      "id": "OPP-12",
+      "title_ar": "إصلاح سلسلة فواتير ZATCA",
+      "source": "docs/commercial/REVENUE_OPPORTUNITY_MAP_2026-09-29.csv",
+      "withdrawn": true,
+      "links": {
+        "1": {
+          "status": "REACHED",
+          "evidence": [
+            "دراسة-استخباراتية-سلاسل-التصدير-CBAM-والفوترة.md"
+          ]
+        },
+        "2": {
+          "status": "NOT_REACHED",
+          "reason_ar": "الأداة مسحوبة: «إصلاحٌ» بهاشٍ غير معتمد وبلا توقيع (D-297 §4)"
+        },
+        "3": {
+          "status": "NOT_REACHED",
+          "reason_ar": "لا دليل — والحلقة السابقة غير مبلوغة"
+        },
+        "4": {
+          "status": "NOT_REACHED",
+          "reason_ar": "لا دليل — والحلقة السابقة غير مبلوغة"
+        },
+        "5": {
+          "status": "NOT_REACHED",
+          "reason_ar": "لا دليل — والحلقة السابقة غير مبلوغة"
+        },
+        "6": {
+          "status": "NOT_REACHED",
+          "reason_ar": "لا دليل — والحلقة السابقة غير مبلوغة"
+        }
+      }
+    },
+    {
+      "id": "OPP-13",
+      "title_ar": "تدقيق إتاحة EAA",
+      "source": "docs/commercial/REVENUE_OPPORTUNITY_MAP_2026-09-29.csv",
+      "withdrawn": true,
+      "links": {
+        "1": {
+          "status": "REACHED",
+          "evidence": [
+            "أطلس-الدافعين-المجبرين-عالميا.md"
+          ]
+        },
+        "2": {
+          "status": "NOT_REACHED",
+          "reason_ar": "الأداة مسحوبة: إعلانٌ بتاريخٍ ومكانٍ ثابتَين (D-297 §4)"
+        },
+        "3": {
+          "status": "NOT_REACHED",
+          "reason_ar": "لا دليل — والحلقة السابقة غير مبلوغة"
+        },
+        "4": {
+          "status": "NOT_REACHED",
+          "reason_ar": "لا دليل — والحلقة السابقة غير مبلوغة"
+        },
+        "5": {
+          "status": "NOT_REACHED",
+          "reason_ar": "لا دليل — والحلقة السابقة غير مبلوغة"
+        },
+        "6": {
+          "status": "NOT_REACHED",
+          "reason_ar": "لا دليل — والحلقة السابقة غير مبلوغة"
+        }
+      }
+    },
+    {
+      "id": "OPP-14",
+      "title_ar": "بناء أتمتة n8n/Make",
+      "source": "docs/commercial/REVENUE_OPPORTUNITY_MAP_2026-09-29.csv",
+      "links": {
+        "1": {
+          "status": "REACHED",
+          "evidence": [
+            "studies/market-first-sales-reality/ranking_mf_all_rounds.csv"
+          ],
+          "note_ar": "S31 وS79 ضمن العشرة الأولى"
+        },
+        "2": {
+          "status": "NOT_REACHED",
+          "reason_ar": "لا أصل في المستودع؛ مُجمَّد (D-300)"
+        },
+        "3": {
+          "status": "NOT_REACHED",
+          "reason_ar": "لا دليل — والحلقة السابقة غير مبلوغة"
+        },
+        "4": {
+          "status": "NOT_REACHED",
+          "reason_ar": "لا دليل — والحلقة السابقة غير مبلوغة"
+        },
+        "5": {
+          "status": "NOT_REACHED",
+          "reason_ar": "لا دليل — والحلقة السابقة غير مبلوغة"
+        },
+        "6": {
+          "status": "NOT_REACHED",
+          "reason_ar": "لا دليل — والحلقة السابقة غير مبلوغة"
+        }
+      }
+    },
+    {
+      "id": "OPP-15",
+      "title_ar": "شهادة النتيجة للعمل الوكيلي",
+      "source": "docs/commercial/REVENUE_OPPORTUNITY_MAP_2026-09-29.csv",
+      "links": {
+        "1": {
+          "status": "NOT_REACHED",
+          "reason_ar": "أطروحةٌ غير مُتحقَّقة بتصريح وثيقتها (UNVALIDATED_HYPOTHESIS) لا ملاحظةٌ مرصودة؛ مُجمَّدة (D-300)"
+        },
+        "2": {
+          "status": "NOT_REACHED",
+          "reason_ar": "لا دليل — والحلقة السابقة غير مبلوغة"
+        },
+        "3": {
+          "status": "NOT_REACHED",
+          "reason_ar": "لا دليل — والحلقة السابقة غير مبلوغة"
+        },
+        "4": {
+          "status": "NOT_REACHED",
+          "reason_ar": "لا دليل — والحلقة السابقة غير مبلوغة"
+        },
+        "5": {
+          "status": "NOT_REACHED",
+          "reason_ar": "لا دليل — والحلقة السابقة غير مبلوغة"
+        },
+        "6": {
+          "status": "NOT_REACHED",
+          "reason_ar": "لا دليل — والحلقة السابقة غير مبلوغة"
+        }
+      }
+    },
+    {
+      "id": "OPP-16",
+      "title_ar": "حجز المواعيد B2B (الولايات المتحدة والمملكة المتحدة)",
+      "source": "docs/commercial/REVENUE_OPPORTUNITY_MAP_2026-09-29.csv",
+      "links": {
+        "1": {
+          "status": "REACHED",
+          "evidence": [
+            "docs/CUSTOMER_DISCOVERY_TOP3_AR.md"
+          ]
+        },
+        "2": {
+          "status": "NOT_REACHED",
+          "reason_ar": "لا ميزة أصلٍ لدينا (القرار: DROP)"
+        },
+        "3": {
+          "status": "NOT_REACHED",
+          "reason_ar": "لا دليل — والحلقة السابقة غير مبلوغة"
+        },
+        "4": {
+          "status": "NOT_REACHED",
+          "reason_ar": "لا دليل — والحلقة السابقة غير مبلوغة"
+        },
+        "5": {
+          "status": "NOT_REACHED",
+          "reason_ar": "لا دليل — والحلقة السابقة غير مبلوغة"
+        },
+        "6": {
+          "status": "NOT_REACHED",
+          "reason_ar": "لا دليل — والحلقة السابقة غير مبلوغة"
+        }
+      }
+    },
+    {
+      "id": "OPP-17",
+      "title_ar": "الإسناد الإداري الشهري للمؤسّسات الفرنسية الصغيرة",
+      "source": "docs/commercial/REVENUE_OPPORTUNITY_MAP_2026-09-29.csv",
+      "links": {
+        "1": {
+          "status": "REACHED",
+          "evidence": [
+            "تقرير-صيد-الفرص-المدفوعة.md"
+          ],
+          "note_ar": "§2 السطر 2"
+        },
+        "2": {
+          "status": "NOT_REACHED",
+          "reason_ar": "مسارٌ احتياطي مُجمَّد (D-300)"
+        },
+        "3": {
+          "status": "NOT_REACHED",
+          "reason_ar": "لا دليل — والحلقة السابقة غير مبلوغة"
+        },
+        "4": {
+          "status": "NOT_REACHED",
+          "reason_ar": "لا دليل — والحلقة السابقة غير مبلوغة"
+        },
+        "5": {
+          "status": "NOT_REACHED",
+          "reason_ar": "لا دليل — والحلقة السابقة غير مبلوغة"
+        },
+        "6": {
+          "status": "NOT_REACHED",
+          "reason_ar": "لا دليل — والحلقة السابقة غير مبلوغة"
+        }
+      }
+    },
+    {
+      "id": "OPP-18",
+      "title_ar": "التوطين التجاري والتقني فرنسي ⇄ عربي",
+      "source": "docs/commercial/REVENUE_OPPORTUNITY_MAP_2026-09-29.csv",
+      "links": {
+        "1": {
+          "status": "REACHED",
+          "evidence": [
+            "تقرير-صيد-الفرص-المدفوعة.md"
+          ],
+          "note_ar": "§2 السطر 4"
+        },
+        "2": {
+          "status": "NOT_REACHED",
+          "reason_ar": "مسارٌ احتياطي مُجمَّد (D-300)"
+        },
+        "3": {
+          "status": "NOT_REACHED",
+          "reason_ar": "لا دليل — والحلقة السابقة غير مبلوغة"
+        },
+        "4": {
+          "status": "NOT_REACHED",
+          "reason_ar": "لا دليل — والحلقة السابقة غير مبلوغة"
+        },
+        "5": {
+          "status": "NOT_REACHED",
+          "reason_ar": "لا دليل — والحلقة السابقة غير مبلوغة"
+        },
+        "6": {
+          "status": "NOT_REACHED",
+          "reason_ar": "لا دليل — والحلقة السابقة غير مبلوغة"
+        }
+      }
+    },
+    {
+      "id": "OPP-19",
+      "title_ar": "منصّة E-TAALIM التعليمية للبكالوريا",
+      "source": "docs/commercial/REVENUE_OPPORTUNITY_MAP_2026-09-29.csv",
+      "links": {
+        "1": {
+          "status": "REACHED",
+          "evidence": [
+            ".memory/auth_runtime_truth.md"
+          ],
+          "note_ar": "ثمانية مستخدمين فقط حملوا رموزاً"
+        },
+        "2": {
+          "status": "NOT_REACHED",
+          "reason_ar": "ليس مسار عملةٍ صعبة: B2C بالدينار على منصّة قاصرين (القرار: FREEZE). أصوله الهندسية تُحسَب في المسارات التي تعيد استعمالها"
+        },
+        "3": {
+          "status": "NOT_REACHED",
+          "reason_ar": "لا دليل — والحلقة السابقة غير مبلوغة"
+        },
+        "4": {
+          "status": "NOT_REACHED",
+          "reason_ar": "لا دليل — والحلقة السابقة غير مبلوغة"
+        },
+        "5": {
+          "status": "NOT_REACHED",
+          "reason_ar": "لا دليل — والحلقة السابقة غير مبلوغة"
+        },
+        "6": {
+          "status": "NOT_REACHED",
+          "reason_ar": "لا دليل — والحلقة السابقة غير مبلوغة"
+        }
+      }
+    },
+    {
+      "id": "OFF-AHW",
+      "title_ar": "بوّابة انحدارٍ عند الإصدار بدليلٍ مثبَّت",
+      "source": "docs/commercial/AHW_EXPORT_OFFER.md",
+      "links": {
+        "1": {
+          "status": "REACHED",
+          "evidence": [
+            "docs/research/HARD_CURRENCY_NEW_KNOWLEDGE_AHW.md"
+          ]
+        },
+        "2": {
+          "status": "REACHED",
+          "evidence": [
+            "docs/commercial/AHW_EXPORT_OFFER.md"
+          ]
+        },
+        "3": {
+          "status": "REACHED",
+          "evidence": [
+            "docs/research/AHW_MEASUREMENTS.json"
+          ],
+          "note_ar": "client_measurements: 0",
+          "contains_user_data": false
+        },
+        "4": {
+          "status": "REACHED",
+          "evidence": [
+            "shared/research/assurance_window.py",
+            "tests/shared/test_ahw_assurance_window.py"
+          ]
+        },
+        "5": {
+          "status": "NOT_REACHED",
+          "reason_ar": "client_measurements: 0 — لا نظام ولا بيانات طرفٍ ثالث"
+        },
+        "6": {
+          "status": "NOT_REACHED",
+          "reason_ar": "لا قرار مشترٍ قبل نتيجةٍ على نظامٍ مستقلّ"
+        }
+      }
+    },
+    {
+      "id": "OFF-CDKC",
+      "title_ar": "حزمة تقييمٍ قابلة للتصدير لمختبرات النماذج",
+      "source": "docs/commercial/CDKC_EXPORTABLE_EVAL_OFFER.md",
+      "links": {
+        "1": {
+          "status": "REACHED",
+          "evidence": [
+            "docs/research/HARD_CURRENCY_NEW_KNOWLEDGE_CDKC.md"
+          ]
+        },
+        "2": {
+          "status": "REACHED",
+          "evidence": [
+            "docs/commercial/CDKC_EXPORTABLE_EVAL_OFFER.md"
+          ]
+        },
+        "3": {
+          "status": "NOT_REACHED",
+          "reason_ar": "لا مُخرَج قياسٍ مُلتزَم"
+        },
+        "4": {
+          "status": "REACHED",
+          "evidence": [
+            "shared/research/exportable_eval.py",
+            "tests/shared/test_cdkc_exportable_eval.py"
+          ]
+        },
+        "5": {
+          "status": "NOT_REACHED",
+          "reason_ar": "client_measurements: 0 — لا نظام ولا بيانات طرفٍ ثالث"
+        },
+        "6": {
+          "status": "NOT_REACHED",
+          "reason_ar": "لا قرار مشترٍ قبل نتيجةٍ على نظامٍ مستقلّ"
+        }
+      }
+    },
+    {
+      "id": "OFF-CND",
+      "title_ar": "ملفّ سلوك الحارس عبر أسطح اللغة",
+      "source": "docs/commercial/CND_EXPORTABLE_EVAL_OFFER.md",
+      "links": {
+        "1": {
+          "status": "REACHED",
+          "evidence": [
+            "docs/research/HARD_CURRENCY_NEW_KNOWLEDGE_CND.md"
+          ]
+        },
+        "2": {
+          "status": "REACHED",
+          "evidence": [
+            "docs/commercial/CND_EXPORTABLE_EVAL_OFFER.md"
+          ]
+        },
+        "3": {
+          "status": "REACHED",
+          "evidence": [
+            "docs/research/CND_MEASUREMENTS.json"
+          ],
+          "note_ar": "client_measurements: 0",
+          "contains_user_data": false
+        },
+        "4": {
+          "status": "REACHED",
+          "evidence": [
+            "shared/research/null_invariance.py",
+            "tests/shared/test_cnd_null_invariance.py"
+          ]
+        },
+        "5": {
+          "status": "NOT_REACHED",
+          "reason_ar": "client_measurements: 0 — لا نظام ولا بيانات طرفٍ ثالث"
+        },
+        "6": {
+          "status": "NOT_REACHED",
+          "reason_ar": "لا قرار مشترٍ قبل نتيجةٍ على نظامٍ مستقلّ"
+        }
+      }
+    },
+    {
+      "id": "OFF-SSI",
+      "title_ar": "تدقيق بنية قابلية بيع العرض التقني",
+      "source": "docs/commercial/SSI_EXPORT_OFFER.md",
+      "links": {
+        "1": {
+          "status": "REACHED",
+          "evidence": [
+            "docs/research/HARD_CURRENCY_NEW_KNOWLEDGE_SSI.md"
+          ]
+        },
+        "2": {
+          "status": "REACHED",
+          "evidence": [
+            "docs/commercial/SSI_EXPORT_OFFER.md"
+          ]
+        },
+        "3": {
+          "status": "REACHED",
+          "evidence": [
+            "docs/research/SSI_MEASUREMENTS.json"
+          ],
+          "note_ar": "client_measurements: 0",
+          "contains_user_data": false
+        },
+        "4": {
+          "status": "NOT_REACHED",
+          "reason_ar": "اختبارٌ ذاتيّ داخل الأداة (--check) بلا ملفّ اختبارٍ في tests/ ولا برهانٍ سلبي"
+        },
+        "5": {
+          "status": "NOT_REACHED",
+          "reason_ar": "client_measurements: 0 — لا نظام ولا بيانات طرفٍ ثالث"
+        },
+        "6": {
+          "status": "NOT_REACHED",
+          "reason_ar": "لا قرار مشترٍ قبل نتيجةٍ على نظامٍ مستقلّ"
+        }
+      }
+    },
+    {
+      "id": "OFF-VERA",
+      "title_ar": "بروتوكول دليلٍ محمول قابل لإعادة الإنتاج",
+      "source": "docs/commercial/VERA_EXPORT_OFFER.md",
+      "links": {
+        "1": {
+          "status": "REACHED",
+          "evidence": [
+            "docs/research/HARD_CURRENCY_NEW_KNOWLEDGE_VERA.md"
+          ]
+        },
+        "2": {
+          "status": "REACHED",
+          "evidence": [
+            "docs/commercial/VERA_EXPORT_OFFER.md"
+          ]
+        },
+        "3": {
+          "status": "REACHED",
+          "evidence": [
+            "docs/research/VERA_MEASUREMENTS.json"
+          ],
+          "note_ar": "client_measurements: 0",
+          "contains_user_data": false
+        },
+        "4": {
+          "status": "REACHED",
+          "evidence": [
+            "shared/research/portable_trust.py",
+            "tests/shared/test_vera_portable_trust.py"
+          ]
+        },
+        "5": {
+          "status": "NOT_REACHED",
+          "reason_ar": "client_measurements: 0 — لا نظام ولا بيانات طرفٍ ثالث"
+        },
+        "6": {
+          "status": "NOT_REACHED",
+          "reason_ar": "لا قرار مشترٍ قبل نتيجةٍ على نظامٍ مستقلّ"
+        }
+      }
+    },
+    {
+      "id": "OFF-WOD",
+      "title_ar": "طبقة المشتري لحواجز الفاتورة الأولى",
+      "source": "docs/commercial/WOD_BUYER_LAYER_OFFER.md",
+      "links": {
+        "1": {
+          "status": "REACHED",
+          "evidence": [
+            "docs/research/HARD_CURRENCY_NEW_KNOWLEDGE_WOD.md"
+          ]
+        },
+        "2": {
+          "status": "REACHED",
+          "evidence": [
+            "docs/commercial/WOD_BUYER_LAYER_OFFER.md"
+          ]
+        },
+        "3": {
+          "status": "REACHED",
+          "evidence": [
+            "docs/research/WOD_MEASUREMENTS.json"
+          ],
+          "note_ar": "client_measurements: 0",
+          "contains_user_data": false
+        },
+        "4": {
+          "status": "REACHED",
+          "evidence": [
+            "shared/research/withholding_onboarding.py",
+            "tests/shared/test_wod_withholding_onboarding.py"
+          ]
+        },
+        "5": {
+          "status": "NOT_REACHED",
+          "reason_ar": "client_measurements: 0 — لا نظام ولا بيانات طرفٍ ثالث"
+        },
+        "6": {
+          "status": "NOT_REACHED",
+          "reason_ar": "لا قرار مشترٍ قبل نتيجةٍ على نظامٍ مستقلّ"
+        }
+      }
+    }
+  ],
+  "derived": {
+    "as_of": "2026-09-22",
+    "as_of_basis": "آخر تاريخٍ في CONTACT_LEDGER.csv — لا ساعة النظام",
+    "paths_total": 25,
+    "by_classification": {
+      "unevidenced_hypothesis": 5,
+      "research_asset": 12,
+      "engineering_capability": 7,
+      "validated_capability": 1,
+      "commercial_evidence": 0
+    },
+    "next_actor_human": 23,
+    "next_actor_code": 2,
+    "paths": [
+      {
+        "id": "OPP-01",
+        "reached": 4,
+        "classification": "engineering_capability",
+        "next_link": 5,
+        "next_link_title_ar": "نتيجةٌ مفيدة على نظامٍ أو بياناتٍ لم نكتبها",
+        "next_actor": "human",
+        "raw_links": [
+          1,
+          2,
+          3,
+          4
+        ],
+        "ledger": {
+          "outbound": 1,
+          "replies": 0,
+          "money_events": 0,
+          "payments_settled": 0
+        }
+      },
+      {
+        "id": "OPP-02",
+        "reached": 4,
+        "classification": "engineering_capability",
+        "next_link": 5,
+        "next_link_title_ar": "نتيجةٌ مفيدة على نظامٍ أو بياناتٍ لم نكتبها",
+        "next_actor": "human",
+        "raw_links": [
+          1,
+          2,
+          3,
+          4
+        ],
+        "ledger": {
+          "outbound": 0,
+          "replies": 0,
+          "money_events": 0,
+          "payments_settled": 0
+        }
+      },
+      {
+        "id": "OPP-03",
+        "reached": 1,
+        "classification": "research_asset",
+        "next_link": 2,
+        "next_link_title_ar": "نمطٌ قابلٌ للتعميم بلا تفاصيل حالةٍ بعينها",
+        "next_actor": "human",
+        "raw_links": [
+          1
+        ],
+        "ledger": {
+          "outbound": 0,
+          "replies": 0,
+          "money_events": 0,
+          "payments_settled": 0
+        }
+      },
+      {
+        "id": "OPP-04",
+        "reached": 5,
+        "classification": "validated_capability",
+        "next_link": 6,
+        "next_link_title_ar": "قرارٌ واضحٌ للمشتري مربوطٌ بنتيجة الحلقة 5",
+        "next_actor": "human",
+        "raw_links": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "ledger": {
+          "outbound": 0,
+          "replies": 0,
+          "money_events": 0,
+          "payments_settled": 0
+        }
+      },
+      {
+        "id": "OPP-05",
+        "reached": 1,
+        "classification": "research_asset",
+        "next_link": 2,
+        "next_link_title_ar": "نمطٌ قابلٌ للتعميم بلا تفاصيل حالةٍ بعينها",
+        "next_actor": "human",
+        "raw_links": [
+          1
+        ],
+        "ledger": {
+          "outbound": 0,
+          "replies": 0,
+          "money_events": 0,
+          "payments_settled": 0
+        }
+      },
+      {
+        "id": "OPP-06",
+        "reached": 0,
+        "classification": "unevidenced_hypothesis",
+        "next_link": 1,
+        "next_link_title_ar": "حادثةٌ أو ملاحظةٌ مؤرَّخة بمصدر",
+        "next_actor": "human",
+        "raw_links": [],
+        "ledger": {
+          "outbound": 0,
+          "replies": 0,
+          "money_events": 0,
+          "payments_settled": 0
+        }
+      },
+      {
+        "id": "OPP-07",
+        "reached": 0,
+        "classification": "unevidenced_hypothesis",
+        "next_link": 1,
+        "next_link_title_ar": "حادثةٌ أو ملاحظةٌ مؤرَّخة بمصدر",
+        "next_actor": "human",
+        "raw_links": [],
+        "ledger": {
+          "outbound": 0,
+          "replies": 0,
+          "money_events": 0,
+          "payments_settled": 0
+        }
+      },
+      {
+        "id": "OPP-08",
+        "reached": 0,
+        "classification": "unevidenced_hypothesis",
+        "next_link": 1,
+        "next_link_title_ar": "حادثةٌ أو ملاحظةٌ مؤرَّخة بمصدر",
+        "next_actor": "human",
+        "raw_links": [],
+        "ledger": {
+          "outbound": 0,
+          "replies": 0,
+          "money_events": 0,
+          "payments_settled": 0
+        }
+      },
+      {
+        "id": "OPP-09",
+        "reached": 1,
+        "classification": "research_asset",
+        "next_link": 2,
+        "next_link_title_ar": "نمطٌ قابلٌ للتعميم بلا تفاصيل حالةٍ بعينها",
+        "next_actor": "human",
+        "raw_links": [
+          1
+        ],
+        "ledger": {
+          "outbound": 0,
+          "replies": 0,
+          "money_events": 0,
+          "payments_settled": 0
+        }
+      },
+      {
+        "id": "OPP-10",
+        "reached": 0,
+        "classification": "unevidenced_hypothesis",
+        "next_link": 1,
+        "next_link_title_ar": "حادثةٌ أو ملاحظةٌ مؤرَّخة بمصدر",
+        "next_actor": "human",
+        "raw_links": [],
+        "ledger": {
+          "outbound": 0,
+          "replies": 0,
+          "money_events": 0,
+          "payments_settled": 0
+        }
+      },
+      {
+        "id": "OPP-11",
+        "reached": 4,
+        "classification": "engineering_capability",
+        "next_link": 5,
+        "next_link_title_ar": "نتيجةٌ مفيدة على نظامٍ أو بياناتٍ لم نكتبها",
+        "next_actor": "human",
+        "raw_links": [
+          1,
+          2,
+          3,
+          4
+        ],
+        "ledger": {
+          "outbound": 0,
+          "replies": 0,
+          "money_events": 0,
+          "payments_settled": 0
+        }
+      },
+      {
+        "id": "OPP-12",
+        "reached": 1,
+        "classification": "research_asset",
+        "next_link": 2,
+        "next_link_title_ar": "نمطٌ قابلٌ للتعميم بلا تفاصيل حالةٍ بعينها",
+        "next_actor": "human",
+        "raw_links": [
+          1
+        ],
+        "ledger": {
+          "outbound": 0,
+          "replies": 0,
+          "money_events": 0,
+          "payments_settled": 0
+        }
+      },
+      {
+        "id": "OPP-13",
+        "reached": 1,
+        "classification": "research_asset",
+        "next_link": 2,
+        "next_link_title_ar": "نمطٌ قابلٌ للتعميم بلا تفاصيل حالةٍ بعينها",
+        "next_actor": "human",
+        "raw_links": [
+          1
+        ],
+        "ledger": {
+          "outbound": 0,
+          "replies": 0,
+          "money_events": 0,
+          "payments_settled": 0
+        }
+      },
+      {
+        "id": "OPP-14",
+        "reached": 1,
+        "classification": "research_asset",
+        "next_link": 2,
+        "next_link_title_ar": "نمطٌ قابلٌ للتعميم بلا تفاصيل حالةٍ بعينها",
+        "next_actor": "human",
+        "raw_links": [
+          1
+        ],
+        "ledger": {
+          "outbound": 0,
+          "replies": 0,
+          "money_events": 0,
+          "payments_settled": 0
+        }
+      },
+      {
+        "id": "OPP-15",
+        "reached": 0,
+        "classification": "unevidenced_hypothesis",
+        "next_link": 1,
+        "next_link_title_ar": "حادثةٌ أو ملاحظةٌ مؤرَّخة بمصدر",
+        "next_actor": "human",
+        "raw_links": [],
+        "ledger": {
+          "outbound": 0,
+          "replies": 0,
+          "money_events": 0,
+          "payments_settled": 0
+        }
+      },
+      {
+        "id": "OPP-16",
+        "reached": 1,
+        "classification": "research_asset",
+        "next_link": 2,
+        "next_link_title_ar": "نمطٌ قابلٌ للتعميم بلا تفاصيل حالةٍ بعينها",
+        "next_actor": "human",
+        "raw_links": [
+          1
+        ],
+        "ledger": {
+          "outbound": 0,
+          "replies": 0,
+          "money_events": 0,
+          "payments_settled": 0
+        }
+      },
+      {
+        "id": "OPP-17",
+        "reached": 1,
+        "classification": "research_asset",
+        "next_link": 2,
+        "next_link_title_ar": "نمطٌ قابلٌ للتعميم بلا تفاصيل حالةٍ بعينها",
+        "next_actor": "human",
+        "raw_links": [
+          1
+        ],
+        "ledger": {
+          "outbound": 0,
+          "replies": 0,
+          "money_events": 0,
+          "payments_settled": 0
+        }
+      },
+      {
+        "id": "OPP-18",
+        "reached": 1,
+        "classification": "research_asset",
+        "next_link": 2,
+        "next_link_title_ar": "نمطٌ قابلٌ للتعميم بلا تفاصيل حالةٍ بعينها",
+        "next_actor": "human",
+        "raw_links": [
+          1
+        ],
+        "ledger": {
+          "outbound": 0,
+          "replies": 0,
+          "money_events": 0,
+          "payments_settled": 0
+        }
+      },
+      {
+        "id": "OPP-19",
+        "reached": 1,
+        "classification": "research_asset",
+        "next_link": 2,
+        "next_link_title_ar": "نمطٌ قابلٌ للتعميم بلا تفاصيل حالةٍ بعينها",
+        "next_actor": "human",
+        "raw_links": [
+          1
+        ],
+        "ledger": {
+          "outbound": 0,
+          "replies": 0,
+          "money_events": 0,
+          "payments_settled": 0
+        }
+      },
+      {
+        "id": "OFF-AHW",
+        "reached": 4,
+        "classification": "engineering_capability",
+        "next_link": 5,
+        "next_link_title_ar": "نتيجةٌ مفيدة على نظامٍ أو بياناتٍ لم نكتبها",
+        "next_actor": "human",
+        "raw_links": [
+          1,
+          2,
+          3,
+          4
+        ],
+        "ledger": {
+          "outbound": 0,
+          "replies": 0,
+          "money_events": 0,
+          "payments_settled": 0
+        }
+      },
+      {
+        "id": "OFF-CDKC",
+        "reached": 2,
+        "classification": "research_asset",
+        "next_link": 3,
+        "next_link_title_ar": "مسبارٌ أو عيّنةٌ بلا بيانات عميلٍ أو مستخدم",
+        "next_actor": "code",
+        "raw_links": [
+          1,
+          2,
+          4
+        ],
+        "ledger": {
+          "outbound": 0,
+          "replies": 0,
+          "money_events": 0,
+          "payments_settled": 0
+        }
+      },
+      {
+        "id": "OFF-CND",
+        "reached": 4,
+        "classification": "engineering_capability",
+        "next_link": 5,
+        "next_link_title_ar": "نتيجةٌ مفيدة على نظامٍ أو بياناتٍ لم نكتبها",
+        "next_actor": "human",
+        "raw_links": [
+          1,
+          2,
+          3,
+          4
+        ],
+        "ledger": {
+          "outbound": 0,
+          "replies": 0,
+          "money_events": 0,
+          "payments_settled": 0
+        }
+      },
+      {
+        "id": "OFF-SSI",
+        "reached": 3,
+        "classification": "research_asset",
+        "next_link": 4,
+        "next_link_title_ar": "اختبارٌ حتميٌّ قابلٌ لإعادة الإنتاج",
+        "next_actor": "code",
+        "raw_links": [
+          1,
+          2,
+          3
+        ],
+        "ledger": {
+          "outbound": 0,
+          "replies": 0,
+          "money_events": 0,
+          "payments_settled": 0
+        }
+      },
+      {
+        "id": "OFF-VERA",
+        "reached": 4,
+        "classification": "engineering_capability",
+        "next_link": 5,
+        "next_link_title_ar": "نتيجةٌ مفيدة على نظامٍ أو بياناتٍ لم نكتبها",
+        "next_actor": "human",
+        "raw_links": [
+          1,
+          2,
+          3,
+          4
+        ],
+        "ledger": {
+          "outbound": 0,
+          "replies": 0,
+          "money_events": 0,
+          "payments_settled": 0
+        }
+      },
+      {
+        "id": "OFF-WOD",
+        "reached": 4,
+        "classification": "engineering_capability",
+        "next_link": 5,
+        "next_link_title_ar": "نتيجةٌ مفيدة على نظامٍ أو بياناتٍ لم نكتبها",
+        "next_actor": "human",
+        "raw_links": [
+          1,
+          2,
+          3,
+          4
+        ],
+        "ledger": {
+          "outbound": 0,
+          "replies": 0,
+          "money_events": 0,
+          "payments_settled": 0
+        }
+      }
+    ]
+  }
+}

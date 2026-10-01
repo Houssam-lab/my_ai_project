@@ -41,6 +41,7 @@ __all__ = [
     "LEDGER_REL",
     "MONEY",
     "OUTBOUND",
+    "PAYMENT_SETTLED",
     "SCORECARD_REL",
     "LedgerError",
     "LedgerRow",
@@ -72,8 +73,10 @@ OUTBOUND = frozenset({"EMAIL_SENT", "CALL_MADE", "LINKEDIN_SENT", "FORM_SUBMITTE
 INBOUND = frozenset({"REPLY_RECEIVED"})
 #: تسليمٌ نحن مصدره: عيّنةٌ مجّانية أو عرضُ سعر.
 DELIVERY = frozenset({"SAMPLE_DELIVERED", "QUOTE_SENT"})
+#: الدفعة المسوّاة — موطنها هنا وحده؛ كلّ مستهلكٍ يستوردها (D-270 L5).
+PAYMENT_SETTLED = "PAYMENT_SETTLED"
 #: مالٌ تحرّك فعلاً — الوحيد الذي يحرّك `GATE_C`.
-MONEY = frozenset({"DEPOSIT_RECEIVED", "PAYMENT_SETTLED"})
+MONEY = frozenset({"DEPOSIT_RECEIVED", PAYMENT_SETTLED})
 #: إغلاقٌ صريح — يُعدّ لكنّه ليس اتصالاً.
 CLOSURE = frozenset({"CLOSED_NO_REPLY", "CLOSED_DECLINED"})
 
@@ -251,7 +254,7 @@ def derive_scorecard(rows: list[LedgerRow], *, source_sha256: str) -> dict[str, 
     replied = entities(INBOUND)
     sampled = entities({"SAMPLE_DELIVERED"})
     quoted = entities({"QUOTE_SENT"})
-    paid_rows = by_action.get("PAYMENT_SETTLED", [])
+    paid_rows = by_action.get(PAYMENT_SETTLED, [])
     paid_entities = {row.entity for row in paid_rows}
     foreign_paid = {row.entity for row in paid_rows if row.country != "DZ"}
     settled = round(sum(row.amount_eur or 0.0 for row in paid_rows), 2)
