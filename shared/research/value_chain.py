@@ -38,6 +38,8 @@ __all__ = [
     "FORBIDDEN_TERMS",
     "LINKS",
     "MAP_REL",
+    "NOT_REACHED",
+    "REACHED",
     "VALUE_CHAIN_REL",
     "Link",
     "ValueChainError",

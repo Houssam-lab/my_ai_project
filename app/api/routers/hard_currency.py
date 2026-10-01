@@ -15,10 +15,9 @@
 from __future__ import annotations
 
 import logging
-from typing import Any
 
 from fastapi import APIRouter, Depends, File, Form, HTTPException, Path, Query, Request, UploadFile
-from pydantic import Field
+from pydantic import Field, JsonValue
 
 from app.core.schemas import RobustBaseModel
 from app.deps.auth import CurrentUser, require_roles
@@ -66,20 +65,20 @@ def _raise_http(exc: Exception) -> None:
 class FrontierResponse(RobustBaseModel):
     as_of: str | None
     gate_c: str | None
-    funnel: dict[str, Any] | None
+    funnel: dict[str, JsonValue] | None
     by_classification: dict[str, int]
     next_actor_human: int
     next_actor_code: int
     committed_snapshot_current: bool
-    links: list[dict[str, Any]]
-    paths: list[dict[str, Any]]
+    links: list[dict[str, JsonValue]]
+    paths: list[dict[str, JsonValue]]
 
 
 class AuditResponse(RobustBaseModel):
     corridor: str
     filename: str
-    summary: dict[str, Any]
-    anomalies: list[dict[str, Any]]
+    summary: dict[str, JsonValue]
+    anomalies: list[dict[str, JsonValue]]
     anomalies_truncated: bool
     report_markdown: str
     cleaned_csv: str
@@ -89,8 +88,8 @@ class AuditResponse(RobustBaseModel):
 
 
 class CbamCodesResponse(RobustBaseModel):
-    provenance: dict[str, Any]
-    codes: list[dict[str, Any]]
+    provenance: dict[str, JsonValue]
+    codes: list[dict[str, JsonValue]]
 
 
 class CbamDetailResponse(RobustBaseModel):
@@ -100,12 +99,12 @@ class CbamDetailResponse(RobustBaseModel):
     default_see_t: dict[str, float | None]
     computable: bool
     absent_reason: str | None
-    provenance: dict[str, Any]
+    provenance: dict[str, JsonValue]
     year: int | None = None
-    certificates_default: dict[str, Any] | None = None
-    crossover: dict[str, Any] | None = None
-    path_toll: dict[str, Any] | None = None
-    trajectory: list[dict[str, Any]] | None = None
+    certificates_default: dict[str, JsonValue] | None = None
+    crossover: dict[str, JsonValue] | None = None
+    path_toll: dict[str, JsonValue] | None = None
+    trajectory: list[dict[str, JsonValue]] | None = None
 
 
 class CbamDecisionRequest(RobustBaseModel):
@@ -119,17 +118,17 @@ class CbamDecisionResponse(RobustBaseModel):
     see_actual_t: float
     first_sellable_year: int | None
     never_within_horizon: bool
-    trajectory: list[dict[str, Any]]
-    provenance: dict[str, Any]
+    trajectory: list[dict[str, JsonValue]]
+    provenance: dict[str, JsonValue]
     reading_ar: str
 
 
 class RedTeamResponse(RobustBaseModel):
     source: str
     decision: str | None
-    classes: list[dict[str, Any]]
+    classes: list[dict[str, JsonValue]]
     publishable_count: int
-    external_probe: dict[str, Any] | None
+    external_probe: dict[str, JsonValue] | None
 
 
 @router.get("/frontier", response_model=FrontierResponse, summary="Value-chain frontier")

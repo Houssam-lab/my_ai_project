@@ -21,6 +21,8 @@ from shared.research.value_chain import (
     CATALOG_REL,
     LINKS,
     MAP_REL,
+    NOT_REACHED,
+    REACHED,
     VALUE_CHAIN_REL,
     compute_derived,
     map_decisions,
@@ -51,7 +53,7 @@ def _ledger_links(derived_path: Mapping[str, object]) -> list[dict[str, object]]
     return [
         {
             "number": link.number,
-            "status": "REACHED" if link.number in raw else "NOT_REACHED",
+            "status": REACHED if link.number in raw else NOT_REACHED,
             "evidence": [LEDGER_REL] if link.number in raw else [],
             "note_ar": None,
             "reason_ar": None if link.number in raw else "لا صفّ في CONTACT_LEDGER.csv",
