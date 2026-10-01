@@ -67,7 +67,13 @@ export interface MonolithApiAIOpsMetricsResponse { anomaly_score: number; self_h
 export interface MonolithApiAdminCreateUserRequest { full_name: string; email: string; password: string; is_admin?: boolean }
 export interface MonolithApiAdminUserCountResponse { count: number }
 export interface MonolithApiAlertResponse { id: string; severity: string; message: string; timestamp: string; status: string }
+export interface MonolithApiAuditResponse { corridor: string; filename: string; summary: Record<string, unknown>; anomalies: Record<string, unknown>[]; anomalies_truncated: boolean; report_markdown: string; cleaned_csv: string; cleaned_filename: string; stored: boolean; online_checks: boolean }
 export interface MonolithApiAuthResponse { access_token: string; refresh_token?: string | null; token_type?: string; user: MonolithApiUserResponse; status?: string; landing_path?: string }
+export interface MonolithApiBody_post_einvoicing_audit_admin_api_hard_currency_einvoicing_audits_post { file: string; corridor: string }
+export interface MonolithApiCbamCodesResponse { provenance: Record<string, unknown>; codes: Record<string, unknown>[] }
+export interface MonolithApiCbamDecisionRequest { see_actual: number }
+export interface MonolithApiCbamDecisionResponse { cn: string; see_actual_t: number; first_sellable_year: number | null; never_within_horizon: boolean; trajectory: Record<string, unknown>[]; provenance: Record<string, unknown>; reading_ar: string }
+export interface MonolithApiCbamDetailResponse { cn: string; sector: string; description: string; default_see_t: Record<string, unknown>; computable: boolean; absent_reason: string | null; provenance: Record<string, unknown>; year?: number | null; certificates_default?: Record<string, unknown> | null; crossover?: Record<string, unknown> | null; path_toll?: Record<string, unknown> | null; trajectory?: Record<string, unknown>[] | null }
 export interface MonolithApiChangePasswordRequest { current_password: string; new_password: string }
 export type MonolithApiCognitiveIntent = string;
 export type MonolithApiCognitiveState = string;
@@ -93,6 +99,7 @@ export interface MonolithApiEndpointAnalyticsResponse { path: string; avg_latenc
 export interface MonolithApiEntitlementResponse { active: boolean; plan?: string | null; expires_at?: string | null }
 export interface MonolithApiErrorMetrics { error_rate: number; error_count: number }
 export type MonolithApiExerciseScope = string;
+export interface MonolithApiFrontierResponse { as_of: string | null; gate_c: string | null; funnel: Record<string, unknown> | null; by_classification: Record<string, unknown>; next_actor_human: number; next_actor_code: number; committed_snapshot_current: boolean; links: Record<string, unknown>[]; paths: Record<string, unknown>[] }
 export interface MonolithApiFunnelStepItem { event_name: string; users: number; conversion_from_start: number; conversion_from_previous: number }
 export interface MonolithApiGitOpsMetricsResponse { status: string; sync_rate: number; last_sync?: string | null }
 export interface MonolithApiGoldenSignalsResponse { latency: MonolithApiLatencyMetrics; traffic: MonolithApiTrafficMetrics; errors: MonolithApiErrorMetrics; saturation: MonolithApiSaturationMetrics }
@@ -102,6 +109,7 @@ export interface MonolithApiIllusionGapInput { stream: string; measurements?: Mo
 export interface MonolithApiIllusionGapReport { stream: string; index?: number | null; concepts?: MonolithApiConceptIllusionOut[]; dangerous?: MonolithApiConceptIllusionOut[]; quadrants?: Record<string, unknown>; immature_suppressed?: number; reason?: string }
 export interface MonolithApiIssueRequest { plan?: string; duration_days?: number; quantity?: number }
 export interface MonolithApiIssueResponse { codes: string[] }
+export type MonolithApiJsonValue = unknown;
 export interface MonolithApiLatencyMetrics { p50: number; p95: number; p99: number; "p99.9": number; avg: number }
 export type MonolithApiLearnerCapability = string;
 export interface MonolithApiLinkCodeResponse { link_code: string }
@@ -122,6 +130,7 @@ export interface MonolithApiReasonRequest { question?: string; premises?: string
 export interface MonolithApiReasonResponse { question: string; modes: string[]; results: Record<string, unknown>; narrative: string }
 export interface MonolithApiReauthRequest { password: string }
 export interface MonolithApiReauthResponse { reauth_token: string; expires_in: number }
+export interface MonolithApiRedTeamResponse { source: string; decision: string | null; classes: Record<string, unknown>[]; publishable_count: number; external_probe: Record<string, unknown> | null }
 export interface MonolithApiRedeemRequest { code: string }
 export interface MonolithApiRedeemResponse { plan: string; expires_at: string; already_redeemed_by_you?: boolean }
 export interface MonolithApiRefineRequest { text: string; question?: string; intent?: string }
