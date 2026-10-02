@@ -1,9 +1,9 @@
 {
   "$schema_version": 1,
-  "packet_id": "CAP-2026-10-02-iss214-admin-flag-from-user-service",
+  "packet_id": "CAP-2026-10-02-d300-constitution-banner",
   "status": "READY_FOR_GATE",
   "decision": "D-277",
-  "decision_of_change": "ISS-214: المدير يرى واجهة الطالب في Codespaces. الدخول عبر user-service يُرجِع is_admin، ثمّ تكتب الواجهة جواب /api/security/user/me فوقه، و/me يسأل user-service عن /api/v1/users/me الذي يُرجِع UserOut بلا is_admin (roles فقط) ⇒ كلّ مديرٍ طالبٌ ما دامت الخدمة حيّة. الإصلاح: _is_admin_from_service يقرأ is_admin الصريح أو ADMIN_ROLE ضمن roles — السلطة نفسها التي يفرضها الخادم (require_roles) — في الدخول والتسجيل و/me، بلا تغييرٍ في عقد الخدمة. والرحلتان الحيّتان تفحصان /me بعد الدخول وبعد إعادة التحميل، و E2E_EXPECT_USER_SERVICE=1 يشترط أن تكون الخدمة هي التي أجابت.",
+  "decision_of_change": "تنفيذ توصية المرحلة 0 (تقرير PHASE0_FORENSIC_REPORT_2026-10-02 §AE.1/§AH.2): قرار المالك D-300 (منتجٌ نشط واحد + تجميد المنصّة) كان مكتوباً في .memory/decisions.md لكنّ الدستور التشغيلي لم يكن يعرفه — CLAUDE.md بلا أيّ إشارةٍ إليه، فكلّ وكيلٍ يرث المسار المعرفي كان يرث مهمّة المنصّة المُجمَّدة لا أولويّة العملة الصعبة. التغيير: لافتةٌ في ترويسة CLAUDE.md (صفر أسطر صافية — سقف 1262 محفوظ)، وملاحظة حالةٍ تجارية في README.md وREADME.ar.md، وقسم «القرار الحاكم D-300» في عقد إقلاع الوكلاء AGENTS.md، وأرشفة تقرير المرحلة 0 كلقطةٍ مؤرَّخة. توثيقٌ فقط: لا كود، لا حذف، لا تغيير تشغيلي.",
   "standards": [
     "clean-code-book"
   ],
@@ -15,55 +15,57 @@
     {
       "standard": "clean-code-book",
       "paths": [
-        "app/services/boundaries/auth_boundary_service.py",
-        "tests/services/test_auth_boundary_admin_flag.py",
-        "scripts/e2e/hard_currency_center_live.py",
-        "scripts/e2e/hard_currency_center_ui.cjs"
+        "CLAUDE.md",
+        "README.md",
+        "README.ar.md",
+        "AGENTS.md",
+        "docs/archive/diagnostics/PHASE0_FORENSIC_REPORT_2026-10-02.md"
       ],
-      "gate": "python -m pytest tests/services/test_auth_boundary_admin_flag.py tests/services/test_auth_boundary_migration.py tests/security/test_login_failed_regression.py",
-      "application_ar": "قاعدةٌ واحدة باسمٍ يقول ما تفعل (_is_admin_from_service) بدل ثلاث قراءاتٍ متطابقة خاطئة؛ والاسم من مصدره الواحد (ADMIN_ROLE في app/services/rbac.py)؛ والاختبار يبني الحمولة من نماذج الخدمة نفسها لا من قاموسٍ مكتوبٍ بيد — القاموس اليدوي هو الذي أخفى العطب."
+      "gate": "python3 scripts/fitness/check_documentation_contract.py && python3 scripts/fitness/check_constitution_reality.py && python3 scripts/fitness/check_memory_coherence.py && python3 scripts/fitness/check_authority_links.py && CODE_ACCEPTANCE_BASE_SHA=359d4e3458e47688aee53c04c0f1380df20c4902 python3 scripts/fitness/check_outbound_before_research.py",
+      "application_ar": "الاسم يقول ما يفعل: ترويسة الدستور تقول الآن ما هو المنتج النشط وما هو المُجمَّد بدل أن تُعرِّف المشروع بالمهمّة المُجمَّدة وحدها — مصدرٌ واحد للقرار (D-300 في .memory/decisions.md) واللافتات تشير إليه ولا تنسخ أرقامه؛ وسقف CLAUDE.md (1262 سطراً) محفوظ بتعديلٍ صافي الصفر، والبوابات الأربع تُثبته خضراء."
     }
   ],
   "production": {
-    "owner": "auth-boundary",
-    "status": "RUNTIME_FIX_VERIFIED_LIVE_PENDING_OWNER_CODESPACE",
+    "owner": "governance",
+    "status": "DOCS_ONLY_NO_RUNTIME_CHANGE",
     "interfaces": [
-      "GET /api/security/user/me · is_admin = is_admin الصريح أو ADMIN ضمن roles من user-service",
-      "POST /api/security/login · POST /api/security/register عبر user-service — القاعدة نفسها"
+      "أسطح توثيق فقط: ترويسة CLAUDE.md · ملاحظة الحالة التجارية في README.md/README.ar.md · قسم إقلاع الوكلاء في AGENTS.md — لا مسار تشغيلٍ يُلمس"
     ],
     "runtime_evidence_paths": [
-      "app/services/boundaries/auth_boundary_service.py",
-      "tests/services/test_auth_boundary_admin_flag.py",
-      "scripts/e2e/hard_currency_center_live.py",
-      "scripts/e2e/hard_currency_center_ui.cjs"
+      "CLAUDE.md",
+      "README.md",
+      "README.ar.md",
+      "AGENTS.md",
+      "docs/archive/diagnostics/PHASE0_FORENSIC_REPORT_2026-10-02.md"
     ],
-    "failure_behavior_ar": "user-service غير متاحة ⇒ السقوط المحلّي كما كان (يقرأ العمود). جوابٌ بلا is_admin ولا roles ⇒ ليس مديراً (لا رفعَ صلاحيةٍ من غياب). roles ليست قائمة ⇒ ليس مديراً (لا تطابق جزئي في نصّ).",
-    "observability_ar": "الرحلتان الحيّتان تُسمّيان is_admin بعد /me وبعد إعادة التحميل، وأيّ خدمةٍ أجابت.",
-    "security_boundary_ar": "العرض فقط: الخادم كان وما زال يفرض ADMIN عبر roles في الرمز. لا رفعَ صلاحية: الطالب يبقى is_admin=false حيّاً و403 على نقاط المركز. والتسجيل لا يمنح مديراً (UserResponse.is_admin=false).",
-    "rollback_ar": "git revert يُعيد قراءة is_admin وحده — فيعود المدير يرى واجهة الطالب، ولا أثر على البيانات."
+    "failure_behavior_ar": "تغيير توثيقٍ فقط: لا مسار تشغيل يمكن أن يفشل. الفشل الوحيد الممكن بوّابةٌ حمراء (عقد التوثيق · واقع الدستور · اتساق الذاكرة · روابط السلطة) وتُسمّي سببها — وهو الفشل المطلوب.",
+    "observability_ar": "البوابات الأربع تعمل محلياً وفي CI (guardrails/doc-integrity) ومخرجاتها المطبوعة هي الرصد؛ لا مقياس Prometheus جديداً لأن لا سلوك تشغيلياً جديداً.",
+    "security_boundary_ar": "لا كود ولا أسرار ولا بيانات: لا أثر على أيّ حدٍّ أمني. تقرير المرحلة 0 لا ينقل أيّ قيمة سرٍّ — أدون النوع والمكان والفعل المطلوب فقط (بروتوكول §8).",
+    "rollback_ar": "git revert يعيد النصوص كما كانت — لا هجرة ولا بيانات ولا حالة."
   },
   "commercial_trace": {
     "offer_ids": [
-      "fr-be-einvoicing-referential-cleansing",
-      "ai-red-teaming-multilingual"
+      "fr-be-einvoicing-referential-cleansing"
     ],
-    "customer_problem_ar": "المالك لا يصل إلى «مركز العملة الصعبة» في Codespaces — الأداة التي يعرض بها مسارات العملة الصعبة على مشترٍ.",
-    "value_hypothesis_ar": "المالك يفتح المركز في بيئته الفعلية فيستطيع تشغيل ورشة الفوترة ومستكشف CBAM في عرضٍ حيّ. فرضيةٌ تشغيلية لا تجارية.",
-    "foreign_currency_path_ar": "لا إيراد هنا ولا ادّعاء.",
-    "foundation_exception_ar": "§0 لا فشل صامت: واجهةٌ تُخفي ما يملكه المدير بلا خطأٍ ظاهر أسوأ من رفضٍ صريح."
+    "customer_problem_ar": "المشكلة الداخلية التي تخدم العميل: الوكيل الذي يُكلَّف بعملٍ لا يرى في دستوره إلا مهمّة المنصّة المُجمَّدة، فيصرف وقت الإسفين على ما حظرَه المالك — والتقرير الجنائي قاسها: 62٪ من الأسطر في الأسبوعين بعد الاستيراد وثائقُ بحثٍ مقابل 8٪ أدوات (D-297).",
+    "value_hypothesis_ar": "أوّل ما يقرأه أيّ وكيلٍ أو مساهمٍ يصبح قرار المالك D-300 نفسه، فيتوجّه العمل الهندسي المسموح إلى صحّة أداة الإسفين وصدق CI — فرضيّةٌ تنظيمية تُقاس بمراجعة ما يُقترَح من عملٍ لاحقاً.",
+    "foreign_currency_path_ar": "غير مباشر ولا يُدَّعى إيرادٌ هنا: يمنع تسريب وقت الإسفين إلى المنصّة المُجمَّدة. المسار المالي يبقى ما حدّده الدوسييه §12 (أفعال المالك البشرية المسجَّلة في السجلّ).",
+    "foundation_exception_ar": "تغيير توثيقٍ بلا كود — الاستثناء من «لا عمل قبل أوّل دفعة» هو نفس نصّ D-300: «ما يُبقي CI صادقاً»، ووثيقةٌ تُخفي قرار المنتج عن كلّ وكيلٍ قادم فشلٌ صامتٌ في المسار المعرفي."
   },
   "deletions": {
     "count": 0,
     "paths": [],
-    "policy_ar": "صفر حذف ملفّات: قاعدةٌ مضافة تحلّ محلّ قراءةٍ خاطئة، وفحوصٌ مضافة في الرحلتين."
+    "policy_ar": "صفر حذف: تعديلات نصّية على ملفّاتٍ قائمة + ملفّان مضافان (التقرير الأرشيفي والحزمة)."
   },
   "verification": {
     "result": "PASS",
     "commands": [
-      "حيّ قبل الإصلاح (Postgres محلّي + user-service :8001 + المونوليث + الأوركستريتور + الواجهة المبنيّة): الدخول is_admin=True ثمّ /me is_admin=False · المتصفّح 2/6 · API 20/21",
-      "حيّ بعد الإصلاح: hard_currency_center_ui.cjs 15/15 (E2E_EXPECT_USER_SERVICE=1، المدخل باقٍ بعد إعادة التحميل) · hard_currency_center_live.py 21/21 (user-service أجابت roles=['ADMIN'] بلا is_admin · محادثة المدير بلا 4401)",
-      "pytest tests/services/test_auth_boundary_admin_flag.py — أحمر قبل التوصيل (test_me_from_user_service_keeps_an_admin_admin) ثمّ 43 passed مع اختبارات الحدود والدخول",
-      "ruff==0.14.0 check + format · make gates (run_fitness_gates.py)"
+      "python3 scripts/fitness/check_documentation_contract.py — ✅ 51 وثيقة حية، الروابط والمسارات متسقة",
+      "python3 scripts/fitness/check_constitution_reality.py — ✅ بلا تناقض ذاتي · الأرقام مشتقّة (39 مهارة · 15 عقداً · 13 خدمة · تغطية 73 · 12 وظائف) · دَينٌ مُجمَّد: 0",
+      "python3 scripts/fitness/check_memory_coherence.py — ✅ الفهرس طازج والترتيب صارم وسقف الدستور محفوظ (CLAUDE.md = 1262 سطراً) والقفل حديث",
+      "python3 scripts/fitness/check_authority_links.py — ✅ روابط ملفّات السلطة الـ5 كلّها تصل",
+      "CODE_ACCEPTANCE_BASE_SHA=359d4e3458e47688aee53c04c0f1380df20c4902 python3 scripts/fitness/check_outbound_before_research.py — ✅ لا ملفّ بحث/عرض يدخل بلا صفّ اتصال",
+      "wc -l CLAUDE.md — 1262 (السقف 1262: تعديلٌ صافي الصفر)"
     ]
   },
   "curriculum": {
@@ -145,29 +147,23 @@
     "owner": "curriculum-governance"
   },
   "changed_paths": [
-    ".memory/README.md",
-    ".memory/issues.md",
-    "README.ar.md",
+    "CLAUDE.md",
     "README.md",
-    "app/services/boundaries/auth_boundary_service.py",
-    "docs/changes/CURRENT_CODE_ACCEPTANCE_PACKET.json",
-    "scripts/e2e/hard_currency_center_live.py",
-    "scripts/e2e/hard_currency_center_ui.cjs",
-    "tests/services/test_auth_boundary_admin_flag.py"
+    "README.ar.md",
+    "AGENTS.md",
+    "docs/archive/diagnostics/PHASE0_FORENSIC_REPORT_2026-10-02.md",
+    "docs/changes/CURRENT_CODE_ACCEPTANCE_PACKET.json"
   ],
   "git_change_snapshot": {
-    "base_ref": "origin/main",
+    "base_ref": "359d4e3458e47688aee53c04c0f1380df20c4902",
     "changed_paths_excluding_packet": [
-      ".memory/README.md",
-      ".memory/issues.md",
+      "AGENTS.md",
+      "CLAUDE.md",
       "README.ar.md",
       "README.md",
-      "app/services/boundaries/auth_boundary_service.py",
-      "scripts/e2e/hard_currency_center_live.py",
-      "scripts/e2e/hard_currency_center_ui.cjs",
-      "tests/services/test_auth_boundary_admin_flag.py"
+      "docs/archive/diagnostics/PHASE0_FORENSIC_REPORT_2026-10-02.md"
     ],
-    "content_sha256_excluding_packet": "fb1aebca31af35402fb1e787edbad0f188dcb383c7193f157ee37859caaac61c",
+    "content_sha256_excluding_packet": "80611fc769be391545a87fdfb123e614b0cbe0ac4d7356268cf8bf0173178e0a",
     "refreshed_on": "2026-10-02",
     "refresh_command": "python3 scripts/research/refresh_acceptance_diff_snapshot.py"
   }

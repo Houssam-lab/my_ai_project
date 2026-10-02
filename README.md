@@ -36,6 +36,9 @@ Repository `NAAS-Agentic-Core` · engine **CogniForge** · product **ETAALIM.AI*
 > Chat is a delivery surface. The core is: interactive object UI, cognitive modelling, error memory, adaptive generation, simulation.
 > — [`CLAUDE.md`](CLAUDE.md) §0, the operational constitution every contributor and every agent inherits.
 
+> [!NOTE]
+> **Commercial state — owner decision D-300 (2026-09-29), the first law any agent reads:** the **sole active product thesis** is `fr-be-einvoicing-referential-cleansing` — a manually delivered service cleansing FR/BE e-invoicing referentials with [`tools/hard_currency_engine`](tools/hard_currency_engine/cli.py). The educational platform documented in this README is **FROZEN** by that decision: code, tests and CI are retained and kept honest, but no feature work runs. Commercial truth lives only in the append-only [contact ledger](docs/commercial/outreach/CONTACT_LEDGER.csv) and its [derived scorecard](docs/commercial/HARD_CURRENCY_SCORECARD.json) — no paid customer to date.
+
 ---
 
 ## Table of contents

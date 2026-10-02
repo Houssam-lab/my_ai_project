@@ -32,6 +32,17 @@ The default change policy is additive: do not delete, rename, replace, or silent
 
 Canonical context law: [`docs/architecture/AGENT_CONTEXT_CONSTITUTION.md`](docs/architecture/AGENT_CONTEXT_CONSTITUTION.md). Current context status: [`.memory/agent_context_truth.md`](.memory/agent_context_truth.md).
 
+## Governing Product Decision (D-300) — Read Before Planning Any Work
+
+The owner's written decision **D-300 (2026-09-29, recorded in [`.memory/decisions.md`](.memory/decisions.md))** selects **one active product thesis**: `fr-be-einvoicing-referential-cleansing` — a manually delivered service that cleanses French and Belgian e-invoicing third-party referentials using `tools/hard_currency_engine` (`france` · `belgium` · `crm`). Its consequences bind every agent:
+
+* **The educational platform (`app/` + `microservices/` + `frontend/`) is FROZEN.** No features, no service migration, no model-chain work, no table-ownership convergence. The only permitted engineering work is what serves the wedge (tool health) and what keeps CI honest.
+* **`naas_verifier` is FROZEN as EXPERIMENTAL** until a buyer asks a third-party agent to read it; its gates (`GATE_0/A/B/C`) stay `ABSENT` and forbid superiority/moat/PMF claims.
+* **Commercial truth is append-only** in `docs/commercial/outreach/CONTACT_LEDGER.csv`; the scorecard is derived from it and never hand-written. New research or offer documents require a new outbound-contact row in the same diff (`check_outbound_before_research` gate, D-297).
+* **No offer's readiness state may be promoted** (PROPOSED → DISCOVERY → … → PAID_PROOF → REPEATABLE) without verifiable evidence — a settled transaction, not interest, meetings, or benchmarks.
+
+An agent that plans platform feature work, service decomposition, or new product theses without a written owner decision lifting the freeze is violating the constitution, not exercising initiative.
+
 Before adding or modifying code, the agent MUST also load [`docs/architecture/CODE_ACCEPTANCE_CONSTITUTION.md`](docs/architecture/CODE_ACCEPTANCE_CONSTITUTION.md), [`docs/research/EVIDENCE_CATALOG.json`](docs/research/EVIDENCE_CATALOG.json), [`docs/research/UNIVERSITY_CURRICULUM_CATALOG.json`](docs/research/UNIVERSITY_CURRICULUM_CATALOG.json), [`docs/research/CURRICULUM_APPLICATION_MATRIX.json`](docs/research/CURRICULUM_APPLICATION_MATRIX.json), and the current change packet [`docs/changes/CURRENT_CODE_ACCEPTANCE_PACKET.json`](docs/changes/CURRENT_CODE_ACCEPTANCE_PACKET.json). The packet must account for every catalogued course, then state which domains apply to the task and why. A code change without standards, academic consideration, evidence, local application, production proof, commercial trace, and an explicit zero-deletion check is not mergeable.
 
 ---

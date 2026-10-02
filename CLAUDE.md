@@ -2,8 +2,8 @@
 
 > **The system is not a Chat Tutor. It is a Cognitive Lab / Thinking Engine that models, tests, and improves student reasoning.**
 > Chat is an assistive interface only. The platform core is: Interactive Object UI, Cognitive Modeling, Error Memory, Adaptive Generation, and Simulation.
-> **AI tutor for Algerian students** | FastAPI 8000 + Next.js 5000 + LangGraph 1.1.10
-> Arabic / French / Darija | BAC preparation platform
+> **AI tutor for Algerian students** | FastAPI 8000 + Next.js 5000 + LangGraph 1.1.10 | Arabic / French / Darija | BAC preparation platform
+> **القرار التجاري الحاكم (D-300 · 2026-09-29):** الأطروحة النشطة **الوحيدة** هي `fr-be-einvoicing-referential-cleansing` — خدمةٌ يسلّمها المالك يدوياً بأدوات `tools/hard_currency_engine` — والمنصّة التعليمية **مُجمَّدة** (لا ميزات ولا هجرة خدمات ولا عمل على سلسلة النماذج إلا ما يُبقي CI صادقاً)، والحقيقة التجارية الوحيدة سجلّ `docs/commercial/outreach/CONTACT_LEDGER.csv` ولوحتُه المُشتقّة. **Governing commercial decision (D-300):** one active thesis (FR/BE e-invoicing referential cleansing, delivered manually); the platform is FROZEN; commercial truth lives only in the contact ledger and its derived scorecard.
 
 ---
 
