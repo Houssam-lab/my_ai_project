@@ -25,12 +25,27 @@ from app.infrastructure.clients.user_client import user_service_client
 from app.security.chrono_shield import chrono_shield
 from app.security.client_identity import resolve_client_ip
 from app.services.auth import AuthService
-from app.services.rbac import STANDARD_ROLE, RBACService
+from app.services.rbac import ADMIN_ROLE, STANDARD_ROLE, RBACService
 from app.services.security.auth_persistence import AuthPersistence
 
 logger = logging.getLogger(__name__)
 
 __all__ = ["AuthBoundaryService"]
+
+
+def _is_admin_from_service(user_data: dict[str, object]) -> bool:
+    """Whether a user-service answer describes an admin (ISS-214).
+
+    user-service reports admin in two shapes: login and register send ``is_admin``
+    (``UserResponse``), while ``/api/v1/users/me`` sends only ``roles`` (``UserOut``).
+    Reading ``is_admin`` alone turned every admin into a student on each page load.
+    ``roles`` is also what the server enforces (``require_roles(ADMIN_ROLE)``), so the
+    screen now follows the same authority as the endpoints behind it.
+    """
+    if user_data.get("is_admin") is True:
+        return True
+    roles = user_data.get("roles")
+    return isinstance(roles, list | tuple) and ADMIN_ROLE in roles
 
 
 class AuthBoundaryService:
@@ -95,7 +110,7 @@ class AuthBoundaryService:
                     "id": user_data.get("id"),
                     "full_name": user_data.get("full_name"),
                     "email": user_data.get("email"),
-                    "is_admin": user_data.get("is_admin", False),
+                    "is_admin": _is_admin_from_service(user_data),
                 },
             }
         except httpx.HTTPStatusError as e:
@@ -178,7 +193,7 @@ class AuthBoundaryService:
             )
             # response format: {"access_token": "...", "user": {...}, "status": "..."}
             user_data = response.get("user", {})
-            is_admin = user_data.get("is_admin", False)
+            is_admin = _is_admin_from_service(user_data)
             landing_path = "/admin" if is_admin else "/app/chat"
 
             # نجاحٌ كامل — يُطهّر المتّجهين كما يفعل المسار المحلّي تماماً.
@@ -279,7 +294,7 @@ class AuthBoundaryService:
                 "id": user_data.get("id"),
                 "name": user_data.get("full_name"),
                 "email": user_data.get("email"),
-                "is_admin": user_data.get("is_admin", False),
+                "is_admin": _is_admin_from_service(user_data),
             }
         except httpx.HTTPStatusError:
             # الرمز غير صالح بالنسبة للخدمة، أو المستخدم غير موجود هناك
