@@ -1,9 +1,9 @@
 {
   "$schema_version": 1,
-  "packet_id": "CAP-2026-10-02-iss212-test-name-bound",
+  "packet_id": "CAP-2026-10-02-iss214-admin-flag-from-user-service",
   "status": "READY_FOR_GATE",
   "decision": "D-277",
-  "decision_of_change": "ISS-212: test-monolith بلغ حدّه (45 دقيقة) أربع مرّات منذ 989da21 بلا سجلّ، فلم تظهر العلامة الخضراء على main. الجذر مقيس: حالةٌ مُعلَّمة طبعت حمولتها (2MB) اسماً للاختبار — سطرٌ واحد بـ2,097,263 حرفاً أوقف عدّاء CI. الإصلاح: ids صريحة، وحدٌّ لاسم الاختبار (1024) يُفرَض عند الجمع بقشرةٍ على الـconftest، وحدّا خطوةٍ واختبارٍ في ci.yml. واكتُشف ISS-213 (خطافات policy.py غير مُسجَّلة منذ D-258) وسُجِّل مفتوحاً.",
+  "decision_of_change": "ISS-214: المدير يرى واجهة الطالب في Codespaces. الدخول عبر user-service يُرجِع is_admin، ثمّ تكتب الواجهة جواب /api/security/user/me فوقه، و/me يسأل user-service عن /api/v1/users/me الذي يُرجِع UserOut بلا is_admin (roles فقط) ⇒ كلّ مديرٍ طالبٌ ما دامت الخدمة حيّة. الإصلاح: _is_admin_from_service يقرأ is_admin الصريح أو ADMIN_ROLE ضمن roles — السلطة نفسها التي يفرضها الخادم (require_roles) — في الدخول والتسجيل و/me، بلا تغييرٍ في عقد الخدمة. والرحلتان الحيّتان تفحصان /me بعد الدخول وبعد إعادة التحميل، و E2E_EXPECT_USER_SERVICE=1 يشترط أن تكون الخدمة هي التي أجابت.",
   "standards": [
     "clean-code-book"
   ],
@@ -15,58 +15,55 @@
     {
       "standard": "clean-code-book",
       "paths": [
-        "tests/api/test_hard_currency_center.py",
-        "tests/naas_verifier/test_env_ar_fr_guard_break.py",
-        "tests/conftest_support/policy.py",
-        "tests/conftest.py",
-        "tests/architecture/test_node_id_bound.py",
-        ".github/workflows/ci.yml"
+        "app/services/boundaries/auth_boundary_service.py",
+        "tests/services/test_auth_boundary_admin_flag.py",
+        "scripts/e2e/hard_currency_center_live.py",
+        "scripts/e2e/hard_currency_center_ui.cjs"
       ],
-      "gate": "python -m pytest tests/architecture/test_node_id_bound.py tests/api/test_hard_currency_center.py tests/naas_verifier/test_env_ar_fr_guard_break.py && python -m pytest tests scripts/ci --collect-only -q --ignore=tests/microservices",
-      "application_ar": "اسمٌ يصف الحالة لا حمولتها: ids صريحة بدل طباعة 2MB. والقاعدة في موطنٍ واحد: الدالّة النقية والحدّ في policy.py، والقشرة على الـconftest تفوّض ولا تكرّر — لأنّ الخطاف في وحدةٍ مستورَدة لا يُسجَّل (مقيس)."
+      "gate": "python -m pytest tests/services/test_auth_boundary_admin_flag.py tests/services/test_auth_boundary_migration.py tests/security/test_login_failed_regression.py",
+      "application_ar": "قاعدةٌ واحدة باسمٍ يقول ما تفعل (_is_admin_from_service) بدل ثلاث قراءاتٍ متطابقة خاطئة؛ والاسم من مصدره الواحد (ADMIN_ROLE في app/services/rbac.py)؛ والاختبار يبني الحمولة من نماذج الخدمة نفسها لا من قاموسٍ مكتوبٍ بيد — القاموس اليدوي هو الذي أخفى العطب."
     }
   ],
   "production": {
-    "owner": "ci-test-monolith",
-    "status": "CI_ONLY_NO_RUNTIME_CHANGE",
+    "owner": "auth-boundary",
+    "status": "RUNTIME_FIX_VERIFIED_LIVE_PENDING_OWNER_CODESPACE",
     "interfaces": [
-      "CI · test-monolith · جمع الاختبارات يرفض اسماً أطول من 1024 حرفاً (pytest.UsageError باسمه)",
-      "CI · test-monolith · timeout-minutes: 42 للخطوة (45 للوظيفة − التثبيت) · --timeout=300 لكلّ اختبار · --durations=25"
+      "GET /api/security/user/me · is_admin = is_admin الصريح أو ADMIN ضمن roles من user-service",
+      "POST /api/security/login · POST /api/security/register عبر user-service — القاعدة نفسها"
     ],
     "runtime_evidence_paths": [
-      "tests/conftest_support/policy.py",
-      "tests/architecture/test_node_id_bound.py",
-      ".github/workflows/ci.yml"
+      "app/services/boundaries/auth_boundary_service.py",
+      "tests/services/test_auth_boundary_admin_flag.py",
+      "scripts/e2e/hard_currency_center_live.py",
+      "scripts/e2e/hard_currency_center_ui.cjs"
     ],
-    "failure_behavior_ar": "اسم اختبارٍ يتجاوز 1024 حرفاً ⇒ الجمع يفشل (exit 4) ويُسمّي الاختبار والطول؛ واختبارٌ عالق ⇒ يفشل باسمه بعد 5 دقائق.",
-    "observability_ar": "--durations=25 يُظهر أين يذهب الوقت؛ وحدّ الخطوة أقلّ من حدّ الوظيفة فيبقى السجلّ حين تبطؤ المجموعة.",
-    "security_boundary_ar": "لا تغيير في كود التطبيق ولا في مسار الطالب؛ الاختبارات وCI وحدهما.",
-    "rollback_ar": "git revert يُعيد الأسماء الطويلة فيعود عدّاء CI إلى التوقّف — لا أثر خارج tests/ وci.yml."
+    "failure_behavior_ar": "user-service غير متاحة ⇒ السقوط المحلّي كما كان (يقرأ العمود). جوابٌ بلا is_admin ولا roles ⇒ ليس مديراً (لا رفعَ صلاحيةٍ من غياب). roles ليست قائمة ⇒ ليس مديراً (لا تطابق جزئي في نصّ).",
+    "observability_ar": "الرحلتان الحيّتان تُسمّيان is_admin بعد /me وبعد إعادة التحميل، وأيّ خدمةٍ أجابت.",
+    "security_boundary_ar": "العرض فقط: الخادم كان وما زال يفرض ADMIN عبر roles في الرمز. لا رفعَ صلاحية: الطالب يبقى is_admin=false حيّاً و403 على نقاط المركز. والتسجيل لا يمنح مديراً (UserResponse.is_admin=false).",
+    "rollback_ar": "git revert يُعيد قراءة is_admin وحده — فيعود المدير يرى واجهة الطالب، ولا أثر على البيانات."
   },
   "commercial_trace": {
     "offer_ids": [
       "fr-be-einvoicing-referential-cleansing",
       "ai-red-teaming-multilingual"
     ],
-    "customer_problem_ar": "required-ci أحمر على main منذ دمج مركز العملة الصعبة، فلا دفعة تُثبَت خضراء ولا يُعرَف عطبٌ حقيقي من ضجيج.",
-    "value_hypothesis_ar": "CI يُنهي ويُسمّي فشله فيحرس أداة العرض قبل أيّ عرضٍ حيّ على مشترٍ. فرضيةٌ هندسية لا تجارية.",
+    "customer_problem_ar": "المالك لا يصل إلى «مركز العملة الصعبة» في Codespaces — الأداة التي يعرض بها مسارات العملة الصعبة على مشترٍ.",
+    "value_hypothesis_ar": "المالك يفتح المركز في بيئته الفعلية فيستطيع تشغيل ورشة الفوترة ومستكشف CBAM في عرضٍ حيّ. فرضيةٌ تشغيلية لا تجارية.",
     "foreign_currency_path_ar": "لا إيراد هنا ولا ادّعاء.",
-    "foundation_exception_ar": "§0 لا فشل صامت: وظيفةٌ تُقطَع بلا سجلّ أسوأ من فشلٍ باسمه."
+    "foundation_exception_ar": "§0 لا فشل صامت: واجهةٌ تُخفي ما يملكه المدير بلا خطأٍ ظاهر أسوأ من رفضٍ صريح."
   },
   "deletions": {
     "count": 0,
     "paths": [],
-    "policy_ar": "صفر حذف: إضافة ids وحدٍّ وقشرة."
+    "policy_ar": "صفر حذف ملفّات: قاعدةٌ مضافة تحلّ محلّ قراءةٍ خاطئة، وفحوصٌ مضافة في الرحلتين."
   },
   "verification": {
     "result": "PASS",
     "commands": [
-      "pytest بأمر CI وبيئته وتغطيته حرفياً: 6057 passed · 74.48% · 45:02 · لا تعليق · ذاكرة ~500MB (قبل الإصلاح)",
-      "نسخة main من test_hard_currency_center.py تحت الحارس ⇒ exit 4 تُسمّي 2,097,245 و15,091 حرفاً",
-      "pytest tests scripts/ci --collect-only ⇒ 6061 بلا خطأ · أطول اسم 602",
-      "pytest tests/architecture/test_node_id_bound.py tests/api/test_hard_currency_center.py tests/naas_verifier/test_env_ar_fr_guard_break.py (65 passed)",
-      "ruff==0.14.0 check + format --check · check_test_hygiene ✅ · make gates (run_fitness_gates.py)",
-      "CI على PR #2553: test-monolith نجح — 6061 passed · 74% · الخطوة 38.5 دقيقة · أطول سطرٍ في السجلّ 4,207"
+      "حيّ قبل الإصلاح (Postgres محلّي + user-service :8001 + المونوليث + الأوركستريتور + الواجهة المبنيّة): الدخول is_admin=True ثمّ /me is_admin=False · المتصفّح 2/6 · API 20/21",
+      "حيّ بعد الإصلاح: hard_currency_center_ui.cjs 15/15 (E2E_EXPECT_USER_SERVICE=1، المدخل باقٍ بعد إعادة التحميل) · hard_currency_center_live.py 21/21 (user-service أجابت roles=['ADMIN'] بلا is_admin · محادثة المدير بلا 4401)",
+      "pytest tests/services/test_auth_boundary_admin_flag.py — أحمر قبل التوصيل (test_me_from_user_service_keeps_an_admin_admin) ثمّ 43 passed مع اختبارات الحدود والدخول",
+      "ruff==0.14.0 check + format · make gates (run_fitness_gates.py)"
     ]
   },
   "curriculum": {
@@ -148,33 +145,29 @@
     "owner": "curriculum-governance"
   },
   "changed_paths": [
-    ".github/workflows/ci.yml",
     ".memory/README.md",
     ".memory/issues.md",
     "README.ar.md",
     "README.md",
+    "app/services/boundaries/auth_boundary_service.py",
     "docs/changes/CURRENT_CODE_ACCEPTANCE_PACKET.json",
-    "tests/api/test_hard_currency_center.py",
-    "tests/architecture/test_node_id_bound.py",
-    "tests/conftest.py",
-    "tests/conftest_support/policy.py",
-    "tests/naas_verifier/test_env_ar_fr_guard_break.py"
+    "scripts/e2e/hard_currency_center_live.py",
+    "scripts/e2e/hard_currency_center_ui.cjs",
+    "tests/services/test_auth_boundary_admin_flag.py"
   ],
   "git_change_snapshot": {
     "base_ref": "origin/main",
     "changed_paths_excluding_packet": [
-      ".github/workflows/ci.yml",
       ".memory/README.md",
       ".memory/issues.md",
       "README.ar.md",
       "README.md",
-      "tests/api/test_hard_currency_center.py",
-      "tests/architecture/test_node_id_bound.py",
-      "tests/conftest.py",
-      "tests/conftest_support/policy.py",
-      "tests/naas_verifier/test_env_ar_fr_guard_break.py"
+      "app/services/boundaries/auth_boundary_service.py",
+      "scripts/e2e/hard_currency_center_live.py",
+      "scripts/e2e/hard_currency_center_ui.cjs",
+      "tests/services/test_auth_boundary_admin_flag.py"
     ],
-    "content_sha256_excluding_packet": "ec46915ac1bdd730f8a846311e7fe8e2c3dd0a3340e8b62ad06093338da35aa2",
+    "content_sha256_excluding_packet": "fb1aebca31af35402fb1e787edbad0f188dcb383c7193f157ee37859caaac61c",
     "refreshed_on": "2026-10-02",
     "refresh_command": "python3 scripts/research/refresh_acceptance_diff_snapshot.py"
   }
