@@ -31,7 +31,7 @@
   "status": "CI_ONLY_NO_RUNTIME_CHANGE",
   "interfaces": [
    "CI · test-monolith · جمع الاختبارات يرفض اسماً أطول من 1024 حرفاً (pytest.UsageError باسمه)",
-   "CI · test-monolith · timeout-minutes: 40 للخطوة · --timeout=300 لكلّ اختبار · --durations=25"
+   "CI · test-monolith · timeout-minutes: 42 للخطوة (45 للوظيفة − التثبيت) · --timeout=300 لكلّ اختبار · --durations=25"
   ],
   "runtime_evidence_paths": [
    "tests/conftest_support/policy.py",
@@ -65,7 +65,8 @@
    "نسخة main من test_hard_currency_center.py تحت الحارس ⇒ exit 4 تُسمّي 2,097,245 و15,091 حرفاً",
    "pytest tests scripts/ci --collect-only ⇒ 6061 بلا خطأ · أطول اسم 602",
    "pytest tests/architecture/test_node_id_bound.py tests/api/test_hard_currency_center.py tests/naas_verifier/test_env_ar_fr_guard_break.py (65 passed)",
-   "ruff==0.14.0 check + format --check · check_test_hygiene ✅ · make gates (run_fitness_gates.py)"
+   "ruff==0.14.0 check + format --check · check_test_hygiene ✅ · make gates (run_fitness_gates.py)",
+   "CI على PR #2553: test-monolith نجح — 6061 passed · 74% · الخطوة 38.5 دقيقة · أطول سطرٍ في السجلّ 4,207"
   ]
  },
  "curriculum": {

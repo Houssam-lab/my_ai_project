@@ -850,8 +850,10 @@ jobs:
       # The fix is the bound on test names in tests/conftest_support/policy.py, enforced
       # at collection. The two limits here stay: a step limit below the job limit keeps
       # the log when the suite is merely slow, and --timeout names a hung test.
+      # 42 = the job's 45 minus ~2.5 for install: it cuts no earlier than the job would,
+      # but early enough to keep the log. Measured on the fix's head: this step took 38.5.
       - name: Run monolith tests (tests/ minus microservices + scripts/ci)
-        timeout-minutes: 40
+        timeout-minutes: 42
         shell: bash
         run: |
           set -euo pipefail
