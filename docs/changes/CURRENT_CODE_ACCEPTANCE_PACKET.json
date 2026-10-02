@@ -1,112 +1,74 @@
 {
  "$schema_version": 1,
- "packet_id": "CAP-2026-10-01-d305-value-chain-hard-currency-center",
+ "packet_id": "CAP-2026-10-02-iss211-lint-frontend-flat-config",
  "status": "READY_FOR_GATE",
  "decision": "D-277",
- "decision_of_change": "D-305 (توجيه المالك 2026-10-01 · استثناءٌ محدود من D-300): سلسلة القيمة لكلّ مسارات العملة الصعبة الـ25 (19 في خريطة المسارات + 6 عروضٍ خارج الكتالوج). الحلقات 1–6 تُعلَن بدليلٍ موجود أو بسببٍ منطوق، و7–8 تُشتقّ من CONTACT_LEDGER.csv وحده، والتصنيف والحلقة التالية وفاعلها تُشتقّ ولا تُكتب. ما يتوقّف عند المراحل الداخلية أصلٌ بحثي أو قدرةٌ هندسية: commercial_evidence = 0 اليوم، والحلقة التالية بشرية في 23 مساراً.",
+ "decision_of_change": "ISS-211: lint-frontend لم يفحص سطراً منذ 2026-09-15 — ESLint 10 لا يقرأ .eslintrc.json فانهار قبل قراءة أيّ ملف، فلم تظهر العلامة الخضراء على main بعد دمج PR #2548. الإصلاح: eslint.config.mjs = الإعداد الرسمي core-web-vitals + رقعتان مقيستان لـESLint 10، والأخطاء الـ12 القديمة مُجمَّدة بآلية ESLint الأصلية دَيناً يتقلّص في الاتجاهين، وبرهانٌ سلبي يُثبت أنّ الفحص يحجب. بلا أيّ تغيير في التبعيات.",
  "standards": [
-  "clean-code-book"
+  "clean-code-javascript"
  ],
  "evidence": [
-  "nist-ai-rmf-1.0",
-  "eu-gdpr-art-28-processor-terms"
+  "nist-ssdf-1.1",
+  "dora-core"
  ],
  "local_application": [
   {
-   "standard": "clean-code-book",
+   "standard": "clean-code-javascript",
    "paths": [
-    "shared/research/value_chain.py",
-    "scripts/research/value_chain.py",
-    "scripts/fitness/check_value_chain.py",
-    "docs/commercial/VALUE_CHAIN.json",
-    "tests/shared/test_value_chain.py",
-    "tests/fitness/test_check_value_chain.py",
-    "app/api/routers/hard_currency.py",
-    "app/services/hard_currency/einvoicing_audit.py",
-    "app/services/hard_currency/cbam_explorer.py",
-    "app/services/hard_currency/frontier.py",
-    "tests/api/test_hard_currency_center.py",
-    "docs/contracts/openapi/core-api-v1.yaml",
-    "app/cli_handlers/db_cli.py",
-    "app/core/kernel_support/lifecycle.py",
-    "app/core/settings/base.py",
-    "app/core/settings/helpers.py",
-    "app/services/bootstrap.py",
-    "scripts/ensure_admin.py",
-    "tests/services/test_admin_bootstrap_guard.py",
-    "frontend/types/api.d.ts",
-    "frontend/app/components/CogniForgeApp.jsx",
-    "frontend/app/hooks/useHardCurrencyApi.js",
-    "frontend/app/components/hard-currency/HardCurrencyCenter.jsx",
-    "frontend/app/components/hard-currency/HardCurrencyCenter.module.css",
-    "frontend/app/components/hard-currency/FrontierMap.jsx",
-    "frontend/app/components/hard-currency/EinvoicingWorkbench.jsx",
+    "frontend/eslint.config.mjs",
+    "frontend/eslint-suppressions.json",
+    "frontend/scripts/eslint-config-proof.mjs",
+    "frontend/package.json",
     "frontend/app/components/hard-currency/CbamDecisionExplorer.jsx",
-    "frontend/app/components/hard-currency/RedTeamClasses.jsx",
-    "frontend/app/components/hard-currency/LockedPathCard.jsx",
-    "frontend/app/components/hard-currency/StatusPanel.jsx",
-    "scripts/e2e/hard_currency_center_live.py",
-    "scripts/e2e/hard_currency_center_ui.cjs",
-    "naas_verifier/core/verdict.py",
-    "naas_verifier/adapters/canary.py",
-    "naas_verifier/adapters/json_trajectory.py",
-    "naas_verifier/corpus/canary_probes.json",
-    "naas_verifier/benchmarks/canary_range.json",
-    "scripts/research/canary_range.py",
-    "tests/naas_verifier/test_canary_range.py",
-    "tests/architecture/test_naas_verification_gate.py",
-    "scripts/fitness/check_naas_verification.py"
+    "frontend/app/hooks/useHardCurrencyApi.js",
+    "frontend/app/components/CogniForgeApp.jsx",
+    ".github/workflows/frontend-theme-ci.yml"
    ],
-   "gate": "python scripts/fitness/check_value_chain.py && python -m pytest tests/shared/test_value_chain.py tests/fitness/test_check_value_chain.py tests/api/test_hard_currency_center.py tests/services/test_admin_bootstrap_guard.py && python scripts/fitness/check_design_tokens.py && npm run build --prefix frontend && python scripts/fitness/check_bundle_budget.py && python scripts/fitness/check_naas_verification.py && python -m pytest tests/naas_verifier tests/architecture/test_naas_verification_gate.py",
-   "application_ar": "قاعدةٌ واحدة في موطنٍ واحد: تعريف الحلقات والتصنيف في shared/research/value_chain.py، والبوّابة والسكربت يستدعيانه ولا يكرّرانه؛ الاشتقاق حتميّ بلا ساعة؛ والحرفية PAYMENT_SETTLED صار لها موطنٌ واحد في contact_ledger. والبوّابة تُثبت أنّها تحجب بتسع حالاتٍ مكسورة عمداً. والموجِّه رقيق: لا منطق حسابٍ فيه، والأغلفة لا تعيد كتابة الأدوات، والأخطاء صنفان مُسمّيان (InputRejectedError ⇒ 4xx · SourceUnavailableError ⇒ 503). ومسارٌ واحد يهيّئ المدير (ISS-210): السكربت المكرَّر صار تفويضاً، والحرفية الافتراضية موطنها واحد، والحارس يرفض قبل أيّ عبارة SQL."
+   "gate": "cd frontend && npx eslint app/ --ext .js,.jsx --max-warnings 3 && node scripts/eslint-config-proof.mjs && npm run build && cd .. && python scripts/fitness/check_bundle_budget.py && python scripts/fitness/check_design_tokens.py",
+   "application_ar": "مصدرٌ واحد للقواعد: الإعداد الرسمي core-web-vitals كما هو، والرقعتان مُسمّاتان بجذرهما المقيس وتُصدَّران ليختبرهما البرهان. قيمةٌ مشتقّة بدل حالةٍ تُنسخ داخل effect (CbamDecisionExplorer · useHardCurrencyResource): الحالة «تحميل» تُشتقّ من مفتاح الطلب، فلا جواب قديم يظهر جواباً حالياً. والدَّين القديم لا يُكتم بتعليقٍ في الكود بل في سجلٍّ يكتبه ESLint نفسه ويرفض البقاء بعد الإصلاح."
   }
  ],
  "production": {
-  "owner": "commercial-wedge",
-  "status": "ADMIN_ONLY_CENTER_API_NO_CUSTOMER_PORTAL",
+  "owner": "frontend-ci",
+  "status": "CI_GATE_RESTORED_NO_RUNTIME_CHANGE_OUTSIDE_ADMIN_CENTER",
   "interfaces": [
-   "docs/commercial/VALUE_CHAIN.json — المصدر المُعلَن + الكتلة derived",
-   "python3 scripts/research/value_chain.py [--check]",
-   "scripts/fitness/check_value_chain.py في guardrails",
-   "GET /admin/api/hard-currency/frontier",
-   "POST /admin/api/hard-currency/einvoicing-audits (CSV · بلا تخزين)",
-   "GET/POST /admin/api/hard-currency/cbam/codes[/{cn}[/decision]] (قراءة فقط فوق cbam_pin)",
-   "GET /admin/api/hard-currency/redteam/classes"
+   "Frontend Theme CI · lint-frontend · خطوة ESLint (السقف 3 تحذيرات كما هو)",
+   "Frontend Theme CI · lint-frontend · خطوة البرهان السلبي (scripts/eslint-config-proof.mjs)",
+   "npm run lint (= أمر CI نفسه) · npm run lint:proof"
   ],
   "runtime_evidence_paths": [
-   "docs/commercial/VALUE_CHAIN.json",
-   "docs/commercial/outreach/CONTACT_LEDGER.csv",
-   "tests/fitness/test_check_value_chain.py"
+   "frontend/eslint.config.mjs",
+   "frontend/eslint-suppressions.json",
+   "frontend/scripts/eslint-config-proof.mjs"
   ],
-  "failure_behavior_ar": "دليلٌ محذوف · حلقة 7–8 مكتوبة بيد · تصنيفٌ يُعدَّل يدوياً · حالة كتالوجٍ تتجاوز الدليل · وصفٌ «ثوري» دون commercial_evidence · صفّ سجلٍّ غير موجَّه ⇒ guardrails أحمر باسم المسار والسبب. ومصدرٌ غائب في نشرٍ ما ⇒ 503 بسببه لا قائمةٌ فارغة.",
-  "observability_ar": "كلّ ارتفاعٍ في السلسلة يمرّ بصفٍّ في CONTACT_LEDGER.csv؛ والكتلة derived تُعاد بالسكربت فيظهر الفرق في الـdiff.",
-  "security_boundary_ar": "دور ADMIN على كلّ نقطة (401/403 مُختبَران)؛ ملفّ المكتب يُعالَج في دليلٍ مؤقّت ويُحذَف ولا يُكتب في جداول الرسائل؛ تحييد حقن صيغ CSV؛ حدود الحجم/الصفوف/النوع؛ حدّ معدّل لكلّ مدير؛ لا نموذج لغوي ولا شبكة.",
-  "rollback_ar": "git revert للدفعة يحذف الطبقة والبوّابة معاً؛ لا أثر خارج المستودع."
+  "failure_behavior_ar": "خطأٌ جديد · تحذيرٌ رابع · كتمٌ بائت بعد إصلاح · رقعةٌ لم تعد لازمة ⇒ lint-frontend أحمر باسم القاعدة والملف.",
+  "observability_ar": "عدد الأخطاء المُجمَّدة مقروءٌ من eslint-suppressions.json لكلّ ملفٍّ وقاعدة؛ ويتقلّص بـ--prune-suppressions حين يُصلَح أحدها.",
+  "security_boundary_ar": "لا تبعية جديدة ولا شبكة: المحلِّل من حزمة ESLint نفسها ونسخة React من حزمتها. مسار الطالب بلا تغيير سلوكي؛ التعديل السلوكي محصورٌ في مركز المدير ومُثبَتٌ برحلة Chromium 11/11.",
+  "rollback_ar": "git revert للدفعة يُعيد الإعداد القديم (فيعود الفحص إلى الانهيار) ولا يمسّ شيئاً خارج frontend/ والـworkflow."
  },
  "commercial_trace": {
   "offer_ids": [
    "fr-be-einvoicing-referential-cleansing",
    "ai-red-teaming-multilingual"
   ],
-  "customer_problem_ar": "المالك لا يرى أين يقف كلّ مسارٍ فعلاً ولا ما الحلقة التالية ولا من يسدّها؛ فيُوصَف المسار بما يُتمنّى.",
-  "value_hypothesis_ar": "خريطةٌ مُشتقّة تُظهر أنّ الحلقة التالية بشرية في معظم المسارات — فتوجّه الجهد إلى التواصل لا إلى وثيقةٍ أخرى. فرضيةٌ تُقاس بالسجلّ.",
-  "foreign_currency_path_ar": "لا إيراد هنا؛ الطبقة تمنع ادّعاءه قبل صفّ PAYMENT_SETTLED، وتجعل كلّ ارتفاعٍ مرئياً حين يتحرّك السجلّ.",
-  "foundation_exception_ar": "قاعدة المالك 2026-10-01: كلّ مخرَجٍ يُختبَر على السلسلة الكاملة قبل أيّ وصف."
+  "customer_problem_ar": "واجهة مركز العملة الصعبة (أداة التسليم والعرض لهذين العرضين) بلا فحصٍ آليّ حيّ منذ 17 يوماً؛ فخطأٌ في الواجهة يصل المشتري بلا إنذار.",
+  "value_hypothesis_ar": "فحصٌ يعمل ويُثبت أنّه يحجب يمنع عطب الواجهة قبل عرضٍ حيّ على مشترٍ. فرضيةٌ هندسية لا تجارية.",
+  "foreign_currency_path_ar": "لا إيراد هنا ولا ادّعاء؛ الدفعة تحرس الأداة التي تُعرَض بها العروض فقط.",
+  "foundation_exception_ar": "§0 لا فشل صامت: فحصٌ لا يمكن أن ينجح يُقرأ «أحمر طبيعي» فيُدرِّب الناس على تجاهله."
  },
  "deletions": {
   "count": 0,
   "paths": [],
-  "policy_ar": "صفر حذف: الطبقة إضافةٌ تحت السُّلَّم القائم لا بديلٌ عنه."
+  "policy_ar": "صفر حذف: .eslintrc.json باقٍ على القرص (ESLint 10 لا يقرؤه، ويصرّح بذلك رأس eslint.config.mjs)، والتعليقات المحذوفة تعليقان بلا أثرٍ في الكود."
  },
  "verification": {
   "result": "PASS",
   "commands": [
-   "python scripts/fitness/check_value_chain.py",
-   "python -m pytest tests/shared/test_value_chain.py tests/fitness/test_check_value_chain.py tests/api/test_hard_currency_center.py (65 passed)",
-   "mypy --config-file mypy.ini --follow-imports=silent shared/ app/integration/ (0 issues)",
-   "python scripts/contracts/export_openapi.py + python scripts/fitness/check_openapi_parity.py (15/15)",
-   "make gates (run_fitness_gates.py)",
-   "ruff check . && ruff format --check . (ruff==0.14.0)"
+   "cd frontend && npx eslint app/ --ext .js,.jsx --max-warnings 3 (exit 0 · 0 أخطاء غير مُجمَّدة · 3 تحذيرات = السقف) على Node 20.20 و22",
+   "node scripts/eslint-config-proof.mjs (9/9 · وMAX_WARNINGS=10 ⇒ البند 2 أحمر)",
+   "npm run build ✅ · check_bundle_budget 1078KB/1100KB ✅ · check_design_tokens ✅ · اختبارات الواجهة node ✅",
+   "scripts/e2e/hard_currency_center_ui.cjs على المكدّس الحيّ (Postgres + الأوركستريتور + المونوليث + الواجهة المبنيّة) 11/11",
+   "make gates (run_fitness_gates.py)"
   ]
  },
  "curriculum": {

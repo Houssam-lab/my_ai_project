@@ -519,7 +519,6 @@ const App = () => {
         };
         window.addEventListener('agent:auth_error', handleAuthError);
         return () => window.removeEventListener('agent:auth_error', handleAuthError);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     useEffect(() => {
@@ -697,7 +696,6 @@ const App = () => {
             cancelled = true;
             if (timer) clearTimeout(timer);
         };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [token]);
 
     if (isLoading) return <div className="loading-screen"><i className="fas fa-circle-notch fa-spin"></i><h2>جاري تهيئة النظام...</h2></div>;

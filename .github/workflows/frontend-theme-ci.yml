@@ -368,6 +368,21 @@ jobs:
           echo "ESLint ratchet: at most $MAX_WARNINGS warning(s) allowed."
           npx eslint app/ --ext .js,.jsx --max-warnings "$MAX_WARNINGS"
 
+      # ── The step above could not run for 17 days (ISS-211) ───────────────────────
+      # ESLint 10 (2026-09-15) stopped reading `.eslintrc.json`, so every run crashed
+      # before reading a file. `eslint.config.mjs` is now the official
+      # `eslint-config-next/core-web-vitals` plus two measured ESLint 10 shims, and the
+      # 12 React Compiler errors that predate the fix are frozen in
+      # `eslint-suppressions.json` (written by `eslint --suppress-all`, never by hand).
+      # A green ESLint step only proves the config loads, so this step plants a new
+      # error, a fourth warning and a stale suppression, and requires each to be red.
+      # It also goes red once either shim is no longer needed.
+      - name: ESLint gate blocks what it claims (negative proof)
+        working-directory: frontend
+        env:
+          MAX_WARNINGS: "3"
+        run: node scripts/eslint-config-proof.mjs
+
       - name: console.log audit
         shell: bash
         run: |

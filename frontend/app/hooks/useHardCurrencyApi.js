@@ -67,26 +67,30 @@ export async function hardCurrencyRequest(token, path, { method = 'GET', json, f
 
 /** مورد قراءة: يُجلَب عند التركيب وعند تغيّر المسار أو الرمز. */
 export function useHardCurrencyResource(token, path) {
-    const [state, setState] = useState('loading');
     const [data, setData] = useState(null);
     const [message, setMessage] = useState('');
-    const [slow, setSlow] = useState(false);
     const [nonce, setNonce] = useState(0);
+    // Each request has a key. «Loading» and «slow» are derived from whether the last
+    // answer belongs to the current key — never reset synchronously inside the effect
+    // (react-hooks/set-state-in-effect · ISS-211). An answer for an older key never
+    // shows as current, and the last good data stays visible while a reload runs.
+    const requestKey = path ? `${nonce}\u0000${path}\u0000${token ?? ''}` : null;
+    const [settled, setSettled] = useState({ key: null, state: 'loading' });
+    const [slowKey, setSlowKey] = useState(null);
 
     useEffect(() => {
-        if (!path) return undefined;
+        if (!requestKey) return undefined;
         const controller = new AbortController();
-        const slowTimer = setTimeout(() => setSlow(true), SLOW_MS);
-        setState('loading');
-        setSlow(false);
+        const slowTimer = setTimeout(() => setSlowKey(requestKey), SLOW_MS);
         hardCurrencyRequest(token, path, { signal: controller.signal })
             .then((result) => {
+                if (controller.signal.aborted) return;
                 if (result.ok) {
                     setData(result.data);
-                    setState('success');
+                    setSettled({ key: requestKey, state: 'success' });
                 } else {
                     setMessage(result.message);
-                    setState(stateForStatus(result.status));
+                    setSettled({ key: requestKey, state: stateForStatus(result.status) });
                 }
             })
             .catch(() => {})
@@ -95,10 +99,17 @@ export function useHardCurrencyResource(token, path) {
             controller.abort();
             clearTimeout(slowTimer);
         };
-    }, [token, path, nonce]);
+    }, [requestKey, token, path]);
 
     const reload = useCallback(() => setNonce((n) => n + 1), []);
-    return { state, data, message, slow, reload };
+    const current = requestKey !== null && settled.key === requestKey;
+    return {
+        state: current ? settled.state : 'loading',
+        data,
+        message,
+        slow: !current && slowKey === requestKey,
+        reload,
+    };
 }
 
 /** فعلٌ يُطلَق بيد المستخدم (رفع ملف · حساب قرار). */

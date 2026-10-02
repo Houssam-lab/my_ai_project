@@ -1,0 +1,41 @@
+{
+  "app/ClientOnlyApp.jsx": {
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "app/LegacyLoader.jsx": {
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "app/components/ChatInterface.jsx": {
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "app/components/CogniForgeApp.jsx": {
+    "react-hooks/immutability": {
+      "count": 1
+    },
+    "react-hooks/set-state-in-effect": {
+      "count": 3
+    }
+  },
+  "app/hooks/useAgentSocket.js": {
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "app/hooks/useRealtimeConnection.js": {
+    "react-hooks/immutability": {
+      "count": 1
+    },
+    "react-hooks/purity": {
+      "count": 2
+    },
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  }
+}

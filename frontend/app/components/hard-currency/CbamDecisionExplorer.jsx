@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import styles from './HardCurrencyCenter.module.css';
 import { StatusPanel, EmptyState } from './StatusPanel';
 import { useHardCurrencyAction, useHardCurrencyResource } from '../../hooks/useHardCurrencyApi';
@@ -140,7 +140,14 @@ function DetailTable({ detail }) {
 
 export function CbamDecisionExplorer({ token }) {
     const codes = useHardCurrencyResource(token, '/cbam/codes');
-    const [cn, setCn] = useState('');
+    // The first computable code is the default until the user picks one. Derived, not
+    // copied into state from an effect (react-hooks/set-state-in-effect · ISS-211).
+    const [chosenCn, setCn] = useState('');
+    const defaultCn = useMemo(
+        () => codes.data?.codes.find((c) => c.computable)?.cn ?? '',
+        [codes.data],
+    );
+    const cn = chosenCn || defaultCn;
     const [year, setYear] = useState(2026);
     const [plantInput, setPlantInput] = useState('');
     const detail = useHardCurrencyResource(token, cn ? `/cbam/codes/${cn}?year=${year}` : null);
@@ -153,13 +160,6 @@ export function CbamDecisionExplorer({ token }) {
         }
         return groups;
     }, [codes.data]);
-
-    useEffect(() => {
-        if (!cn && codes.data) {
-            const first = codes.data.codes.find((c) => c.computable);
-            if (first) setCn(first.cn);
-        }
-    }, [codes.data, cn]);
 
     if (codes.state !== 'success') {
         return <StatusPanel state={codes.state} message={codes.message} slow={codes.slow} onRetry={codes.reload} />;
