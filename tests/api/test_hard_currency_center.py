@@ -157,6 +157,17 @@ def test_audit_neutralises_spreadsheet_formulas(client, admin_auth_headers) -> N
         ("data.csv", b"x" * (2 * 1024 * 1024 + 10), "fr", 413),
         ("data.csv", b"Nom\n" + b"A\n" * 5001, "fr", 413),
     ],
+    # Explicit ids, never the payload (ISS-212): without them pytest printed the 2 MB
+    # body as the test name, and that single 2,097,263-character line made the CI runner
+    # stop responding — test-monolith hit its 45-minute limit four times with no log.
+    ids=[
+        "not-a-csv-extension",
+        "empty-file",
+        "unknown-corridor",
+        "binary-content",
+        "over-size-limit",
+        "over-row-limit",
+    ],
 )
 def test_audit_rejects_bad_inputs(
     client, admin_auth_headers, name, content, corridor, status

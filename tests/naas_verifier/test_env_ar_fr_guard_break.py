@@ -109,6 +109,9 @@ def test_class_missing_from_corpus_is_refused():
 @pytest.mark.parametrize(
     ("candidate", "fragment"),
     [("", "empty"), ("   \n\t ", "empty"), ("ب" * (MAX_CANDIDATE_CHARS + 1), "exceeds")],
+    # Explicit ids, never the payload: the over-long case printed a 12,124-character
+    # test name. Test names are bounded by tests/conftest_support/policy.py (ISS-212).
+    ids=["empty", "whitespace-only", "over-max-length"],
 )
 def test_invalid_candidates_are_rejected_with_a_spoken_reason(candidate, fragment):
     """⛔ الرفض يُعلَن سببه — صفرٌ صامت لا يُميَّز عن «حاولتُ وفشلت»."""

@@ -41,6 +41,31 @@ def pytest_collection_modifyitems(
     items.sort(key=_priority)
 
 
+#: ISS-212 — the longest test name the suite may print. A parametrized test printed its
+#: 2 MB payload as its name (2,097,263 characters on one line); in CI the runner stopped
+#: responding on that line, so test-monolith hit its 45-minute limit four times and GitHub
+#: kept no log. After giving parameters explicit ids, the longest name is 602 characters.
+MAX_NODE_ID_CHARS = 1024
+
+
+def overlong_node_ids(node_ids: list[str], limit: int = MAX_NODE_ID_CHARS) -> list[str]:
+    """Test names longer than ``limit``, shortened for the error message."""
+    return [
+        f"{node_id[:120]}… ({len(node_id)} chars)" for node_id in node_ids if len(node_id) > limit
+    ]
+
+
+def enforce_node_id_bound(items: list[pytest.Item]) -> None:
+    """Stop the session at collection when a test name could flood the CI log (ISS-212)."""
+    offenders = overlong_node_ids([item.nodeid for item in items])
+    if offenders:
+        raise pytest.UsageError(
+            f"{len(offenders)} test name(s) exceed {MAX_NODE_ID_CHARS} characters — give the "
+            "parametrize() an explicit `ids=` instead of printing the payload (ISS-212):\n  "
+            + "\n  ".join(offenders)
+        )
+
+
 def pytest_sessionfinish(session: pytest.Session, exitstatus: int) -> None:
     """يفرض نجاحًا كاملًا عبر فشل الجلسة عند وجود تخطٍ أو تحذيرات اختبارية."""
     terminal_reporter = session.config.pluginmanager.get_plugin("terminalreporter")

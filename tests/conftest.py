@@ -46,9 +46,9 @@ with suppress(ImportError):
 # ملاحظة معمارية حاسمة (D-258): pytest **لا يفعّل autouse** لfixtures معرَّفة في
 # وحداتٍ عاديةٍ تُستورد إلى namespace الـconftest (اختبارٌ تجريبي مثبت). لذلك كل
 # fixtureٍ يبقى **تعريفًا هنا** — القشرة تفوض لمنطق الشرائح النقي. الشرائح هنا
-# تحمل المنطق والدوال النقية فقط (وhooks تسجَّل من policy عبر الاستيراد لأنها
-# hooks وليست fixtures — hooks تُسجَّل بأي استيراد).
-from tests.conftest_support import policy  # noqa: F401 — hooks
+# تحمل المنطق والدوال النقية فقط. ⚠️ والـhooks كالـfixtures: pytest لا يسجّل hook
+# معرَّفاً في وحدةٍ مستورَدة (مقيس 2026-10-02 — ISS-213)، فكلّ hook يعمل يُعرَّف قشرةً هنا.
+from tests.conftest_support import policy
 from tests.conftest_support.auth_shards import _register_user_and_mint_token
 from tests.conftest_support.helpers import _run_async
 from tests.conftest_support.lifecycle import (
@@ -81,6 +81,15 @@ async def managed_test_session():
     factory = _get_session_factory()
     async with factory() as session:
         yield session
+
+
+# ── hooks (قشور تفويض) ─────────────────────────────────────────────────────
+# A hook must be defined on the conftest module itself: pytest never calls a hook that
+# only lives in an imported shard (measured 2026-10-02 — none of policy.py's hooks are
+# registered; ISS-213). The logic stays in the shard.
+def pytest_collection_finish(session: pytest.Session) -> None:
+    """ISS-212 — refuse a test name long enough to flood the CI log."""
+    policy.enforce_node_id_bound(session.items)
 
 
 # ── fixtures العامة (قشور تفويض نصّية — التوقيعات كما كانت) ────────────────

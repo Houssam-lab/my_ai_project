@@ -841,12 +841,15 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements-ci.txt
-      # ── A job killed by its own timeout leaves no log (ISS-212) ────────────────────
-      # From 989da21 on, this step ran past the job's 45-minute limit three times in a
-      # row, and GitHub kept no log for any of them: only "exceeded the maximum execution
-      # time". A step limit below the job limit lets the job finish and keep the log, and
-      # a per-test limit turns one hung test into a named failure with its stack trace.
-      # Locally the same suite finishes in about 24 minutes, and no test takes over 52 s.
+      # ── One 2 MB test name froze the runner (ISS-212) ──────────────────────────────
+      # From 989da21 on, this job hit its 45-minute limit four times with no log, and the
+      # step limit below was not enforced either: the runner had stopped responding. The
+      # cause was a parametrized test that printed its 2 MB payload as its name, a single
+      # 2,097,263-character line under `-v`. Locally the identical command, environment
+      # and coverage pass (6057 passed, 74.48%), because a file does not choke on one line.
+      # The fix is the bound on test names in tests/conftest_support/policy.py, enforced
+      # at collection. The two limits here stay: a step limit below the job limit keeps
+      # the log when the suite is merely slow, and --timeout names a hung test.
       - name: Run monolith tests (tests/ minus microservices + scripts/ci)
         timeout-minutes: 40
         shell: bash
