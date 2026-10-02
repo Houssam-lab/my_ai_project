@@ -1,187 +1,187 @@
 {
- "$schema_version": 1,
- "packet_id": "CAP-2026-10-02-iss211-lint-frontend-flat-config",
- "status": "READY_FOR_GATE",
- "decision": "D-277",
- "decision_of_change": "ISS-211: lint-frontend لم يفحص سطراً منذ 2026-09-15 — ESLint 10 لا يقرأ .eslintrc.json فانهار قبل قراءة أيّ ملف، فلم تظهر العلامة الخضراء على main بعد دمج PR #2548. الإصلاح: eslint.config.mjs = الإعداد الرسمي core-web-vitals + رقعتان مقيستان لـESLint 10، والأخطاء الـ12 القديمة مُجمَّدة بآلية ESLint الأصلية دَيناً يتقلّص في الاتجاهين، وبرهانٌ سلبي يُثبت أنّ الفحص يحجب. بلا أيّ تغيير في التبعيات.",
- "standards": [
-  "clean-code-javascript"
- ],
- "evidence": [
-  "nist-ssdf-1.1",
-  "dora-core"
- ],
- "local_application": [
-  {
-   "standard": "clean-code-javascript",
-   "paths": [
-    "frontend/eslint.config.mjs",
-    "frontend/eslint-suppressions.json",
-    "frontend/scripts/eslint-config-proof.mjs",
-    "frontend/package.json",
+  "$schema_version": 1,
+  "packet_id": "CAP-2026-10-02-iss211-lint-frontend-flat-config",
+  "status": "READY_FOR_GATE",
+  "decision": "D-277",
+  "decision_of_change": "ISS-211: lint-frontend لم يفحص سطراً منذ 2026-09-15 — ESLint 10 لا يقرأ .eslintrc.json فانهار قبل قراءة أيّ ملف، فلم تظهر العلامة الخضراء على main بعد دمج PR #2548. الإصلاح: eslint.config.mjs = الإعداد الرسمي core-web-vitals + رقعتان مقيستان لـESLint 10، والأخطاء الـ12 القديمة مُجمَّدة بآلية ESLint الأصلية دَيناً يتقلّص في الاتجاهين، وبرهانٌ سلبي يُثبت أنّ الفحص يحجب. بلا أيّ تغيير في التبعيات.",
+  "standards": [
+    "clean-code-javascript"
+  ],
+  "evidence": [
+    "nist-ssdf-1.1",
+    "dora-core"
+  ],
+  "local_application": [
+    {
+      "standard": "clean-code-javascript",
+      "paths": [
+        "frontend/eslint.config.mjs",
+        "frontend/eslint-suppressions.json",
+        "frontend/scripts/eslint-config-proof.mjs",
+        "frontend/package.json",
+        "frontend/app/components/hard-currency/CbamDecisionExplorer.jsx",
+        "frontend/app/hooks/useHardCurrencyApi.js",
+        "frontend/app/components/CogniForgeApp.jsx",
+        ".github/workflows/frontend-theme-ci.yml"
+      ],
+      "gate": "cd frontend && npx eslint app/ --ext .js,.jsx --max-warnings 3 && node scripts/eslint-config-proof.mjs && npm run build && cd .. && python scripts/fitness/check_bundle_budget.py && python scripts/fitness/check_design_tokens.py",
+      "application_ar": "مصدرٌ واحد للقواعد: الإعداد الرسمي core-web-vitals كما هو، والرقعتان مُسمّاتان بجذرهما المقيس وتُصدَّران ليختبرهما البرهان. قيمةٌ مشتقّة بدل حالةٍ تُنسخ داخل effect (CbamDecisionExplorer · useHardCurrencyResource): الحالة «تحميل» تُشتقّ من مفتاح الطلب، فلا جواب قديم يظهر جواباً حالياً. والدَّين القديم لا يُكتم بتعليقٍ في الكود بل في سجلٍّ يكتبه ESLint نفسه ويرفض البقاء بعد الإصلاح."
+    }
+  ],
+  "production": {
+    "owner": "frontend-ci",
+    "status": "CI_GATE_RESTORED_NO_RUNTIME_CHANGE_OUTSIDE_ADMIN_CENTER",
+    "interfaces": [
+      "Frontend Theme CI · lint-frontend · خطوة ESLint (السقف 3 تحذيرات كما هو)",
+      "Frontend Theme CI · lint-frontend · خطوة البرهان السلبي (scripts/eslint-config-proof.mjs)",
+      "npm run lint (= أمر CI نفسه) · npm run lint:proof"
+    ],
+    "runtime_evidence_paths": [
+      "frontend/eslint.config.mjs",
+      "frontend/eslint-suppressions.json",
+      "frontend/scripts/eslint-config-proof.mjs"
+    ],
+    "failure_behavior_ar": "خطأٌ جديد · تحذيرٌ رابع · كتمٌ بائت بعد إصلاح · رقعةٌ لم تعد لازمة ⇒ lint-frontend أحمر باسم القاعدة والملف.",
+    "observability_ar": "عدد الأخطاء المُجمَّدة مقروءٌ من eslint-suppressions.json لكلّ ملفٍّ وقاعدة؛ ويتقلّص بـ--prune-suppressions حين يُصلَح أحدها.",
+    "security_boundary_ar": "لا تبعية جديدة ولا شبكة: المحلِّل من حزمة ESLint نفسها ونسخة React من حزمتها. مسار الطالب بلا تغيير سلوكي؛ التعديل السلوكي محصورٌ في مركز المدير ومُثبَتٌ برحلة Chromium 11/11.",
+    "rollback_ar": "git revert للدفعة يُعيد الإعداد القديم (فيعود الفحص إلى الانهيار) ولا يمسّ شيئاً خارج frontend/ والـworkflow."
+  },
+  "commercial_trace": {
+    "offer_ids": [
+      "fr-be-einvoicing-referential-cleansing",
+      "ai-red-teaming-multilingual"
+    ],
+    "customer_problem_ar": "واجهة مركز العملة الصعبة (أداة التسليم والعرض لهذين العرضين) بلا فحصٍ آليّ حيّ منذ 17 يوماً؛ فخطأٌ في الواجهة يصل المشتري بلا إنذار.",
+    "value_hypothesis_ar": "فحصٌ يعمل ويُثبت أنّه يحجب يمنع عطب الواجهة قبل عرضٍ حيّ على مشترٍ. فرضيةٌ هندسية لا تجارية.",
+    "foreign_currency_path_ar": "لا إيراد هنا ولا ادّعاء؛ الدفعة تحرس الأداة التي تُعرَض بها العروض فقط.",
+    "foundation_exception_ar": "§0 لا فشل صامت: فحصٌ لا يمكن أن ينجح يُقرأ «أحمر طبيعي» فيُدرِّب الناس على تجاهله."
+  },
+  "deletions": {
+    "count": 0,
+    "paths": [],
+    "policy_ar": "صفر حذف: .eslintrc.json باقٍ على القرص (ESLint 10 لا يقرؤه، ويصرّح بذلك رأس eslint.config.mjs)، والتعليقات المحذوفة تعليقان بلا أثرٍ في الكود."
+  },
+  "verification": {
+    "result": "PASS",
+    "commands": [
+      "cd frontend && npx eslint app/ --ext .js,.jsx --max-warnings 3 (exit 0 · 0 أخطاء غير مُجمَّدة · 3 تحذيرات = السقف) على Node 20.20 و22",
+      "node scripts/eslint-config-proof.mjs (9/9 · وMAX_WARNINGS=10 ⇒ البند 2 أحمر)",
+      "npm run build ✅ · check_bundle_budget 1078KB/1100KB ✅ · check_design_tokens ✅ · اختبارات الواجهة node ✅",
+      "scripts/e2e/hard_currency_center_ui.cjs على المكدّس الحيّ (Postgres + الأوركستريتور + المونوليث + الواجهة المبنيّة) 11/11",
+      "make gates (run_fitness_gates.py)"
+    ]
+  },
+  "curriculum": {
+    "catalog_path": "docs/research/UNIVERSITY_CURRICULUM_CATALOG.json",
+    "application_matrix_path": "docs/research/CURRICULUM_APPLICATION_MATRIX.json",
+    "all_catalog_courses_loaded": true,
+    "catalog_course_count": 59,
+    "considered_course_ids": [
+      "COMPSCI 20",
+      "COMPSCI 32",
+      "COMPSCI 50",
+      "COMPSCI 51",
+      "COMPSCI 61",
+      "COMPSCI 79",
+      "COMPSCI 85",
+      "COMPSCI 91R",
+      "COMPSCI 1050",
+      "COMPSCI 1066",
+      "COMPSCI 1090A",
+      "COMPSCI 1090B",
+      "COMPSCI 1200",
+      "COMPSCI 1210",
+      "COMPSCI 1240",
+      "COMPSCI 1251",
+      "COMPSCI 1261",
+      "COMPSCI 1280",
+      "COMPSCI 1410",
+      "COMPSCI 1411",
+      "COMPSCI 1440R",
+      "COMPSCI 1450",
+      "COMPSCI 1520",
+      "COMPSCI 1530",
+      "COMPSCI 1710",
+      "COMPSCI 1750",
+      "COMPSCI 1810",
+      "COMPSCI 1820",
+      "COMPSCI 1840",
+      "COMPSCI 1960",
+      "COMPSCI 2050",
+      "COMPSCI 2211",
+      "COMPSCI 2242",
+      "COMPSCI 2243",
+      "COMPSCI 2280",
+      "COMPSCI 2360R",
+      "COMPSCI 2370",
+      "COMPSCI 2380",
+      "COMPSCI 2411",
+      "COMPSCI 2420",
+      "COMPSCI 2430",
+      "COMPSCI 2440R",
+      "COMPSCI 2470R",
+      "COMPSCI 2520R",
+      "COMPSCI 2630",
+      "COMPSCI 2680",
+      "COMPSCI 2710",
+      "COMPSCI 2760",
+      "COMPSCI 2822R",
+      "COMPSCI 2823R",
+      "COMPSCI 2824",
+      "COMPSCI 2831",
+      "COMPSCI 2860",
+      "COMPSCI 2880",
+      "COMPSCI 2881R",
+      "COMPSCI 2883R",
+      "COMPSCI 2901",
+      "COMPSCI 2902",
+      "COMPSCI 2990R"
+    ],
+    "baseline_evidence_ids": [
+      "harvard-cs50x-foundations",
+      "harvard-cs-concentration-domains"
+    ],
+    "task_specific_evidence_ids": [
+      "harvard-cs50x-foundations",
+      "harvard-cs-concentration-domains"
+    ],
+    "unapplied_course_policy_ar": "كل المقررات قُرئت على مستوى الكتالوج والمصفوفة؛ ما لا ينطبق مباشرةً على طبقة أدلّةٍ حتمية (اشتقاقٌ · تحقّقٌ · برهانٌ سلبي) يُسجَّل غير منطبقٍ بسبب، ولا يتحوّل إلى ادّعاء تطبيق.",
+    "applicability_result": "ALL_CATALOG_COURSES_CONSIDERED",
+    "owner": "curriculum-governance"
+  },
+  "changed_paths": [
+    ".github/workflows/frontend-theme-ci.yml",
+    ".memory/README.md",
+    ".memory/issues.md",
+    "README.ar.md",
+    "README.md",
+    "docs/changes/CURRENT_CODE_ACCEPTANCE_PACKET.json",
+    "frontend/app/components/CogniForgeApp.jsx",
     "frontend/app/components/hard-currency/CbamDecisionExplorer.jsx",
     "frontend/app/hooks/useHardCurrencyApi.js",
-    "frontend/app/components/CogniForgeApp.jsx",
-    ".github/workflows/frontend-theme-ci.yml"
-   ],
-   "gate": "cd frontend && npx eslint app/ --ext .js,.jsx --max-warnings 3 && node scripts/eslint-config-proof.mjs && npm run build && cd .. && python scripts/fitness/check_bundle_budget.py && python scripts/fitness/check_design_tokens.py",
-   "application_ar": "مصدرٌ واحد للقواعد: الإعداد الرسمي core-web-vitals كما هو، والرقعتان مُسمّاتان بجذرهما المقيس وتُصدَّران ليختبرهما البرهان. قيمةٌ مشتقّة بدل حالةٍ تُنسخ داخل effect (CbamDecisionExplorer · useHardCurrencyResource): الحالة «تحميل» تُشتقّ من مفتاح الطلب، فلا جواب قديم يظهر جواباً حالياً. والدَّين القديم لا يُكتم بتعليقٍ في الكود بل في سجلٍّ يكتبه ESLint نفسه ويرفض البقاء بعد الإصلاح."
+    "frontend/eslint-suppressions.json",
+    "frontend/eslint.config.mjs",
+    "frontend/package.json",
+    "frontend/scripts/eslint-config-proof.mjs"
+  ],
+  "git_change_snapshot": {
+    "base_ref": "origin/main",
+    "changed_paths_excluding_packet": [
+      ".github/workflows/frontend-theme-ci.yml",
+      ".memory/README.md",
+      ".memory/issues.md",
+      "README.ar.md",
+      "README.md",
+      "frontend/app/components/CogniForgeApp.jsx",
+      "frontend/app/components/hard-currency/CbamDecisionExplorer.jsx",
+      "frontend/app/hooks/useHardCurrencyApi.js",
+      "frontend/eslint-suppressions.json",
+      "frontend/eslint.config.mjs",
+      "frontend/package.json",
+      "frontend/scripts/eslint-config-proof.mjs"
+    ],
+    "content_sha256_excluding_packet": "79d9aa5d3de3c1eea1d9afbab4d742ccf134003466a3a3fbaf138fbcd65b357d",
+    "refreshed_on": "2026-10-02",
+    "refresh_command": "python3 scripts/research/refresh_acceptance_diff_snapshot.py"
   }
- ],
- "production": {
-  "owner": "frontend-ci",
-  "status": "CI_GATE_RESTORED_NO_RUNTIME_CHANGE_OUTSIDE_ADMIN_CENTER",
-  "interfaces": [
-   "Frontend Theme CI · lint-frontend · خطوة ESLint (السقف 3 تحذيرات كما هو)",
-   "Frontend Theme CI · lint-frontend · خطوة البرهان السلبي (scripts/eslint-config-proof.mjs)",
-   "npm run lint (= أمر CI نفسه) · npm run lint:proof"
-  ],
-  "runtime_evidence_paths": [
-   "frontend/eslint.config.mjs",
-   "frontend/eslint-suppressions.json",
-   "frontend/scripts/eslint-config-proof.mjs"
-  ],
-  "failure_behavior_ar": "خطأٌ جديد · تحذيرٌ رابع · كتمٌ بائت بعد إصلاح · رقعةٌ لم تعد لازمة ⇒ lint-frontend أحمر باسم القاعدة والملف.",
-  "observability_ar": "عدد الأخطاء المُجمَّدة مقروءٌ من eslint-suppressions.json لكلّ ملفٍّ وقاعدة؛ ويتقلّص بـ--prune-suppressions حين يُصلَح أحدها.",
-  "security_boundary_ar": "لا تبعية جديدة ولا شبكة: المحلِّل من حزمة ESLint نفسها ونسخة React من حزمتها. مسار الطالب بلا تغيير سلوكي؛ التعديل السلوكي محصورٌ في مركز المدير ومُثبَتٌ برحلة Chromium 11/11.",
-  "rollback_ar": "git revert للدفعة يُعيد الإعداد القديم (فيعود الفحص إلى الانهيار) ولا يمسّ شيئاً خارج frontend/ والـworkflow."
- },
- "commercial_trace": {
-  "offer_ids": [
-   "fr-be-einvoicing-referential-cleansing",
-   "ai-red-teaming-multilingual"
-  ],
-  "customer_problem_ar": "واجهة مركز العملة الصعبة (أداة التسليم والعرض لهذين العرضين) بلا فحصٍ آليّ حيّ منذ 17 يوماً؛ فخطأٌ في الواجهة يصل المشتري بلا إنذار.",
-  "value_hypothesis_ar": "فحصٌ يعمل ويُثبت أنّه يحجب يمنع عطب الواجهة قبل عرضٍ حيّ على مشترٍ. فرضيةٌ هندسية لا تجارية.",
-  "foreign_currency_path_ar": "لا إيراد هنا ولا ادّعاء؛ الدفعة تحرس الأداة التي تُعرَض بها العروض فقط.",
-  "foundation_exception_ar": "§0 لا فشل صامت: فحصٌ لا يمكن أن ينجح يُقرأ «أحمر طبيعي» فيُدرِّب الناس على تجاهله."
- },
- "deletions": {
-  "count": 0,
-  "paths": [],
-  "policy_ar": "صفر حذف: .eslintrc.json باقٍ على القرص (ESLint 10 لا يقرؤه، ويصرّح بذلك رأس eslint.config.mjs)، والتعليقات المحذوفة تعليقان بلا أثرٍ في الكود."
- },
- "verification": {
-  "result": "PASS",
-  "commands": [
-   "cd frontend && npx eslint app/ --ext .js,.jsx --max-warnings 3 (exit 0 · 0 أخطاء غير مُجمَّدة · 3 تحذيرات = السقف) على Node 20.20 و22",
-   "node scripts/eslint-config-proof.mjs (9/9 · وMAX_WARNINGS=10 ⇒ البند 2 أحمر)",
-   "npm run build ✅ · check_bundle_budget 1078KB/1100KB ✅ · check_design_tokens ✅ · اختبارات الواجهة node ✅",
-   "scripts/e2e/hard_currency_center_ui.cjs على المكدّس الحيّ (Postgres + الأوركستريتور + المونوليث + الواجهة المبنيّة) 11/11",
-   "make gates (run_fitness_gates.py)"
-  ]
- },
- "curriculum": {
-  "catalog_path": "docs/research/UNIVERSITY_CURRICULUM_CATALOG.json",
-  "application_matrix_path": "docs/research/CURRICULUM_APPLICATION_MATRIX.json",
-  "all_catalog_courses_loaded": true,
-  "catalog_course_count": 59,
-  "considered_course_ids": [
-   "COMPSCI 20",
-   "COMPSCI 32",
-   "COMPSCI 50",
-   "COMPSCI 51",
-   "COMPSCI 61",
-   "COMPSCI 79",
-   "COMPSCI 85",
-   "COMPSCI 91R",
-   "COMPSCI 1050",
-   "COMPSCI 1066",
-   "COMPSCI 1090A",
-   "COMPSCI 1090B",
-   "COMPSCI 1200",
-   "COMPSCI 1210",
-   "COMPSCI 1240",
-   "COMPSCI 1251",
-   "COMPSCI 1261",
-   "COMPSCI 1280",
-   "COMPSCI 1410",
-   "COMPSCI 1411",
-   "COMPSCI 1440R",
-   "COMPSCI 1450",
-   "COMPSCI 1520",
-   "COMPSCI 1530",
-   "COMPSCI 1710",
-   "COMPSCI 1750",
-   "COMPSCI 1810",
-   "COMPSCI 1820",
-   "COMPSCI 1840",
-   "COMPSCI 1960",
-   "COMPSCI 2050",
-   "COMPSCI 2211",
-   "COMPSCI 2242",
-   "COMPSCI 2243",
-   "COMPSCI 2280",
-   "COMPSCI 2360R",
-   "COMPSCI 2370",
-   "COMPSCI 2380",
-   "COMPSCI 2411",
-   "COMPSCI 2420",
-   "COMPSCI 2430",
-   "COMPSCI 2440R",
-   "COMPSCI 2470R",
-   "COMPSCI 2520R",
-   "COMPSCI 2630",
-   "COMPSCI 2680",
-   "COMPSCI 2710",
-   "COMPSCI 2760",
-   "COMPSCI 2822R",
-   "COMPSCI 2823R",
-   "COMPSCI 2824",
-   "COMPSCI 2831",
-   "COMPSCI 2860",
-   "COMPSCI 2880",
-   "COMPSCI 2881R",
-   "COMPSCI 2883R",
-   "COMPSCI 2901",
-   "COMPSCI 2902",
-   "COMPSCI 2990R"
-  ],
-  "baseline_evidence_ids": [
-   "harvard-cs50x-foundations",
-   "harvard-cs-concentration-domains"
-  ],
-  "task_specific_evidence_ids": [
-   "harvard-cs50x-foundations",
-   "harvard-cs-concentration-domains"
-  ],
-  "unapplied_course_policy_ar": "كل المقررات قُرئت على مستوى الكتالوج والمصفوفة؛ ما لا ينطبق مباشرةً على طبقة أدلّةٍ حتمية (اشتقاقٌ · تحقّقٌ · برهانٌ سلبي) يُسجَّل غير منطبقٍ بسبب، ولا يتحوّل إلى ادّعاء تطبيق.",
-  "applicability_result": "ALL_CATALOG_COURSES_CONSIDERED",
-  "owner": "curriculum-governance"
- },
- "changed_paths": [
-  ".github/workflows/frontend-theme-ci.yml",
-  ".memory/README.md",
-  ".memory/issues.md",
-  "README.ar.md",
-  "README.md",
-  "docs/changes/CURRENT_CODE_ACCEPTANCE_PACKET.json",
-  "frontend/app/components/CogniForgeApp.jsx",
-  "frontend/app/components/hard-currency/CbamDecisionExplorer.jsx",
-  "frontend/app/hooks/useHardCurrencyApi.js",
-  "frontend/eslint-suppressions.json",
-  "frontend/eslint.config.mjs",
-  "frontend/package.json",
-  "frontend/scripts/eslint-config-proof.mjs"
- ],
- "git_change_snapshot": {
-  "base_ref": "origin/main",
-  "changed_paths_excluding_packet": [
-   ".github/workflows/frontend-theme-ci.yml",
-   ".memory/README.md",
-   ".memory/issues.md",
-   "README.ar.md",
-   "README.md",
-   "frontend/app/components/CogniForgeApp.jsx",
-   "frontend/app/components/hard-currency/CbamDecisionExplorer.jsx",
-   "frontend/app/hooks/useHardCurrencyApi.js",
-   "frontend/eslint-suppressions.json",
-   "frontend/eslint.config.mjs",
-   "frontend/package.json",
-   "frontend/scripts/eslint-config-proof.mjs"
-  ],
-  "content_sha256_excluding_packet": "7157306f8c636e6ca5e26788237bf2923310b3a31b5ac90aa3043215965ff370",
-  "refreshed_on": "2026-10-02",
-  "refresh_command": "python3 scripts/research/refresh_acceptance_diff_snapshot.py"
- }
 }
