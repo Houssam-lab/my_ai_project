@@ -1,181 +1,181 @@
 {
- "$schema_version": 1,
- "packet_id": "CAP-2026-10-02-iss212-test-name-bound",
- "status": "READY_FOR_GATE",
- "decision": "D-277",
- "decision_of_change": "ISS-212: test-monolith بلغ حدّه (45 دقيقة) أربع مرّات منذ 989da21 بلا سجلّ، فلم تظهر العلامة الخضراء على main. الجذر مقيس: حالةٌ مُعلَّمة طبعت حمولتها (2MB) اسماً للاختبار — سطرٌ واحد بـ2,097,263 حرفاً أوقف عدّاء CI. الإصلاح: ids صريحة، وحدٌّ لاسم الاختبار (1024) يُفرَض عند الجمع بقشرةٍ على الـconftest، وحدّا خطوةٍ واختبارٍ في ci.yml. واكتُشف ISS-213 (خطافات policy.py غير مُسجَّلة منذ D-258) وسُجِّل مفتوحاً.",
- "standards": [
-  "clean-code-book"
- ],
- "evidence": [
-  "nist-ssdf-1.1",
-  "dora-core"
- ],
- "local_application": [
-  {
-   "standard": "clean-code-book",
-   "paths": [
+  "$schema_version": 1,
+  "packet_id": "CAP-2026-10-02-iss212-test-name-bound",
+  "status": "READY_FOR_GATE",
+  "decision": "D-277",
+  "decision_of_change": "ISS-212: test-monolith بلغ حدّه (45 دقيقة) أربع مرّات منذ 989da21 بلا سجلّ، فلم تظهر العلامة الخضراء على main. الجذر مقيس: حالةٌ مُعلَّمة طبعت حمولتها (2MB) اسماً للاختبار — سطرٌ واحد بـ2,097,263 حرفاً أوقف عدّاء CI. الإصلاح: ids صريحة، وحدٌّ لاسم الاختبار (1024) يُفرَض عند الجمع بقشرةٍ على الـconftest، وحدّا خطوةٍ واختبارٍ في ci.yml. واكتُشف ISS-213 (خطافات policy.py غير مُسجَّلة منذ D-258) وسُجِّل مفتوحاً.",
+  "standards": [
+    "clean-code-book"
+  ],
+  "evidence": [
+    "nist-ssdf-1.1",
+    "dora-core"
+  ],
+  "local_application": [
+    {
+      "standard": "clean-code-book",
+      "paths": [
+        "tests/api/test_hard_currency_center.py",
+        "tests/naas_verifier/test_env_ar_fr_guard_break.py",
+        "tests/conftest_support/policy.py",
+        "tests/conftest.py",
+        "tests/architecture/test_node_id_bound.py",
+        ".github/workflows/ci.yml"
+      ],
+      "gate": "python -m pytest tests/architecture/test_node_id_bound.py tests/api/test_hard_currency_center.py tests/naas_verifier/test_env_ar_fr_guard_break.py && python -m pytest tests scripts/ci --collect-only -q --ignore=tests/microservices",
+      "application_ar": "اسمٌ يصف الحالة لا حمولتها: ids صريحة بدل طباعة 2MB. والقاعدة في موطنٍ واحد: الدالّة النقية والحدّ في policy.py، والقشرة على الـconftest تفوّض ولا تكرّر — لأنّ الخطاف في وحدةٍ مستورَدة لا يُسجَّل (مقيس)."
+    }
+  ],
+  "production": {
+    "owner": "ci-test-monolith",
+    "status": "CI_ONLY_NO_RUNTIME_CHANGE",
+    "interfaces": [
+      "CI · test-monolith · جمع الاختبارات يرفض اسماً أطول من 1024 حرفاً (pytest.UsageError باسمه)",
+      "CI · test-monolith · timeout-minutes: 42 للخطوة (45 للوظيفة − التثبيت) · --timeout=300 لكلّ اختبار · --durations=25"
+    ],
+    "runtime_evidence_paths": [
+      "tests/conftest_support/policy.py",
+      "tests/architecture/test_node_id_bound.py",
+      ".github/workflows/ci.yml"
+    ],
+    "failure_behavior_ar": "اسم اختبارٍ يتجاوز 1024 حرفاً ⇒ الجمع يفشل (exit 4) ويُسمّي الاختبار والطول؛ واختبارٌ عالق ⇒ يفشل باسمه بعد 5 دقائق.",
+    "observability_ar": "--durations=25 يُظهر أين يذهب الوقت؛ وحدّ الخطوة أقلّ من حدّ الوظيفة فيبقى السجلّ حين تبطؤ المجموعة.",
+    "security_boundary_ar": "لا تغيير في كود التطبيق ولا في مسار الطالب؛ الاختبارات وCI وحدهما.",
+    "rollback_ar": "git revert يُعيد الأسماء الطويلة فيعود عدّاء CI إلى التوقّف — لا أثر خارج tests/ وci.yml."
+  },
+  "commercial_trace": {
+    "offer_ids": [
+      "fr-be-einvoicing-referential-cleansing",
+      "ai-red-teaming-multilingual"
+    ],
+    "customer_problem_ar": "required-ci أحمر على main منذ دمج مركز العملة الصعبة، فلا دفعة تُثبَت خضراء ولا يُعرَف عطبٌ حقيقي من ضجيج.",
+    "value_hypothesis_ar": "CI يُنهي ويُسمّي فشله فيحرس أداة العرض قبل أيّ عرضٍ حيّ على مشترٍ. فرضيةٌ هندسية لا تجارية.",
+    "foreign_currency_path_ar": "لا إيراد هنا ولا ادّعاء.",
+    "foundation_exception_ar": "§0 لا فشل صامت: وظيفةٌ تُقطَع بلا سجلّ أسوأ من فشلٍ باسمه."
+  },
+  "deletions": {
+    "count": 0,
+    "paths": [],
+    "policy_ar": "صفر حذف: إضافة ids وحدٍّ وقشرة."
+  },
+  "verification": {
+    "result": "PASS",
+    "commands": [
+      "pytest بأمر CI وبيئته وتغطيته حرفياً: 6057 passed · 74.48% · 45:02 · لا تعليق · ذاكرة ~500MB (قبل الإصلاح)",
+      "نسخة main من test_hard_currency_center.py تحت الحارس ⇒ exit 4 تُسمّي 2,097,245 و15,091 حرفاً",
+      "pytest tests scripts/ci --collect-only ⇒ 6061 بلا خطأ · أطول اسم 602",
+      "pytest tests/architecture/test_node_id_bound.py tests/api/test_hard_currency_center.py tests/naas_verifier/test_env_ar_fr_guard_break.py (65 passed)",
+      "ruff==0.14.0 check + format --check · check_test_hygiene ✅ · make gates (run_fitness_gates.py)",
+      "CI على PR #2553: test-monolith نجح — 6061 passed · 74% · الخطوة 38.5 دقيقة · أطول سطرٍ في السجلّ 4,207"
+    ]
+  },
+  "curriculum": {
+    "catalog_path": "docs/research/UNIVERSITY_CURRICULUM_CATALOG.json",
+    "application_matrix_path": "docs/research/CURRICULUM_APPLICATION_MATRIX.json",
+    "all_catalog_courses_loaded": true,
+    "catalog_course_count": 59,
+    "considered_course_ids": [
+      "COMPSCI 20",
+      "COMPSCI 32",
+      "COMPSCI 50",
+      "COMPSCI 51",
+      "COMPSCI 61",
+      "COMPSCI 79",
+      "COMPSCI 85",
+      "COMPSCI 91R",
+      "COMPSCI 1050",
+      "COMPSCI 1066",
+      "COMPSCI 1090A",
+      "COMPSCI 1090B",
+      "COMPSCI 1200",
+      "COMPSCI 1210",
+      "COMPSCI 1240",
+      "COMPSCI 1251",
+      "COMPSCI 1261",
+      "COMPSCI 1280",
+      "COMPSCI 1410",
+      "COMPSCI 1411",
+      "COMPSCI 1440R",
+      "COMPSCI 1450",
+      "COMPSCI 1520",
+      "COMPSCI 1530",
+      "COMPSCI 1710",
+      "COMPSCI 1750",
+      "COMPSCI 1810",
+      "COMPSCI 1820",
+      "COMPSCI 1840",
+      "COMPSCI 1960",
+      "COMPSCI 2050",
+      "COMPSCI 2211",
+      "COMPSCI 2242",
+      "COMPSCI 2243",
+      "COMPSCI 2280",
+      "COMPSCI 2360R",
+      "COMPSCI 2370",
+      "COMPSCI 2380",
+      "COMPSCI 2411",
+      "COMPSCI 2420",
+      "COMPSCI 2430",
+      "COMPSCI 2440R",
+      "COMPSCI 2470R",
+      "COMPSCI 2520R",
+      "COMPSCI 2630",
+      "COMPSCI 2680",
+      "COMPSCI 2710",
+      "COMPSCI 2760",
+      "COMPSCI 2822R",
+      "COMPSCI 2823R",
+      "COMPSCI 2824",
+      "COMPSCI 2831",
+      "COMPSCI 2860",
+      "COMPSCI 2880",
+      "COMPSCI 2881R",
+      "COMPSCI 2883R",
+      "COMPSCI 2901",
+      "COMPSCI 2902",
+      "COMPSCI 2990R"
+    ],
+    "baseline_evidence_ids": [
+      "harvard-cs50x-foundations",
+      "harvard-cs-concentration-domains"
+    ],
+    "task_specific_evidence_ids": [
+      "harvard-cs50x-foundations",
+      "harvard-cs-concentration-domains"
+    ],
+    "unapplied_course_policy_ar": "كل المقررات قُرئت على مستوى الكتالوج والمصفوفة؛ ما لا ينطبق مباشرةً على طبقة أدلّةٍ حتمية (اشتقاقٌ · تحقّقٌ · برهانٌ سلبي) يُسجَّل غير منطبقٍ بسبب، ولا يتحوّل إلى ادّعاء تطبيق.",
+    "applicability_result": "ALL_CATALOG_COURSES_CONSIDERED",
+    "owner": "curriculum-governance"
+  },
+  "changed_paths": [
+    ".github/workflows/ci.yml",
+    ".memory/README.md",
+    ".memory/issues.md",
+    "README.ar.md",
+    "README.md",
+    "docs/changes/CURRENT_CODE_ACCEPTANCE_PACKET.json",
     "tests/api/test_hard_currency_center.py",
-    "tests/naas_verifier/test_env_ar_fr_guard_break.py",
-    "tests/conftest_support/policy.py",
-    "tests/conftest.py",
     "tests/architecture/test_node_id_bound.py",
-    ".github/workflows/ci.yml"
-   ],
-   "gate": "python -m pytest tests/architecture/test_node_id_bound.py tests/api/test_hard_currency_center.py tests/naas_verifier/test_env_ar_fr_guard_break.py && python -m pytest tests scripts/ci --collect-only -q --ignore=tests/microservices",
-   "application_ar": "اسمٌ يصف الحالة لا حمولتها: ids صريحة بدل طباعة 2MB. والقاعدة في موطنٍ واحد: الدالّة النقية والحدّ في policy.py، والقشرة على الـconftest تفوّض ولا تكرّر — لأنّ الخطاف في وحدةٍ مستورَدة لا يُسجَّل (مقيس)."
+    "tests/conftest.py",
+    "tests/conftest_support/policy.py",
+    "tests/naas_verifier/test_env_ar_fr_guard_break.py"
+  ],
+  "git_change_snapshot": {
+    "base_ref": "origin/main",
+    "changed_paths_excluding_packet": [
+      ".github/workflows/ci.yml",
+      ".memory/README.md",
+      ".memory/issues.md",
+      "README.ar.md",
+      "README.md",
+      "tests/api/test_hard_currency_center.py",
+      "tests/architecture/test_node_id_bound.py",
+      "tests/conftest.py",
+      "tests/conftest_support/policy.py",
+      "tests/naas_verifier/test_env_ar_fr_guard_break.py"
+    ],
+    "content_sha256_excluding_packet": "ec46915ac1bdd730f8a846311e7fe8e2c3dd0a3340e8b62ad06093338da35aa2",
+    "refreshed_on": "2026-10-02",
+    "refresh_command": "python3 scripts/research/refresh_acceptance_diff_snapshot.py"
   }
- ],
- "production": {
-  "owner": "ci-test-monolith",
-  "status": "CI_ONLY_NO_RUNTIME_CHANGE",
-  "interfaces": [
-   "CI · test-monolith · جمع الاختبارات يرفض اسماً أطول من 1024 حرفاً (pytest.UsageError باسمه)",
-   "CI · test-monolith · timeout-minutes: 42 للخطوة (45 للوظيفة − التثبيت) · --timeout=300 لكلّ اختبار · --durations=25"
-  ],
-  "runtime_evidence_paths": [
-   "tests/conftest_support/policy.py",
-   "tests/architecture/test_node_id_bound.py",
-   ".github/workflows/ci.yml"
-  ],
-  "failure_behavior_ar": "اسم اختبارٍ يتجاوز 1024 حرفاً ⇒ الجمع يفشل (exit 4) ويُسمّي الاختبار والطول؛ واختبارٌ عالق ⇒ يفشل باسمه بعد 5 دقائق.",
-  "observability_ar": "--durations=25 يُظهر أين يذهب الوقت؛ وحدّ الخطوة أقلّ من حدّ الوظيفة فيبقى السجلّ حين تبطؤ المجموعة.",
-  "security_boundary_ar": "لا تغيير في كود التطبيق ولا في مسار الطالب؛ الاختبارات وCI وحدهما.",
-  "rollback_ar": "git revert يُعيد الأسماء الطويلة فيعود عدّاء CI إلى التوقّف — لا أثر خارج tests/ وci.yml."
- },
- "commercial_trace": {
-  "offer_ids": [
-   "fr-be-einvoicing-referential-cleansing",
-   "ai-red-teaming-multilingual"
-  ],
-  "customer_problem_ar": "required-ci أحمر على main منذ دمج مركز العملة الصعبة، فلا دفعة تُثبَت خضراء ولا يُعرَف عطبٌ حقيقي من ضجيج.",
-  "value_hypothesis_ar": "CI يُنهي ويُسمّي فشله فيحرس أداة العرض قبل أيّ عرضٍ حيّ على مشترٍ. فرضيةٌ هندسية لا تجارية.",
-  "foreign_currency_path_ar": "لا إيراد هنا ولا ادّعاء.",
-  "foundation_exception_ar": "§0 لا فشل صامت: وظيفةٌ تُقطَع بلا سجلّ أسوأ من فشلٍ باسمه."
- },
- "deletions": {
-  "count": 0,
-  "paths": [],
-  "policy_ar": "صفر حذف: إضافة ids وحدٍّ وقشرة."
- },
- "verification": {
-  "result": "PASS",
-  "commands": [
-   "pytest بأمر CI وبيئته وتغطيته حرفياً: 6057 passed · 74.48% · 45:02 · لا تعليق · ذاكرة ~500MB (قبل الإصلاح)",
-   "نسخة main من test_hard_currency_center.py تحت الحارس ⇒ exit 4 تُسمّي 2,097,245 و15,091 حرفاً",
-   "pytest tests scripts/ci --collect-only ⇒ 6061 بلا خطأ · أطول اسم 602",
-   "pytest tests/architecture/test_node_id_bound.py tests/api/test_hard_currency_center.py tests/naas_verifier/test_env_ar_fr_guard_break.py (65 passed)",
-   "ruff==0.14.0 check + format --check · check_test_hygiene ✅ · make gates (run_fitness_gates.py)",
-   "CI على PR #2553: test-monolith نجح — 6061 passed · 74% · الخطوة 38.5 دقيقة · أطول سطرٍ في السجلّ 4,207"
-  ]
- },
- "curriculum": {
-  "catalog_path": "docs/research/UNIVERSITY_CURRICULUM_CATALOG.json",
-  "application_matrix_path": "docs/research/CURRICULUM_APPLICATION_MATRIX.json",
-  "all_catalog_courses_loaded": true,
-  "catalog_course_count": 59,
-  "considered_course_ids": [
-   "COMPSCI 20",
-   "COMPSCI 32",
-   "COMPSCI 50",
-   "COMPSCI 51",
-   "COMPSCI 61",
-   "COMPSCI 79",
-   "COMPSCI 85",
-   "COMPSCI 91R",
-   "COMPSCI 1050",
-   "COMPSCI 1066",
-   "COMPSCI 1090A",
-   "COMPSCI 1090B",
-   "COMPSCI 1200",
-   "COMPSCI 1210",
-   "COMPSCI 1240",
-   "COMPSCI 1251",
-   "COMPSCI 1261",
-   "COMPSCI 1280",
-   "COMPSCI 1410",
-   "COMPSCI 1411",
-   "COMPSCI 1440R",
-   "COMPSCI 1450",
-   "COMPSCI 1520",
-   "COMPSCI 1530",
-   "COMPSCI 1710",
-   "COMPSCI 1750",
-   "COMPSCI 1810",
-   "COMPSCI 1820",
-   "COMPSCI 1840",
-   "COMPSCI 1960",
-   "COMPSCI 2050",
-   "COMPSCI 2211",
-   "COMPSCI 2242",
-   "COMPSCI 2243",
-   "COMPSCI 2280",
-   "COMPSCI 2360R",
-   "COMPSCI 2370",
-   "COMPSCI 2380",
-   "COMPSCI 2411",
-   "COMPSCI 2420",
-   "COMPSCI 2430",
-   "COMPSCI 2440R",
-   "COMPSCI 2470R",
-   "COMPSCI 2520R",
-   "COMPSCI 2630",
-   "COMPSCI 2680",
-   "COMPSCI 2710",
-   "COMPSCI 2760",
-   "COMPSCI 2822R",
-   "COMPSCI 2823R",
-   "COMPSCI 2824",
-   "COMPSCI 2831",
-   "COMPSCI 2860",
-   "COMPSCI 2880",
-   "COMPSCI 2881R",
-   "COMPSCI 2883R",
-   "COMPSCI 2901",
-   "COMPSCI 2902",
-   "COMPSCI 2990R"
-  ],
-  "baseline_evidence_ids": [
-   "harvard-cs50x-foundations",
-   "harvard-cs-concentration-domains"
-  ],
-  "task_specific_evidence_ids": [
-   "harvard-cs50x-foundations",
-   "harvard-cs-concentration-domains"
-  ],
-  "unapplied_course_policy_ar": "كل المقررات قُرئت على مستوى الكتالوج والمصفوفة؛ ما لا ينطبق مباشرةً على طبقة أدلّةٍ حتمية (اشتقاقٌ · تحقّقٌ · برهانٌ سلبي) يُسجَّل غير منطبقٍ بسبب، ولا يتحوّل إلى ادّعاء تطبيق.",
-  "applicability_result": "ALL_CATALOG_COURSES_CONSIDERED",
-  "owner": "curriculum-governance"
- },
- "changed_paths": [
-  ".github/workflows/ci.yml",
-  ".memory/README.md",
-  ".memory/issues.md",
-  "README.ar.md",
-  "README.md",
-  "docs/changes/CURRENT_CODE_ACCEPTANCE_PACKET.json",
-  "tests/api/test_hard_currency_center.py",
-  "tests/architecture/test_node_id_bound.py",
-  "tests/conftest.py",
-  "tests/conftest_support/policy.py",
-  "tests/naas_verifier/test_env_ar_fr_guard_break.py"
- ],
- "git_change_snapshot": {
-  "base_ref": "origin/main",
-  "changed_paths_excluding_packet": [
-   ".github/workflows/ci.yml",
-   ".memory/README.md",
-   ".memory/issues.md",
-   "README.ar.md",
-   "README.md",
-   "tests/api/test_hard_currency_center.py",
-   "tests/architecture/test_node_id_bound.py",
-   "tests/conftest.py",
-   "tests/conftest_support/policy.py",
-   "tests/naas_verifier/test_env_ar_fr_guard_break.py"
-  ],
-  "content_sha256_excluding_packet": "144939b1a1a722af8183adbd29a875df8187fda805055678e5b0b562d9119c7f",
-  "refreshed_on": "2026-10-02",
-  "refresh_command": "python3 scripts/research/refresh_acceptance_diff_snapshot.py"
- }
 }
