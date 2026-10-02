@@ -9,6 +9,12 @@
  * ⛔ بيانات الدخول من البيئة وحدها: E2E_ADMIN_EMAIL · E2E_ADMIN_PASSWORD ·
  * E2E_STUDENT_EMAIL · E2E_STUDENT_PASSWORD · E2E_FRONTEND · E2E_SCREENSHOTS.
  *
+ * ISS-214: كلّ فحصٍ للقائمة يجري **بعد** أن تكتب الواجهة جوابَ `/api/security/user/me` فوق
+ * جواب الدخول، ثمّ مرّةً ثانية بعد إعادة تحميل الصفحة. كان الفحص يقرأ القائمة قبل ذلك، فخضرت
+ * الرحلة بينما يرى المدير في Codespaces واجهة الطالب. و`E2E_EXPECT_USER_SERVICE=1` يشترط أن
+ * تكون user-service حيّة (`E2E_USER_SERVICE`، افتراضاً :8001) كي لا تخضرّ الرحلة على مسارٍ
+ * غير مسار Codespaces دون أن تقول ذلك.
+ *
  *   NODE_PATH=/opt/node22/lib/node_modules node scripts/e2e/hard_currency_center_ui.cjs
  */
 'use strict';
@@ -21,6 +27,8 @@ const REPO = path.resolve(__dirname, '..', '..');
 const BASE = process.env.E2E_FRONTEND || 'http://127.0.0.1:5000';
 const OUT = process.env.E2E_SCREENSHOTS || '/tmp/hc-ui';
 const CHROMIUM = '/opt/pw-browsers/chromium';
+const USER_SERVICE = process.env.E2E_USER_SERVICE || 'http://127.0.0.1:8001';
+const ME_PATH = '/api/security/user/me';
 const DEMO_FR = path.join(REPO, 'docs/commercial/outreach/demo/DEMO_20_FICHES.csv');
 
 function need(name) {
@@ -38,12 +46,31 @@ function record(name, ok, detail) {
     console.log(`${ok ? '✅' : '❌'} ${name} — ${detail}`);
 }
 
+/** The profile the page wrote over the login answer (ISS-214), not the login answer itself. */
+async function waitForProfile(page, action) {
+    const profile = page.waitForResponse((r) => r.url().includes(ME_PATH), { timeout: 30000 });
+    await action();
+    const response = await profile;
+    await page.waitForSelector('.header-menu-btn', { timeout: 30000 });
+    // React commits the new user after the response resolves; let that render land.
+    await page.waitForTimeout(500);
+    return { status: response.status(), body: await response.json().catch(() => ({})) };
+}
+
 async function login(page, email, password) {
     await page.goto(BASE, { waitUntil: 'networkidle' });
     await page.fill('input[type="email"]', email);
     await page.fill('input[type="password"]', password);
-    await page.click('form button');
-    await page.waitForSelector('.header-menu-btn', { timeout: 30000 });
+    return waitForProfile(page, () => page.click('form button'));
+}
+
+async function centerEntries(page) {
+    await openMenu(page);
+    const count = await page.getByRole('button', { name: 'مركز العملة الصعبة' }).count();
+    // The menu button toggles; a second click closes it so the next openMenu starts clean.
+    await page.click('.header-menu-btn');
+    await page.waitForSelector('.header-menu', { state: 'detached', timeout: 10000 });
+    return count;
 }
 
 async function openMenu(page) {
@@ -73,8 +100,21 @@ async function adminJourney(browser, consoleErrors) {
     const page = await context.newPage();
     page.on('console', (msg) => msg.type() === 'error' && consoleErrors.push(msg.text()));
 
-    await login(page, need('E2E_ADMIN_EMAIL'), need('E2E_ADMIN_PASSWORD'));
+    const profile = await login(page, need('E2E_ADMIN_EMAIL'), need('E2E_ADMIN_PASSWORD'));
     record('دخول المدير من نموذج الواجهة', true, 'وصل إلى لوحة المحادثة');
+    record(
+        'ملفّ المدير بعد /me ما زال مديراً',
+        profile.status === 200 && profile.body.is_admin === true,
+        `HTTP ${profile.status} · is_admin=${profile.body.is_admin}`,
+    );
+    const reloaded = await waitForProfile(page, () => page.reload({ waitUntil: 'networkidle' }));
+    const afterReload = await centerEntries(page);
+    record(
+        'المدخل باقٍ بعد إعادة تحميل الصفحة',
+        reloaded.body.is_admin === true && afterReload === 1,
+        `is_admin=${reloaded.body.is_admin} · ${afterReload} مدخل`,
+    );
+    await shot(page, '00-admin-after-reload');
 
     await openMenu(page);
     const entry = page.getByRole('button', { name: 'مركز العملة الصعبة' });
@@ -157,7 +197,12 @@ async function adminJourney(browser, consoleErrors) {
 async function studentJourney(browser) {
     const context = await browser.newContext({ viewport: { width: 1280, height: 900 }, locale: 'ar' });
     const page = await context.newPage();
-    await login(page, need('E2E_STUDENT_EMAIL'), need('E2E_STUDENT_PASSWORD'));
+    const profile = await login(page, need('E2E_STUDENT_EMAIL'), need('E2E_STUDENT_PASSWORD'));
+    record(
+        'ملفّ الطالب بعد /me ليس مديراً',
+        profile.status === 200 && profile.body.is_admin === false,
+        `HTTP ${profile.status} · is_admin=${profile.body.is_admin}`,
+    );
     await openMenu(page);
     const entry = await page.getByRole('button', { name: 'مركز العملة الصعبة' }).count();
     record('الطالب لا يرى مدخل المركز', entry === 0, `${entry} مدخل`);
@@ -170,6 +215,10 @@ async function studentJourney(browser) {
     const browser = await chromium.launch({ executablePath: CHROMIUM, args: ['--no-sandbox'] });
     const consoleErrors = [];
     try {
+        if (process.env.E2E_EXPECT_USER_SERVICE === '1') {
+            const health = await fetch(`${USER_SERVICE}/health`).catch((e) => ({ ok: false, status: String(e) }));
+            record('user-service حيّة (مسار Codespaces)', health.ok === true, `${USER_SERVICE} · ${health.status}`);
+        }
         await adminJourney(browser, consoleErrors);
         await studentJourney(browser);
     } catch (error) {

@@ -10,6 +10,10 @@
   • الحجب: أصناف الاختراق بلا نصوص المسابير (L5)
   • ⛔ لا صفّ في جداول الرسائل من أيّ نداءٍ للمركز (§6.5)
   • محادثة المدير على ``/admin/api/chat/ws`` بلا 4401، ومحادثة الطالب بإطارٍ نهائيٍّ واحد
+  • ISS-214: ``/api/security/user/me`` يُبقي المدير مديراً والطالب طالباً — هذا الجواب
+    تكتبه الواجهة فوق جواب الدخول عند كلّ تحميل. و``E2E_EXPECT_USER_SERVICE=1`` يشترط أن
+    تكون user-service (``USER_SERVICE_URL``) هي التي أجابت عن الرمز نفسه عبر عميل المونوليث،
+    بالشكل الذي سبّب العطب (``roles`` بلا ``is_admin``) — كي لا تخضرّ الرحلة على السقوط المحلّي.
 
 ⛔ لا كلمة سرّ في الكود ولا قيمةٌ افتراضية لها — البيئة وحدها:
 ``E2E_ADMIN_EMAIL`` · ``E2E_ADMIN_PASSWORD`` · ``E2E_STUDENT_EMAIL`` · ``E2E_STUDENT_PASSWORD``
@@ -131,6 +135,48 @@ async def _check_logins(
     stud = await j.login(*student)
     j.record("دخول الطالب", stud.status_code == 200, f"HTTP {stud.status_code}", started)
     return again.json()["access_token"], stud.json()["access_token"]
+
+
+async def _check_profiles(j: Journey, admin_token: str, student_token: str) -> None:
+    """ISS-214 — the answer the frontend writes over the login answer on every load."""
+    for label, token, expected in (
+        ("المدير", admin_token, True),
+        ("الطالب", student_token, False),
+    ):
+        started = time.perf_counter()
+        response = await j.client.get(
+            "/api/security/user/me", headers={"Authorization": f"Bearer {token}"}
+        )
+        flag = response.json().get("is_admin") if response.status_code == 200 else None
+        j.record(
+            f"/me يُبقي {label} كما هو (is_admin={expected})",
+            flag is expected,
+            f"HTTP {response.status_code} · is_admin={flag}",
+            started,
+        )
+
+    if os.environ.get("E2E_EXPECT_USER_SERVICE") != "1":
+        return
+    # The monolith's own client and service token: the same call `get_current_user` makes.
+    from app.infrastructure.clients.user_client import UserServiceClient
+
+    url = _env("USER_SERVICE_URL")
+    started = time.perf_counter()
+    client = UserServiceClient(base_url=url)
+    try:
+        answer = await client.get_me(admin_token)
+    except Exception as exc:
+        j.record(
+            "user-service أجابت /me (مسار Codespaces)", False, f"{type(exc).__name__}", started
+        )
+        return
+    roles = answer.get("roles")
+    j.record(
+        "user-service أجابت /me (مسار Codespaces)",
+        isinstance(roles, list) and "ADMIN" in roles,
+        f"{url} · roles={roles} · is_admin في الجواب={'is_admin' in answer}",
+        started,
+    )
 
 
 async def _check_boundaries(j: Journey, student_token: str) -> None:
@@ -335,6 +381,7 @@ async def main() -> int:
     j = Journey(base)
     try:
         admin_token, student_token = await _check_logins(j, admin, student)
+        await _check_profiles(j, admin_token, student_token)
         headers = {"Authorization": f"Bearer {admin_token}"}
         before = await _message_rows(dsn)
         await _check_boundaries(j, student_token)
