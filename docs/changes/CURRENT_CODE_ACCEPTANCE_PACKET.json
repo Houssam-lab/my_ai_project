@@ -147,37 +147,33 @@
   "owner": "curriculum-governance"
  },
  "changed_paths": [
-  ".github/workflows/frontend-theme-ci.yml",
+  ".github/workflows/ci.yml",
   ".memory/README.md",
   ".memory/issues.md",
   "README.ar.md",
   "README.md",
   "docs/changes/CURRENT_CODE_ACCEPTANCE_PACKET.json",
-  "frontend/app/components/CogniForgeApp.jsx",
-  "frontend/app/components/hard-currency/CbamDecisionExplorer.jsx",
-  "frontend/app/hooks/useHardCurrencyApi.js",
-  "frontend/eslint-suppressions.json",
-  "frontend/eslint.config.mjs",
-  "frontend/package.json",
-  "frontend/scripts/eslint-config-proof.mjs"
+  "tests/api/test_hard_currency_center.py",
+  "tests/architecture/test_node_id_bound.py",
+  "tests/conftest.py",
+  "tests/conftest_support/policy.py",
+  "tests/naas_verifier/test_env_ar_fr_guard_break.py"
  ],
  "git_change_snapshot": {
   "base_ref": "origin/main",
   "changed_paths_excluding_packet": [
-   ".github/workflows/frontend-theme-ci.yml",
+   ".github/workflows/ci.yml",
    ".memory/README.md",
    ".memory/issues.md",
    "README.ar.md",
    "README.md",
-   "frontend/app/components/CogniForgeApp.jsx",
-   "frontend/app/components/hard-currency/CbamDecisionExplorer.jsx",
-   "frontend/app/hooks/useHardCurrencyApi.js",
-   "frontend/eslint-suppressions.json",
-   "frontend/eslint.config.mjs",
-   "frontend/package.json",
-   "frontend/scripts/eslint-config-proof.mjs"
+   "tests/api/test_hard_currency_center.py",
+   "tests/architecture/test_node_id_bound.py",
+   "tests/conftest.py",
+   "tests/conftest_support/policy.py",
+   "tests/naas_verifier/test_env_ar_fr_guard_break.py"
   ],
-  "content_sha256_excluding_packet": "79d9aa5d3de3c1eea1d9afbab4d742ccf134003466a3a3fbaf138fbcd65b357d",
+  "content_sha256_excluding_packet": "144939b1a1a722af8183adbd29a875df8187fda805055678e5b0b562d9119c7f",
   "refreshed_on": "2026-10-02",
   "refresh_command": "python3 scripts/research/refresh_acceptance_diff_snapshot.py"
  }
