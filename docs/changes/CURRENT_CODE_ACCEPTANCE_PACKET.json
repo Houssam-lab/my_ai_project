@@ -1,9 +1,9 @@
 {
   "$schema_version": 1,
-  "packet_id": "CAP-2026-10-02-d300-constitution-banner",
+  "packet_id": "CAP-2026-10-03-hce-quality-gate",
   "status": "READY_FOR_GATE",
   "decision": "D-277",
-  "decision_of_change": "تنفيذ توصية المرحلة 0 (تقرير PHASE0_FORENSIC_REPORT_2026-10-02 §AE.1/§AH.2): قرار المالك D-300 (منتجٌ نشط واحد + تجميد المنصّة) كان مكتوباً في .memory/decisions.md لكنّ الدستور التشغيلي لم يكن يعرفه — CLAUDE.md بلا أيّ إشارةٍ إليه، فكلّ وكيلٍ يرث المسار المعرفي كان يرث مهمّة المنصّة المُجمَّدة لا أولويّة العملة الصعبة. التغيير: لافتةٌ في ترويسة CLAUDE.md (صفر أسطر صافية — سقف 1262 محفوظ)، وملاحظة حالةٍ تجارية في README.md وREADME.ar.md، وقسم «القرار الحاكم D-300» في عقد إقلاع الوكلاء AGENTS.md، وأرشفة تقرير المرحلة 0 كلقطةٍ مؤرَّخة. توثيقٌ فقط: لا كود، لا حذف، لا تغيير تشغيلي.",
+  "decision_of_change": "تطبيق المرحلة الأولى القابلة للقياس من مبادئ هندسة البرمجيات على إسفين العملة الصعبة فقط: بوابة حتمية لمسار Hard Currency Engine، اختبارات لها، وCI على Python 3.12، مع خطة استرجاع موثقة. لا تغيير في المنصة التعليمية المجمّدة ولا إعادة إدخال للوحدات المسحوبة.",
   "standards": [
     "clean-code-book"
   ],
@@ -15,57 +15,52 @@
     {
       "standard": "clean-code-book",
       "paths": [
-        "CLAUDE.md",
-        "README.md",
-        "README.ar.md",
-        "AGENTS.md",
-        "docs/archive/diagnostics/PHASE0_FORENSIC_REPORT_2026-10-02.md"
+        "scripts/fitness/check_hard_currency_engine.py",
+        "tests/fitness/test_check_hard_currency_engine.py",
+        "tools/hard_currency_engine/cli.py",
+        "docs/engineering/VIBE_CODING_RECOVERY_PLAN.md"
       ],
-      "gate": "python3 scripts/fitness/check_documentation_contract.py && python3 scripts/fitness/check_constitution_reality.py && python3 scripts/fitness/check_memory_coherence.py && python3 scripts/fitness/check_authority_links.py && CODE_ACCEPTANCE_BASE_SHA=359d4e3458e47688aee53c04c0f1380df20c4902 python3 scripts/fitness/check_outbound_before_research.py",
-      "application_ar": "الاسم يقول ما يفعل: ترويسة الدستور تقول الآن ما هو المنتج النشط وما هو المُجمَّد بدل أن تُعرِّف المشروع بالمهمّة المُجمَّدة وحدها — مصدرٌ واحد للقرار (D-300 في .memory/decisions.md) واللافتات تشير إليه ولا تنسخ أرقامه؛ وسقف CLAUDE.md (1262 سطراً) محفوظ بتعديلٍ صافي الصفر، والبوابات الأربع تُثبته خضراء."
+      "gate": "python scripts/fitness/check_hard_currency_engine.py && python -m pytest -q tests/unit/tools/test_hard_currency_engine.py tests/fitness/test_check_hard_currency_engine.py",
+      "application_ar": "حدود CLI صريحة، فشل مغلق، اختبار حتمي، وعدم خلط الوحدات المسحوبة بمسار العميل."
     }
   ],
   "production": {
-    "owner": "governance",
-    "status": "DOCS_ONLY_NO_RUNTIME_CHANGE",
+    "owner": "hard-currency-engine",
+    "status": "QUALITY_GATE_ONLY_NO_RUNTIME_BEHAVIOR_CHANGE",
     "interfaces": [
-      "أسطح توثيق فقط: ترويسة CLAUDE.md · ملاحظة الحالة التجارية في README.md/README.ar.md · قسم إقلاع الوكلاء في AGENTS.md — لا مسار تشغيلٍ يُلمس"
+      "CLI france/belgium/crm كما هي؛ البوابة تراقب العقد ولا توسعها"
     ],
     "runtime_evidence_paths": [
-      "CLAUDE.md",
-      "README.md",
-      "README.ar.md",
-      "AGENTS.md",
-      "docs/archive/diagnostics/PHASE0_FORENSIC_REPORT_2026-10-02.md"
+      "tools/hard_currency_engine/cli.py",
+      "scripts/fitness/check_hard_currency_engine.py"
     ],
-    "failure_behavior_ar": "تغيير توثيقٍ فقط: لا مسار تشغيل يمكن أن يفشل. الفشل الوحيد الممكن بوّابةٌ حمراء (عقد التوثيق · واقع الدستور · اتساق الذاكرة · روابط السلطة) وتُسمّي سببها — وهو الفشل المطلوب.",
-    "observability_ar": "البوابات الأربع تعمل محلياً وفي CI (guardrails/doc-integrity) ومخرجاتها المطبوعة هي الرصد؛ لا مقياس Prometheus جديداً لأن لا سلوك تشغيلياً جديداً.",
-    "security_boundary_ar": "لا كود ولا أسرار ولا بيانات: لا أثر على أيّ حدٍّ أمني. تقرير المرحلة 0 لا ينقل أيّ قيمة سرٍّ — أدون النوع والمكان والفعل المطلوب فقط (بروتوكول §8).",
-    "rollback_ar": "git revert يعيد النصوص كما كانت — لا هجرة ولا بيانات ولا حالة."
+    "failure_behavior_ar": "فشل البوابة أو الاختبار يمنع الدمج؛ انقطاع الشبكة في فحص فرنسا يبقى حالة غير متاحة ولا يتحول إلى نجاح.",
+    "observability_ar": "مخرجات البوابة PASS/FAIL ومخرجات الاختبارات؛ لا ادعاء بصحة قانونية أو اتصال حي.",
+    "security_boundary_ar": "لا إرسال بريد أو اتصال خارجي جديد؛ CRM ينشئ مسودات فقط، والوحدات المسحوبة غير مستوردة في CLI.",
+    "rollback_ar": "git revert للتغيير؛ لا هجرة ولا تعديل بيانات."
   },
   "commercial_trace": {
     "offer_ids": [
       "fr-be-einvoicing-referential-cleansing"
     ],
-    "customer_problem_ar": "المشكلة الداخلية التي تخدم العميل: الوكيل الذي يُكلَّف بعملٍ لا يرى في دستوره إلا مهمّة المنصّة المُجمَّدة، فيصرف وقت الإسفين على ما حظرَه المالك — والتقرير الجنائي قاسها: 62٪ من الأسطر في الأسبوعين بعد الاستيراد وثائقُ بحثٍ مقابل 8٪ أدوات (D-297).",
-    "value_hypothesis_ar": "أوّل ما يقرأه أيّ وكيلٍ أو مساهمٍ يصبح قرار المالك D-300 نفسه، فيتوجّه العمل الهندسي المسموح إلى صحّة أداة الإسفين وصدق CI — فرضيّةٌ تنظيمية تُقاس بمراجعة ما يُقترَح من عملٍ لاحقاً.",
-    "foreign_currency_path_ar": "غير مباشر ولا يُدَّعى إيرادٌ هنا: يمنع تسريب وقت الإسفين إلى المنصّة المُجمَّدة. المسار المالي يبقى ما حدّده الدوسييه §12 (أفعال المالك البشرية المسجَّلة في السجلّ).",
-    "foundation_exception_ar": "تغيير توثيقٍ بلا كود — الاستثناء من «لا عمل قبل أوّل دفعة» هو نفس نصّ D-300: «ما يُبقي CI صادقاً»، ووثيقةٌ تُخفي قرار المنتج عن كلّ وكيلٍ قادم فشلٌ صامتٌ في المسار المعرفي."
+    "customer_problem_ar": "منع تسليم أداة تنظيف مراجع فوترة غير قابلة لإعادة الإنتاج أو تختلط فيها المسارات المسحوبة.",
+    "value_hypothesis_ar": "بوابة صغيرة واختبارات حتمية تقلل خطر كسر ممرات France/Belgium/CRM قبل تسليم مسودة أو تقرير.",
+    "foreign_currency_path_ar": "تمكين غير مباشر للعرض؛ لا تُدّعى صفقة أو إيراد جديد.",
+    "foundation_exception_ar": "تغيير حوكمة جودة لمسار الإسفين، لا ميزة منتج ولا ترقية لحالة الإثبات."
   },
   "deletions": {
     "count": 0,
     "paths": [],
-    "policy_ar": "صفر حذف: تعديلات نصّية على ملفّاتٍ قائمة + ملفّان مضافان (التقرير الأرشيفي والحزمة)."
+    "policy_ar": "صفر حذف؛ كل التغيير إضافة بوابة واختبار ووثيقة وWorkflow."
   },
   "verification": {
     "result": "PASS",
     "commands": [
-      "python3 scripts/fitness/check_documentation_contract.py — ✅ 51 وثيقة حية، الروابط والمسارات متسقة",
-      "python3 scripts/fitness/check_constitution_reality.py — ✅ بلا تناقض ذاتي · الأرقام مشتقّة (39 مهارة · 15 عقداً · 13 خدمة · تغطية 73 · 12 وظائف) · دَينٌ مُجمَّد: 0",
-      "python3 scripts/fitness/check_memory_coherence.py — ✅ الفهرس طازج والترتيب صارم وسقف الدستور محفوظ (CLAUDE.md = 1262 سطراً) والقفل حديث",
-      "python3 scripts/fitness/check_authority_links.py — ✅ روابط ملفّات السلطة الـ5 كلّها تصل",
-      "CODE_ACCEPTANCE_BASE_SHA=359d4e3458e47688aee53c04c0f1380df20c4902 python3 scripts/fitness/check_outbound_before_research.py — ✅ لا ملفّ بحث/عرض يدخل بلا صفّ اتصال",
-      "wc -l CLAUDE.md — 1262 (السقف 1262: تعديلٌ صافي الصفر)"
+      "python scripts/fitness/check_hard_currency_engine.py — PASS",
+      "python -m unittest tests.unit.tools.test_hard_currency_engine -q — PASS (39 tests)",
+      "python -m compileall -q scripts/fitness/check_hard_currency_engine.py tests/fitness/test_check_hard_currency_engine.py tools/hard_currency_engine — PASS",
+      "git diff --check — PASS",
+      "python -m pytest ... — NOT RUN: pytest is not installed in the local sandbox; CI installs pytest 8.3.5"
     ]
   },
   "curriculum": {
@@ -147,24 +142,22 @@
     "owner": "curriculum-governance"
   },
   "changed_paths": [
-    "CLAUDE.md",
-    "README.md",
-    "README.ar.md",
-    "AGENTS.md",
-    "docs/archive/diagnostics/PHASE0_FORENSIC_REPORT_2026-10-02.md",
+    "scripts/fitness/check_hard_currency_engine.py",
+    "tests/fitness/test_check_hard_currency_engine.py",
+    ".github/workflows/hard-currency-engine.yml",
+    "docs/engineering/VIBE_CODING_RECOVERY_PLAN.md",
     "docs/changes/CURRENT_CODE_ACCEPTANCE_PACKET.json"
   ],
   "git_change_snapshot": {
-    "base_ref": "359d4e3458e47688aee53c04c0f1380df20c4902",
+    "base_ref": "3d27eb16d2524e7fdd5888d7dece657dd0b3f717",
     "changed_paths_excluding_packet": [
-      "AGENTS.md",
-      "CLAUDE.md",
-      "README.ar.md",
-      "README.md",
-      "docs/archive/diagnostics/PHASE0_FORENSIC_REPORT_2026-10-02.md"
+      ".github/workflows/hard-currency-engine.yml",
+      "docs/engineering/VIBE_CODING_RECOVERY_PLAN.md",
+      "scripts/fitness/check_hard_currency_engine.py",
+      "tests/fitness/test_check_hard_currency_engine.py"
     ],
-    "content_sha256_excluding_packet": "80611fc769be391545a87fdfb123e614b0cbe0ac4d7356268cf8bf0173178e0a",
-    "refreshed_on": "2026-10-02",
-    "refresh_command": "python3 scripts/research/refresh_acceptance_diff_snapshot.py"
+    "content_sha256_excluding_packet": "cbba1c3cc0e606774fb493a41935c0d4d251ab9718a527e13ea9dafc2090afa0",
+    "refreshed_on": "2026-10-03",
+    "refresh_command": "manual refresh for HCE quality packet"
   }
 }

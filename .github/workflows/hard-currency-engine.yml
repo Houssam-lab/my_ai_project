@@ -1,0 +1,52 @@
+name: Hard Currency Engine Quality Gate
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "tools/hard_currency_engine/**"
+      - "tests/unit/tools/**"
+      - "tests/fitness/test_check_hard_currency_engine.py"
+      - "scripts/fitness/check_hard_currency_engine.py"
+      - ".github/workflows/hard-currency-engine.yml"
+  push:
+    branches: [main]
+    paths:
+      - "tools/hard_currency_engine/**"
+      - "tests/unit/tools/**"
+      - "tests/fitness/test_check_hard_currency_engine.py"
+      - "scripts/fitness/check_hard_currency_engine.py"
+      - ".github/workflows/hard-currency-engine.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: hce-quality-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  PYTHON_VERSION: "3.12"
+  PYTHONDONTWRITEBYTECODE: "1"
+
+jobs:
+  quality:
+    name: hce-quality
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      - name: Install pinned test runner
+        run: python -m pip install --disable-pip-version-check "pytest==8.3.5"
+      - name: Run bounded-path gate
+        run: python scripts/fitness/check_hard_currency_engine.py
+      - name: Run HCE unit and gate tests
+        run: >-
+          python -m pytest -q
+          tests/unit/tools/test_hard_currency_engine.py
+          tests/fitness/test_check_hard_currency_engine.py
+          --tb=short
