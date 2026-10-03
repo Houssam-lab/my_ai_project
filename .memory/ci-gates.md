@@ -16,7 +16,14 @@
 > them. All seven are wired now and `check_governance_registry.py` makes an
 > eighth impossible. Total gates on disk (derived, verified in CI):
 >
-> <!-- derived:gates_total=102 -->
+> <!-- derived:gates_total=104 -->
+> **104** on disk in `scripts/fitness/` + `tools/ci/` — 103 executed, 1 declared debt
+> **2026-10-03 honesty note:** the commit that added `check_hard_currency_engine.py`
+> and `check_vibe_coding_constitution.py` (102 → 104) shipped without refreshing this
+> derived marker — `check_governance_registry.py` turned `main` red exactly as designed,
+> and the same commit also left both gates without a row in `NEGATIVE_PROOFS.json`
+> (caught by `check_gate_negative_proof.py`). Both gates now carry real negative-proof
+> tests (a deliberately broken tree must turn them red), not merely pass-proofs.
 > **102** on disk in `scripts/fitness/` + `tools/ci/` — 101 executed, 1 declared debt
 > **101** on disk in `scripts/fitness/` + `tools/ci/` — 100 executed, 1 declared debt
 > **100** on disk in `scripts/fitness/` + `tools/ci/` — 99 executed, 1 declared debt

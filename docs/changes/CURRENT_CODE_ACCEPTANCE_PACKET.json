@@ -157,7 +157,7 @@
     "docs/changes/CURRENT_CODE_ACCEPTANCE_PACKET.json"
   ],
   "git_change_snapshot": {
-    "base_ref": "6b7c21150cefe4df5a1ff52e62e24be75a820117",
+    "base_ref": "origin/main",
     "changed_paths_excluding_packet": [
       "docs/commercial/MASTER_CLIENT_TARGETS_GLOBAL_2026.csv",
       "docs/commercial/outreach/drafts_2026/06_FR_VULN_SECTOR_Groupe_Spie_Batignolles__Filiales_regionales_.txt",
@@ -166,6 +166,6 @@
     ],
     "content_sha256_excluding_packet": "4a09aedd26130f66e4d4dbfe9b1d6ea9a7d1f0587038157c9656abd4207adb20",
     "refreshed_on": "2026-10-03",
-    "refresh_command": "python inline packet refresh for CRM draft truth guard"
+    "refresh_command": "python3 scripts/research/refresh_acceptance_diff_snapshot.py"
   }
 }
