@@ -179,7 +179,9 @@ def test_committed_crm_drafts_state_no_rate_and_no_guarantee() -> None:
 def test_committed_crm_drafts_match_generated_output(tmp_path: Path) -> None:
     """The committed draft folder is a reproducible view, not a second source of truth."""
     dispatch_campaign(MASTER_TARGETS, tmp_path)
-    committed = {path.name: path.read_text(encoding="utf-8") for path in COMMITTED_DRAFTS.glob("*.txt")}
+    committed = {
+        path.name: path.read_text(encoding="utf-8") for path in COMMITTED_DRAFTS.glob("*.txt")
+    }
     generated = {path.name: path.read_text(encoding="utf-8") for path in tmp_path.glob("*.txt")}
     assert sorted(committed) == sorted(generated)
     differing = sorted(name for name in committed if committed[name] != generated[name])
@@ -203,15 +205,14 @@ def test_committed_belgium_demo_artifacts_match_generator(tmp_path: Path) -> Non
     source = DEMO / "DEMO_BELGIUM_PEPPOL_20_FICHES.csv"
     results = audit_belgian_csv(source)
     report = format_belgian_report(results, source.name, report_date=DEMO_REPORT_DATE)
-    assert report == (DEMO / "RAPPORT_DIAGNOSTIC_BELGIQUE_PEPPOL.md").read_text(
-        encoding="utf-8"
-    )
+    assert report == (DEMO / "RAPPORT_DIAGNOSTIC_BELGIQUE_PEPPOL.md").read_text(encoding="utf-8")
 
     generated_csv = tmp_path / "DEMO_BELGIUM_PEPPOL_20_FICHES_ASSAINI.csv"
     export_cleaned_belgian_csv(results, generated_csv)
-    assert generated_csv.read_bytes() == (
-        DEMO / "DEMO_BELGIUM_PEPPOL_20_FICHES_ASSAINI.csv"
-    ).read_bytes()
+    assert (
+        generated_csv.read_bytes()
+        == (DEMO / "DEMO_BELGIUM_PEPPOL_20_FICHES_ASSAINI.csv").read_bytes()
+    )
 
 
 def test_one_package_price_everywhere() -> None:

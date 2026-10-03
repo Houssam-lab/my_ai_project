@@ -164,7 +164,7 @@
       "docs/commercial/outreach/drafts_2026/07_FR_VULN_SECTOR_Pomona__Reseau_distribution_alimentaire_.txt",
       "tests/unit/tools/test_outreach_truth.py"
     ],
-    "content_sha256_excluding_packet": "4a09aedd26130f66e4d4dbfe9b1d6ea9a7d1f0587038157c9656abd4207adb20",
+    "content_sha256_excluding_packet": "60884028a676167891218f3db0d64e993381f0ff940168c61e2224a402ed063d",
     "refreshed_on": "2026-10-03",
     "refresh_command": "python3 scripts/research/refresh_acceptance_diff_snapshot.py"
   }
