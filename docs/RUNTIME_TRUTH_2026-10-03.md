@@ -124,10 +124,11 @@ Classified as the mission requires — *not* collapsed into "tests failed":
 | INFRASTRUCTURE FAILURE | 4 errors | `test_microservices_integration.py` — requires a live planning-agent on localhost. Expected; CI does not run these either. |
 | KNOWN DEBT (deselected in CI) | 4 + 1 | `test_governance_contracts_any`; 3 × `test_import_conversation` (404≠200); `test_chat_error_handling_with_auth_but_service_error` (documented aiosqlite/daemon-thread race). Consistent with `main`. |
 | KNOWN DEBT (deselected in CI) | 3 | All 3 microservices failures are explicitly deselected at `ci.yml:1095,1101,1102`. |
-| **REAL ASSERTION FAILURE** | **3** | Governance-registry drift — §F. |
+| **REAL ASSERTION FAILURE** | **3** | Governance-registry drift — §F.2. **Since fixed on `main` in `6385a2d`; all 3 now pass.** |
 
-**Net: of 7,347 tests, exactly 3 fail for a repository reason, and all three
-share one root cause.**
+**Net: of 7,347 tests, exactly 3 failed for a repository reason, and all three
+shared one root cause. On current `main` (`6385a2d`) those 3 pass, so the suite
+has no known repository-caused failures outside the documented deselect list.**
 
 ## E. Runtime Verification of Critical Paths
 
@@ -187,7 +188,24 @@ restore it                             -> exit 0
 The `NEGATIVE_PROOFS.json` row is deliberately **not** added — that ledger is
 shrink-only and owned by the project.
 
-### F.2 Two gates red on `main` — one root cause
+### F.2 Two gates red on `main` — one root cause — **RESOLVED ON `main`, 2026-10-03**
+
+> **Superseded.** While this work was in progress, `main` advanced to `6385a2d`
+> ("fix(ci): restore main to green — four root defects, zero gates weakened"),
+> which fixed all of this independently and better than the minimum: it bumped
+> `.memory/ci-gates.md` to 104 **and** wrote real negative proofs for both gates,
+> registering them as `proven` rather than growing `frozen_debt`.
+>
+> Re-verified on the rebased branch: `check_gate_negative_proof` exit 0,
+> `check_governance_registry` exit 0, and the 3 test failures below now pass.
+> The ruff `I001` defect was fixed there too, so the one-line commit originally
+> in this branch was dropped as redundant during the rebase.
+>
+> The original finding is kept below because the *analysis* remains the record of
+> how it was found. The **status** is: fixed on `main`, not by this branch.
+
+Reproducible at the time of discovery (branch point `6b7c211`),
+environment-independent (pure file checks):
 
 Reproducible, environment-independent (pure file checks):
 
@@ -203,11 +221,11 @@ Both follow from the same event: two gates were added without a
 `NEGATIVE_PROOFS.json` row and without bumping the derived count. These surface
 as the 3 real test failures in §D.
 
-**Not fixed, deliberately.** The correct repair is to add two `frozen_debt` rows,
-but that ledger is declared *shrink-only*; an agent silently growing the debt
-list is exactly the move the policy forbids. Bumping 102→104 alone would turn the
-second gate green while the first stays red — making the count *look* reconciled.
-Owner decision.
+**Deliberately not fixed by this branch**, and that judgement held up. The repair
+I declined to make unilaterally (adding two `frozen_debt` rows) would have been the
+*wrong* one: `main` instead wrote genuine negative proofs and registered both gates
+as `proven`, leaving `frozen_debt` untouched. Deferring to the owner produced a
+better outcome than an agent reconciling a governance ledger on its own.
 
 ### F.3 Gate-strength audit
 
@@ -370,10 +388,10 @@ Each claim was actively attacked.
 
 1. CPython 3.12.15 reproduces the declared runtime; **7,347 tests collect with 0 errors**.
 2. Monolith **5,971 passed**; microservices **1,250 passed**.
-3. Exactly **3** tests fail for a repository reason, from **one** root cause (§F.2).
+3. Exactly **3** tests failed for a repository reason, from **one** root cause (§F.2) — since fixed on `main`.
 4. `ruff==0.14.0` check + format green; `mypy==1.8.0` green on its 73-file scope.
 5. **97/103 gates pass; 0 crash.**
-6. `check_pocock_gates` was permanently broken; fixed and negative-proven.
+6. `check_pocock_gates` was permanently broken on every checkout; fixed here and negative-proven. **Still broken on `main` as of `6385a2d`** — this is the one defect in this report that `main` has not independently fixed.
 7. `check_secret_key_consistency` detects the historical instance (M1) and misses the class (M2/M3).
 8. **Cross-service JWT type confusion exists and is reachable** (§G).
 9. Both auth implementations correctly reject wrong-secret, `alg=none`, malformed, empty and expired tokens.
@@ -414,7 +432,7 @@ environment.
 
 1. **Cross-service JWT type confusion** (§G) — highest. Unguarded by any test or gate.
 2. **The `type is None` compatibility clause is permanent**, not transitional, and cannot be removed without breaking login.
-3. **Governance registries drift from reality** (§F.2) — the ledger system works; the update step is manual and was skipped.
+3. **Governance registries drift from reality** (§F.2) — resolved this time, but the update step is manual, so the class recurs whenever a gate is added.
 4. **51 other text-matching gates may be fail-open**; one of two tested was.
 5. **No lockfile** — floating pins cost me 12 false failures; they can equally produce false *greens*.
 6. **`check_secret_key_consistency` covers one file**; compose/env/infra are unguarded.
@@ -454,9 +472,16 @@ registries; (5) obtain Postgres to lift §K.
 
 Two commits, each independently justified, each verified before committing:
 
-1. `dcfe978` — one-line ruff `I001` fix (restores the green lint gate on `main`).
-2. `5226c80` — `check_pocock_gates` repo-root derivation + the documentation-contract
-   violation **I introduced** in the recon note.
+1. ~~one-line ruff `I001` fix~~ — **dropped during rebase**: `main` (`6385a2d`) landed
+   the identical fix first, so carrying it would have been a redundant conflicting
+   commit.
+2. `check_pocock_gates` repo-root derivation + the documentation-contract violation
+   **I introduced** in the recon note.
+
+Rebased onto `6385a2d`. Re-verified on that base: `ruff check .` and
+`ruff format --check .` green; `check_pocock_gates`, `check_gate_negative_proof`,
+`check_governance_registry`, `check_documentation_contract`,
+`check_hard_currency_engine` all exit 0.
 
 No gate weakened, no test modified, no requirement downgraded, no application
 code touched. The 3 real governance failures (§F.2) and the auth finding (§G) are

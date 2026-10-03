@@ -90,9 +90,14 @@ interpreter and therefore need 3.12. **UNVERIFIED in this environment.**
 
 ---
 
-## 4. Defect found and fixed (VERIFIED)
+## 4. Defect found (VERIFIED) — since fixed on `main` by someone else
 
-`main` was **red on its own lint gate**.
+> **Status update (same day):** `main` advanced to `6385a2d`, which contains the
+> identical one-line fix. The commit originally carried on this branch was dropped
+> as redundant during the rebase. The finding below was correct; the credit is not
+> this branch's.
+
+`main` was **red on its own lint gate** at branch point `6b7c211`.
 
 - `ci.yml:53` installs `ruff==0.14.0`; `ci.yml:73` runs `ruff check .`.
 - That command failed with one `I001` on
