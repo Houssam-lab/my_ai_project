@@ -7,7 +7,6 @@
 > **دستور منع Vibe Coding (D-306):** قبل أي حرف، يجب تحميل [`docs/architecture/VIBE_CODING_PREVENTION_CONSTITUTION.md`](docs/architecture/VIBE_CODING_PREVENTION_CONSTITUTION.md) واجتياز `scripts/fitness/check_vibe_coding_constitution.py`. الخطة، التصميم، الاختبار، المراجعة، CI، الأمن، الرجوع، وسجل الإثبات إلزامية؛ لا حذف ولا تجاوز صامت.
 
 ---
-
 ## 0. Core System Doctrine: The Cognitive Lab
 
 **Single writer. Single terminal frame. No silent failure.** These are operational laws, not aspirations.

@@ -64,7 +64,8 @@
       "python scripts/fitness/check_documentation_contract.py — PASS (52 وثائق حية)",
       "git diff --check — PASS",
       "python scripts/fitness/check_code_acceptance.py — pending until packet is included in this diff",
-      "python -m compileall -q scripts/fitness/check_vibe_coding_constitution.py tests/fitness/test_check_vibe_coding_constitution.py — PASS"
+      "python -m compileall -q scripts/fitness/check_vibe_coding_constitution.py tests/fitness/test_check_vibe_coding_constitution.py — PASS",
+      "python scripts/fitness/check_memory_coherence.py — PASS (CLAUDE.md restored to 1262 lines)"
     ]
   },
   "curriculum": {
@@ -156,18 +157,11 @@
     "tests/fitness/test_check_vibe_coding_constitution.py"
   ],
   "git_change_snapshot": {
-    "base_ref": "556f0c3",
+    "base_ref": "428c56b",
     "changed_paths_excluding_packet": [
-      ".github/workflows/ci.yml",
-      "AGENTS.md",
-      "CLAUDE.md",
-      "docs/DOCUMENTATION_INDEX.md",
-      "docs/DOCUMENTATION_MANIFEST.json",
-      "docs/architecture/VIBE_CODING_PREVENTION_CONSTITUTION.md",
-      "scripts/fitness/check_vibe_coding_constitution.py",
-      "tests/fitness/test_check_vibe_coding_constitution.py"
+      "CLAUDE.md"
     ],
-    "content_sha256_excluding_packet": "c938ab65562a81b6275e10557e32348ceb248791025cb9942adb1a2b5bd646db",
+    "content_sha256_excluding_packet": "cbd7427b94c95175326a5c34e320e2ca0d2882236d6950ffdbdb4cfc9c2818da",
     "refreshed_on": "2026-10-03",
     "refresh_command": "manual refresh for D-306 constitution"
   }
