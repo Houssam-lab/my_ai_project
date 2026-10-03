@@ -1,9 +1,9 @@
 {
   "$schema_version": 1,
-  "packet_id": "CAP-2026-10-03-vibe-coding-constitution",
+  "packet_id": "CAP-2026-10-03-crm-draft-truth-guard",
   "status": "READY_FOR_GATE",
   "decision": "D-277",
-  "decision_of_change": "توحيد ما تم بناؤه في إسفين HCE داخل دستور حيّ لمنع Vibe Coding: الدستور يطبّق على كل وكيل وكل تغيير، ومربوط بترويسات الإقلاع وفهرس التوثيق ومانيفسته وبوابة guardrails المطلوبة. لا يفتح المنصة التعليمية المجمدة ولا يرفع أي ادعاء إنتاجي.",
+  "decision_of_change": "تحويل فشلٍ مقيس في مسودات CRM إلى معرفة محروسة: مسودتان نشطتان من HCE حملتا نسباً غير مقيسة (40% و99%) داخل نص يقرأه المشتري، خلاف D-304. التغيير يبدّل العبارات إلى آلية قابلة للدفاع ويضيف اختباراً يمنع عودة النسب أو الضمانات في المسودات المولدة والمحفوظة. لا يفتح المنصة التعليمية المجمدة.",
   "standards": [
     "clean-code-book"
   ],
@@ -15,57 +15,60 @@
     {
       "standard": "clean-code-book",
       "paths": [
-        "docs/architecture/VIBE_CODING_PREVENTION_CONSTITUTION.md",
-        "AGENTS.md",
-        "CLAUDE.md",
-        "scripts/fitness/check_vibe_coding_constitution.py",
-        ".github/workflows/ci.yml",
-        "docs/DOCUMENTATION_INDEX.md",
-        "docs/DOCUMENTATION_MANIFEST.json"
+        "docs/commercial/MASTER_CLIENT_TARGETS_GLOBAL_2026.csv",
+        "docs/commercial/outreach/drafts_2026/06_FR_VULN_SECTOR_Groupe_Spie_Batignolles__Filiales_regionales_.txt",
+        "docs/commercial/outreach/drafts_2026/07_FR_VULN_SECTOR_Pomona__Reseau_distribution_alimentaire_.txt",
+        "tests/unit/tools/test_outreach_truth.py",
+        "tools/hard_currency_engine/crm_dispatcher.py"
       ],
-      "gate": "python scripts/fitness/check_vibe_coding_constitution.py && python scripts/fitness/check_documentation_contract.py && git diff --check",
-      "application_ar": "الدستور يعرّف قوانين السياق والتصميم والاختبار والمراجعة والأمن والرجوع وسجل الإثبات؛ الفارض يتحقق من وجود القوانين وربط AGENTS وCLAUDE والفهرس والمانيفست وrequired-ci."
+      "gate": "python scripts/fitness/check_hard_currency_engine.py && python scripts/fitness/check_documentation_contract.py && python scripts/fitness/check_code_acceptance.py && git diff --check",
+      "application_ar": "نصوص CRM التي يقرأها المشتري تُعامل ككود قابل للاختبار: لا نسب غير مقيسة ولا ضمانات. الاختبار يشغل dispatch_campaign على المصدر الحي ويفحص أيضاً المسودات المحفوظة ذات STATUS: DRAFT."
     }
   ],
   "production": {
-    "owner": "governance",
-    "status": "DOCUMENTED_AND_GUARDED_NO_RUNTIME_FEATURE_CHANGE",
+    "owner": "hard-currency-engine / commercial-truth",
+    "status": "DATA_COPY_CHANGE_WITH_REGRESSION_GUARD_NO_RUNTIME_PLATFORM_FEATURE",
     "interfaces": [
-      "إقلاع الوكيل عبر CLAUDE.md وAGENTS.md؛ بوابة CI داخل guardrails؛ دستور حي في docs/architecture"
+      "tools/hard_currency_engine/cli.py crm يقرأ MASTER_CLIENT_TARGETS_GLOBAL_2026.csv ويولد مسودات outreach/drafts_2026"
     ],
     "runtime_evidence_paths": [
-      "scripts/fitness/check_vibe_coding_constitution.py",
-      ".github/workflows/ci.yml",
-      "docs/architecture/VIBE_CODING_PREVENTION_CONSTITUTION.md"
+      "tools/hard_currency_engine/crm_dispatcher.py",
+      "docs/commercial/MASTER_CLIENT_TARGETS_GLOBAL_2026.csv",
+      "docs/commercial/outreach/drafts_2026",
+      "tests/unit/tools/test_outreach_truth.py"
     ],
-    "failure_behavior_ar": "غياب الدستور أو القانون أو الرابط أو سلك CI يفشل البوابة؛ لا توجد استثناءات صامتة.",
-    "observability_ar": "مخرجات البوابة PASS/FAIL، وعقد التوثيق يثبت الروابط والمسارات والأوامر.",
-    "security_boundary_ar": "لا أسرار ولا اتصال خارجي ولا سلوك إنتاجي جديد؛ السياسة تفرض أقل صلاحية وسجل الإثبات.",
-    "rollback_ar": "git revert يعيد الوثائق والأسلاك دون هجرة أو حذف بيانات."
+    "failure_behavior_ar": "إذا عادت نسبة مئوية أو ضمان إلى مسودة CRM نشطة، يفشل اختبار truth قبل الإرسال؛ المسودات المسحوبة تبقى WITHDRAWN ولا تُرسل.",
+    "observability_ar": "الدليل هو مخرجات dispatch_campaign وعدد المسودات النشطة، إضافة إلى فشل/نجاح اختبار test_outreach_truth.",
+    "security_boundary_ar": "لا أسرار، لا شبكة، لا إرسال بريد. التغيير نصي داخل بيانات ومسودات محلية فقط.",
+    "rollback_ar": "git revert يعيد النصوص والاختبار؛ لا هجرة بيانات ولا أثر خارجي لأن المسودات لم تُرسل."
   },
   "commercial_trace": {
     "offer_ids": [
       "fr-be-einvoicing-referential-cleansing"
     ],
-    "customer_problem_ar": "منع تسليم أداة تنظيف مراجع فوترة غير قابلة لإعادة الإنتاج أو تختلط فيها المسارات المسحوبة.",
-    "value_hypothesis_ar": "بوابة صغيرة واختبارات حتمية تقلل خطر كسر ممرات France/Belgium/CRM قبل تسليم مسودة أو تقرير.",
-    "foreign_currency_path_ar": "تمكين غير مباشر للعرض؛ لا تُدّعى صفقة أو إيراد جديد.",
-    "foundation_exception_ar": "تغيير حوكمة وجودة عام يحمي مسار عرض FR/BE النشط؛ لا يعلن إيرادًا ولا يفتح المنصة المجمدة."
+    "customer_problem_ar": "المشتري يقرأ مسودة outreach؛ نسبة غير مقيسة أو ضمان غير مثبت يعرّض العرض لفقدان الثقة ويخالف D-304.",
+    "value_hypothesis_ar": "نزع الادعاءات غير المقيسة من مسودات CRM يزيد صدق الرسالة ويقلل خطر وعد لا يستطيع HCE إثباته.",
+    "foreign_currency_path_ar": "يحمي مسار التواصل للعرض النشط FR/BE؛ لا يدّعي صفقة أو إيراداً جديداً.",
+    "foundation_exception_ar": "تغيير جودة وحوكمة تجارية حول الإسفين النشط، لا ميزة منصة تعليمية ولا توسعة عرض جديد."
   },
   "deletions": {
     "count": 0,
     "paths": [],
-    "policy_ar": "صفر حذف؛ كل التغيير إضافة بوابة واختبار ووثيقة وWorkflow."
+    "policy_ar": "صفر حذف؛ تعديل نصوص وإضافة اختبار فقط."
   },
   "verification": {
     "result": "PASS",
     "commands": [
-      "python scripts/fitness/check_vibe_coding_constitution.py — PASS",
-      "python scripts/fitness/check_documentation_contract.py — PASS (52 وثائق حية)",
+      "reproducer before fix: dispatch_campaign generated 12 active drafts with 2 unmeasured-claim problems (40%, 99%) — FAIL as expected",
+      "manual execution of tests.unit.tools.test_outreach_truth functions — PASS",
+      "CSV rectangularity check for MASTER_CLIENT_TARGETS_GLOBAL_2026.csv — PASS (16 fields, 0 malformed rows)",
+      "committed CRM drafts equal deterministic dispatch_campaign output — PASS (27/27 files)",
+      "committed France/Belgium demo reports and cleaned CSV equal deterministic generators with fixed date — PASS",
       "python scripts/fitness/check_hard_currency_engine.py — PASS",
-      "python -m pytest ... --confcutdir=tests/unit/tools --cov-fail-under=70 — PASS locally: 41 tests, 83.09%",
-      "ruff check and ruff format --check on changed Python files — PASS",
-      "git diff --check — PASS"
+      "python tools/hard_currency_engine/cli.py crm docs/commercial/MASTER_CLIENT_TARGETS_GLOBAL_2026.csv --output-dir /tmp/hce_exp_after/drafts — PASS (12 drafts)",
+      "python scripts/fitness/check_documentation_contract.py — PASS",
+      "git diff --check — PASS",
+      "python scripts/fitness/check_code_acceptance.py — PASS after packet refresh"
     ]
   },
   "curriculum": {
@@ -147,33 +150,22 @@
     "owner": "curriculum-governance"
   },
   "changed_paths": [
-    ".github/workflows/ci.yml",
-    "AGENTS.md",
-    "CLAUDE.md",
-    "docs/DOCUMENTATION_INDEX.md",
-    "docs/DOCUMENTATION_MANIFEST.json",
-    "docs/architecture/VIBE_CODING_PREVENTION_CONSTITUTION.md",
-    "scripts/fitness/check_vibe_coding_constitution.py",
-    "tests/fitness/test_check_vibe_coding_constitution.py"
+    "docs/commercial/MASTER_CLIENT_TARGETS_GLOBAL_2026.csv",
+    "docs/commercial/outreach/drafts_2026/06_FR_VULN_SECTOR_Groupe_Spie_Batignolles__Filiales_regionales_.txt",
+    "docs/commercial/outreach/drafts_2026/07_FR_VULN_SECTOR_Pomona__Reseau_distribution_alimentaire_.txt",
+    "tests/unit/tools/test_outreach_truth.py",
+    "docs/changes/CURRENT_CODE_ACCEPTANCE_PACKET.json"
   ],
   "git_change_snapshot": {
-    "base_ref": "3d27eb16d2524e7fdd5888d7dece657dd0b3f717",
+    "base_ref": "6b7c21150cefe4df5a1ff52e62e24be75a820117",
     "changed_paths_excluding_packet": [
-      ".github/workflows/ci.yml",
-      ".github/workflows/hard-currency-engine.yml",
-      "AGENTS.md",
-      "CLAUDE.md",
-      "docs/DOCUMENTATION_INDEX.md",
-      "docs/DOCUMENTATION_MANIFEST.json",
-      "docs/architecture/VIBE_CODING_PREVENTION_CONSTITUTION.md",
-      "docs/engineering/VIBE_CODING_RECOVERY_PLAN.md",
-      "scripts/fitness/check_hard_currency_engine.py",
-      "scripts/fitness/check_vibe_coding_constitution.py",
-      "tests/fitness/test_check_hard_currency_engine.py",
-      "tests/fitness/test_check_vibe_coding_constitution.py"
+      "docs/commercial/MASTER_CLIENT_TARGETS_GLOBAL_2026.csv",
+      "docs/commercial/outreach/drafts_2026/06_FR_VULN_SECTOR_Groupe_Spie_Batignolles__Filiales_regionales_.txt",
+      "docs/commercial/outreach/drafts_2026/07_FR_VULN_SECTOR_Pomona__Reseau_distribution_alimentaire_.txt",
+      "tests/unit/tools/test_outreach_truth.py"
     ],
-    "content_sha256_excluding_packet": "5a0b4e7566599dc3e28933ff37f14517fc0e7289c3fb93662a32614d38edf33e",
+    "content_sha256_excluding_packet": "4a09aedd26130f66e4d4dbfe9b1d6ea9a7d1f0587038157c9656abd4207adb20",
     "refreshed_on": "2026-10-03",
-    "refresh_command": "manual refresh for D-306 constitution"
+    "refresh_command": "python inline packet refresh for CRM draft truth guard"
   }
 }

@@ -8,7 +8,7 @@ Bonjour,
 
 Votre structure Groupe Spie Batignolles (Filiales regionales) prépare activement l'échéance de la facturation électronique.
 
-Constat terrain : Le BTP cumule 40% des litiges de facturation : nous certifions l'annuaire de vos sous-traitants avant blocage chantier.
+Constat terrain : Les chantiers BTP multiplient les sous-traitants et les factures de situation : je fiabilise l'annuaire de vos sous-traitants avant blocage chantier.
 
 Je prends en charge la fiabilisation de vos fichiers clients/fournisseurs :
 - Contrôle des SIREN/SIRET (clé Luhn) et des numéros de TVA intracommunautaire (clé de contrôle).
