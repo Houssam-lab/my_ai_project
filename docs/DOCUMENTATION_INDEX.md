@@ -36,6 +36,7 @@
 | ملف | الدور |
 |-----|------|
 | [`architecture/MICROSERVICES_CONSTITUTION.md`](architecture/MICROSERVICES_CONSTITUTION.md) | ⚖️ الدستور المعماري (عربي) |
+| [`architecture/VIBE_CODING_PREVENTION_CONSTITUTION.md`](architecture/VIBE_CODING_PREVENTION_CONSTITUTION.md) | ⚖️ دستور منع Vibe Coding (D-306) — إلزام كل وكيل قبل كل حرف، مع بوابة إنفاذ CI |
 | [`architecture/PRINCIPLES.md`](architecture/PRINCIPLES.md) | المبادئ المعمارية |
 | [`adr/`](adr/) | سجلّات ADR (القرارات الحيّة في `.memory/decisions.md`)، ومنها [`ADR-016-live-documentation-contract.md`](adr/ADR-016-live-documentation-contract.md) لعقد التوثيق |
 | [`architecture/`](architecture/) (runbooks: `MASTER_CUTOVER_RUNBOOK` · `PR1..PR5` · `LEGACY_*`) | كتيّبات هجرة الـ strangler-fig |

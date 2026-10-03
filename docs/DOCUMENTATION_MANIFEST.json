@@ -80,6 +80,13 @@
       "status": "live"
     },
     {
+      "path": "docs/architecture/VIBE_CODING_PREVENTION_CONSTITUTION.md",
+      "audience": "coding-agent",
+      "role": "vibe-coding-prevention-constitution",
+      "authority": "primary",
+      "status": "live"
+    },
+    {
       "path": "docs/DOCUMENTATION_INDEX.md",
       "audience": "all",
       "role": "documentation-navigation",

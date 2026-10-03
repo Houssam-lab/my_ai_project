@@ -20,6 +20,10 @@ This project adopts a fusion of two computer science methodologies. All code and
 
 ---
 
+## Vibe Coding Prevention Constitution — Mandatory for Every Character (D-306)
+
+Before writing, modifying, or enabling even one character, every agent MUST load and obey [`docs/architecture/VIBE_CODING_PREVENTION_CONSTITUTION.md`](docs/architecture/VIBE_CODING_PREVENTION_CONSTITUTION.md). It is enforced by `scripts/fitness/check_vibe_coding_constitution.py` inside the required CI guardrails. No agent may weaken, bypass, or convert its failures into warnings. The constitution governs planning, design, tests, review, security, rollback, proof, and zero-deletion policy.
+
 ## Unified Agent Context — Mandatory Boot Contract (D-275)
 
 Before planning, coding, researching, or changing any project asset, every agent MUST load [`docs/governance/AGENT_CONTEXT_REGISTRY.json`](docs/governance/AGENT_CONTEXT_REGISTRY.json) and follow its authority order and boot sequence. The registry connects the product mission, constitutions, runtime truth, reference backbone, commercial offer catalog, architecture, education goals, governance, and evidence rules.

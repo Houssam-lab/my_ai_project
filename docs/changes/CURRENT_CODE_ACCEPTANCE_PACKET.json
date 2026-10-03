@@ -1,9 +1,9 @@
 {
   "$schema_version": 1,
-  "packet_id": "CAP-2026-10-03-hce-quality-gate",
+  "packet_id": "CAP-2026-10-03-vibe-coding-constitution",
   "status": "READY_FOR_GATE",
   "decision": "D-277",
-  "decision_of_change": "تطبيق المرحلة الأولى القابلة للقياس من مبادئ هندسة البرمجيات على إسفين العملة الصعبة فقط: بوابة حتمية لمسار Hard Currency Engine، اختبارات لها، وCI على Python 3.12، مع خطة استرجاع موثقة. لا تغيير في المنصة التعليمية المجمّدة ولا إعادة إدخال للوحدات المسحوبة.",
+  "decision_of_change": "توحيد ما تم بناؤه في إسفين HCE داخل دستور حيّ لمنع Vibe Coding: الدستور يطبّق على كل وكيل وكل تغيير، ومربوط بترويسات الإقلاع وفهرس التوثيق ومانيفسته وبوابة guardrails المطلوبة. لا يفتح المنصة التعليمية المجمدة ولا يرفع أي ادعاء إنتاجي.",
   "standards": [
     "clean-code-book"
   ],
@@ -15,29 +15,33 @@
     {
       "standard": "clean-code-book",
       "paths": [
-        "scripts/fitness/check_hard_currency_engine.py",
-        "tests/fitness/test_check_hard_currency_engine.py",
-        "tools/hard_currency_engine/cli.py",
-        "docs/engineering/VIBE_CODING_RECOVERY_PLAN.md"
+        "docs/architecture/VIBE_CODING_PREVENTION_CONSTITUTION.md",
+        "AGENTS.md",
+        "CLAUDE.md",
+        "scripts/fitness/check_vibe_coding_constitution.py",
+        ".github/workflows/ci.yml",
+        "docs/DOCUMENTATION_INDEX.md",
+        "docs/DOCUMENTATION_MANIFEST.json"
       ],
-      "gate": "python scripts/fitness/check_hard_currency_engine.py && python -m pytest -q tests/unit/tools/test_hard_currency_engine.py tests/fitness/test_check_hard_currency_engine.py",
-      "application_ar": "حدود CLI صريحة، فشل مغلق، اختبار حتمي، وعدم خلط الوحدات المسحوبة بمسار العميل."
+      "gate": "python scripts/fitness/check_vibe_coding_constitution.py && python scripts/fitness/check_documentation_contract.py && git diff --check",
+      "application_ar": "الدستور يعرّف قوانين السياق والتصميم والاختبار والمراجعة والأمن والرجوع وسجل الإثبات؛ الفارض يتحقق من وجود القوانين وربط AGENTS وCLAUDE والفهرس والمانيفست وrequired-ci."
     }
   ],
   "production": {
-    "owner": "hard-currency-engine",
-    "status": "QUALITY_GATE_ONLY_NO_RUNTIME_BEHAVIOR_CHANGE",
+    "owner": "governance",
+    "status": "DOCUMENTED_AND_GUARDED_NO_RUNTIME_FEATURE_CHANGE",
     "interfaces": [
-      "CLI france/belgium/crm كما هي؛ البوابة تراقب العقد ولا توسعها"
+      "إقلاع الوكيل عبر CLAUDE.md وAGENTS.md؛ بوابة CI داخل guardrails؛ دستور حي في docs/architecture"
     ],
     "runtime_evidence_paths": [
-      "tools/hard_currency_engine/cli.py",
-      "scripts/fitness/check_hard_currency_engine.py"
+      "scripts/fitness/check_vibe_coding_constitution.py",
+      ".github/workflows/ci.yml",
+      "docs/architecture/VIBE_CODING_PREVENTION_CONSTITUTION.md"
     ],
-    "failure_behavior_ar": "فشل البوابة أو الاختبار يمنع الدمج؛ انقطاع الشبكة في فحص فرنسا يبقى حالة غير متاحة ولا يتحول إلى نجاح.",
-    "observability_ar": "مخرجات البوابة PASS/FAIL ومخرجات الاختبارات؛ لا ادعاء بصحة قانونية أو اتصال حي.",
-    "security_boundary_ar": "لا إرسال بريد أو اتصال خارجي جديد؛ CRM ينشئ مسودات فقط، والوحدات المسحوبة غير مستوردة في CLI.",
-    "rollback_ar": "git revert للتغيير؛ لا هجرة ولا تعديل بيانات."
+    "failure_behavior_ar": "غياب الدستور أو القانون أو الرابط أو سلك CI يفشل البوابة؛ لا توجد استثناءات صامتة.",
+    "observability_ar": "مخرجات البوابة PASS/FAIL، وعقد التوثيق يثبت الروابط والمسارات والأوامر.",
+    "security_boundary_ar": "لا أسرار ولا اتصال خارجي ولا سلوك إنتاجي جديد؛ السياسة تفرض أقل صلاحية وسجل الإثبات.",
+    "rollback_ar": "git revert يعيد الوثائق والأسلاك دون هجرة أو حذف بيانات."
   },
   "commercial_trace": {
     "offer_ids": [
@@ -46,7 +50,7 @@
     "customer_problem_ar": "منع تسليم أداة تنظيف مراجع فوترة غير قابلة لإعادة الإنتاج أو تختلط فيها المسارات المسحوبة.",
     "value_hypothesis_ar": "بوابة صغيرة واختبارات حتمية تقلل خطر كسر ممرات France/Belgium/CRM قبل تسليم مسودة أو تقرير.",
     "foreign_currency_path_ar": "تمكين غير مباشر للعرض؛ لا تُدّعى صفقة أو إيراد جديد.",
-    "foundation_exception_ar": "تغيير حوكمة جودة لمسار الإسفين، لا ميزة منتج ولا ترقية لحالة الإثبات."
+    "foundation_exception_ar": "تغيير حوكمة وجودة عام يحمي مسار عرض FR/BE النشط؛ لا يعلن إيرادًا ولا يفتح المنصة المجمدة."
   },
   "deletions": {
     "count": 0,
@@ -56,11 +60,11 @@
   "verification": {
     "result": "PASS",
     "commands": [
-      "python scripts/fitness/check_hard_currency_engine.py — PASS",
-      "python -m unittest tests.unit.tools.test_hard_currency_engine -q — PASS (39 tests)",
-      "python -m compileall -q scripts/fitness/check_hard_currency_engine.py tests/fitness/test_check_hard_currency_engine.py tools/hard_currency_engine — PASS",
+      "python scripts/fitness/check_vibe_coding_constitution.py — PASS",
+      "python scripts/fitness/check_documentation_contract.py — PASS (52 وثائق حية)",
       "git diff --check — PASS",
-      "python -m pytest ... — NOT RUN: pytest is not installed locally; CI installs pytest 8.3.5 + pytest-cov 6.0.0 and enforces 70% HCE coverage"
+      "python scripts/fitness/check_code_acceptance.py — pending until packet is included in this diff",
+      "python -m compileall -q scripts/fitness/check_vibe_coding_constitution.py tests/fitness/test_check_vibe_coding_constitution.py — PASS"
     ]
   },
   "curriculum": {
@@ -142,19 +146,29 @@
     "owner": "curriculum-governance"
   },
   "changed_paths": [
-    "scripts/fitness/check_hard_currency_engine.py",
-    "tests/fitness/test_check_hard_currency_engine.py",
-    ".github/workflows/hard-currency-engine.yml",
-    "docs/engineering/VIBE_CODING_RECOVERY_PLAN.md",
-    "docs/changes/CURRENT_CODE_ACCEPTANCE_PACKET.json"
+    ".github/workflows/ci.yml",
+    "AGENTS.md",
+    "CLAUDE.md",
+    "docs/DOCUMENTATION_INDEX.md",
+    "docs/DOCUMENTATION_MANIFEST.json",
+    "docs/architecture/VIBE_CODING_PREVENTION_CONSTITUTION.md",
+    "scripts/fitness/check_vibe_coding_constitution.py",
+    "tests/fitness/test_check_vibe_coding_constitution.py"
   ],
   "git_change_snapshot": {
-    "base_ref": "3d27eb16d2524e7fdd5888d7dece657dd0b3f717",
+    "base_ref": "556f0c3",
     "changed_paths_excluding_packet": [
-      ".github/workflows/hard-currency-engine.yml"
+      ".github/workflows/ci.yml",
+      "AGENTS.md",
+      "CLAUDE.md",
+      "docs/DOCUMENTATION_INDEX.md",
+      "docs/DOCUMENTATION_MANIFEST.json",
+      "docs/architecture/VIBE_CODING_PREVENTION_CONSTITUTION.md",
+      "scripts/fitness/check_vibe_coding_constitution.py",
+      "tests/fitness/test_check_vibe_coding_constitution.py"
     ],
-    "content_sha256_excluding_packet": "e4ce7a4e905fb8bf1a0b8f693ea2cbae61abcf6d6a8e018a531c8e4fcae6668c",
+    "content_sha256_excluding_packet": "c938ab65562a81b6275e10557e32348ceb248791025cb9942adb1a2b5bd646db",
     "refreshed_on": "2026-10-03",
-    "refresh_command": "manual refresh for HCE quality packet"
+    "refresh_command": "manual refresh for D-306 constitution"
   }
 }

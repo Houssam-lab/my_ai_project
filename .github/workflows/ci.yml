@@ -164,6 +164,10 @@ jobs:
         run: |
           set -euo pipefail
           python scripts/ci_guardrails.py
+          # D-306: every agent and every change must enter through the anti-vibe-coding
+          # constitution. Keep this in the required guardrails path; a standalone
+          # workflow would allow the constitution to become decorative documentation.
+          python scripts/fitness/check_vibe_coding_constitution.py
           # ADR-013: the mandatory reference backbone is pinned, additive, and
           # non-runtime. Removing or silently replacing a source is a hard failure.
           python scripts/fitness/check_reference_backbone.py
