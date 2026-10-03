@@ -48,8 +48,15 @@ jobs:
       - name: Run bounded-path gate
         run: python scripts/fitness/check_hard_currency_engine.py
       - name: Run HCE unit and gate tests
+        # `-c pytest-hce.ini` is load-bearing, not cosmetic: this job installs
+        # only the pinned runner (no sqlalchemy/pydantic), and pytest < 9
+        # eagerly imports the warning categories named in the repo-root
+        # pytest.ini — without the dedicated config the run dies at config
+        # parse with exit 4 before collecting a test (proven live:
+        # run 37085541486). --confcutdir guards conftest only, not ini.
         run: >-
           python -m pytest -q
+          -c pytest-hce.ini
           tests/unit/tools/test_hard_currency_engine.py
           tests/fitness/test_check_hard_currency_engine.py
           --confcutdir=tests/unit/tools

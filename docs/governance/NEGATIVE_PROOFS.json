@@ -152,6 +152,12 @@
     ],
     "check_value_chain.py": [
       "tests/fitness/test_check_value_chain.py"
+    ],
+    "check_hard_currency_engine.py": [
+      "tests/fitness/test_check_hard_currency_engine.py"
+    ],
+    "check_vibe_coding_constitution.py": [
+      "tests/fitness/test_check_vibe_coding_constitution.py"
     ]
   },
   "frozen_debt": {

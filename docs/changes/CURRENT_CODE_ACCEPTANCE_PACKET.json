@@ -1,9 +1,9 @@
 {
   "$schema_version": 1,
-  "packet_id": "CAP-2026-10-03-vibe-coding-constitution",
+  "packet_id": "CAP-2026-10-03-ci-truth-restoration",
   "status": "READY_FOR_GATE",
   "decision": "D-277",
-  "decision_of_change": "توحيد ما تم بناؤه في إسفين HCE داخل دستور حيّ لمنع Vibe Coding: الدستور يطبّق على كل وكيل وكل تغيير، ومربوط بترويسات الإقلاع وفهرس التوثيق ومانيفسته وبوابة guardrails المطلوبة. لا يفتح المنصة التعليمية المجمدة ولا يرفع أي ادعاء إنتاجي.",
+  "decision_of_change": "إصلاح أربعة أعطاب جعلت main حمراء عند 6b7c211 دون إضعاف أي بوابة: (1) عزل بوابة HCE عن pytest.ini الجذري عبر pytest-hce.ini لأن pytest 8.3.5 يحل أصناف filterwarnings عند الإقلاع فينهار بغياب sqlalchemy (exit 4)؛ (2) إصلاح ترتيب الاستيراد I001 في اختبار دستور Vibe Coding؛ (3) تحديث العلامة المشتقة gates_total إلى 104 في .memory/ci-gates.md؛ (4) برهانان سلبيان حقيقيان (شجرة مكسورة عمداً تُحمِّر البوابة) للبوابتين الجديدتين وتسجيلهما في NEGATIVE_PROOFS.json. لا حذف، لا فتح للمنصة المجمدة، ولا ادعاء إنتاجي جديد.",
   "standards": [
     "clean-code-book"
   ],
@@ -15,16 +15,15 @@
     {
       "standard": "clean-code-book",
       "paths": [
-        "docs/architecture/VIBE_CODING_PREVENTION_CONSTITUTION.md",
-        "AGENTS.md",
-        "CLAUDE.md",
-        "scripts/fitness/check_vibe_coding_constitution.py",
-        ".github/workflows/ci.yml",
-        "docs/DOCUMENTATION_INDEX.md",
-        "docs/DOCUMENTATION_MANIFEST.json"
+        ".github/workflows/hard-currency-engine.yml",
+        ".memory/ci-gates.md",
+        "docs/governance/NEGATIVE_PROOFS.json",
+        "pytest-hce.ini",
+        "tests/fitness/test_check_hard_currency_engine.py",
+        "tests/fitness/test_check_vibe_coding_constitution.py"
       ],
-      "gate": "python scripts/fitness/check_vibe_coding_constitution.py && python scripts/fitness/check_documentation_contract.py && git diff --check",
-      "application_ar": "الدستور يعرّف قوانين السياق والتصميم والاختبار والمراجعة والأمن والرجوع وسجل الإثبات؛ الفارض يتحقق من وجود القوانين وربط AGENTS وCLAUDE والفهرس والمانيفست وrequired-ci."
+      "gate": "python scripts/run_fitness_gates.py && python -m pytest -q -c pytest-hce.ini tests/unit/tools/test_hard_currency_engine.py tests/fitness/test_check_hard_currency_engine.py --confcutdir=tests/unit/tools --cov=tools/hard_currency_engine --cov-fail-under=70 && ruff check . && ruff format --check . && git diff --check",
+      "application_ar": "كل إصلاح يسمّي فارضه: عزل إعدادات pytest للبوابة المحدودة يحفظ استقلال المسار؛ البرهانان السلبيان يثبتان أن البوابتين تحجبان عند الخرق لا أنهما تعملان فقط؛ والعلامة المشتقة عادت مطابقة للعدد الفعلي على القرص (104)."
     }
   ],
   "production": {
@@ -34,9 +33,10 @@
       "إقلاع الوكيل عبر CLAUDE.md وAGENTS.md؛ بوابة CI داخل guardrails؛ دستور حي في docs/architecture"
     ],
     "runtime_evidence_paths": [
-      "scripts/fitness/check_vibe_coding_constitution.py",
-      ".github/workflows/ci.yml",
-      "docs/architecture/VIBE_CODING_PREVENTION_CONSTITUTION.md"
+      "pytest-hce.ini",
+      ".github/workflows/hard-currency-engine.yml",
+      "docs/governance/NEGATIVE_PROOFS.json",
+      ".memory/ci-gates.md"
     ],
     "failure_behavior_ar": "غياب الدستور أو القانون أو الرابط أو سلك CI يفشل البوابة؛ لا توجد استثناءات صامتة.",
     "observability_ar": "مخرجات البوابة PASS/FAIL، وعقد التوثيق يثبت الروابط والمسارات والأوامر.",
@@ -60,11 +60,12 @@
   "verification": {
     "result": "PASS",
     "commands": [
-      "python scripts/fitness/check_vibe_coding_constitution.py — PASS",
-      "python scripts/fitness/check_documentation_contract.py — PASS (52 وثائق حية)",
       "python scripts/fitness/check_hard_currency_engine.py — PASS",
-      "python -m pytest ... --confcutdir=tests/unit/tools --cov-fail-under=70 — PASS locally: 41 tests, 83.09%",
-      "ruff check and ruff format --check on changed Python files — PASS",
+      "python -m pytest -q -c pytest-hce.ini tests/unit/tools/... --cov-fail-under=70 — PASS (42 tests, 83.09%, sqlalchemy ABSENT like CI)",
+      "python scripts/fitness/check_gate_negative_proof.py — PASS (48/104 proven)",
+      "python scripts/fitness/check_governance_registry.py — PASS (marker=104)",
+      "ruff==0.14.0: ruff check . && ruff format --check . — PASS repo-wide",
+      "python scripts/run_fitness_gates.py — see final report",
       "git diff --check — PASS"
     ]
   },
@@ -147,33 +148,22 @@
     "owner": "curriculum-governance"
   },
   "changed_paths": [
-    ".github/workflows/ci.yml",
-    "AGENTS.md",
-    "CLAUDE.md",
-    "docs/DOCUMENTATION_INDEX.md",
-    "docs/DOCUMENTATION_MANIFEST.json",
-    "docs/architecture/VIBE_CODING_PREVENTION_CONSTITUTION.md",
-    "scripts/fitness/check_vibe_coding_constitution.py",
+    ".github/workflows/hard-currency-engine.yml",
+    ".memory/ci-gates.md",
+    "docs/governance/NEGATIVE_PROOFS.json",
+    "pytest-hce.ini",
+    "tests/fitness/test_check_hard_currency_engine.py",
     "tests/fitness/test_check_vibe_coding_constitution.py"
   ],
   "git_change_snapshot": {
-    "base_ref": "3d27eb16d2524e7fdd5888d7dece657dd0b3f717",
     "changed_paths_excluding_packet": [
-      ".github/workflows/ci.yml",
       ".github/workflows/hard-currency-engine.yml",
-      "AGENTS.md",
-      "CLAUDE.md",
-      "docs/DOCUMENTATION_INDEX.md",
-      "docs/DOCUMENTATION_MANIFEST.json",
-      "docs/architecture/VIBE_CODING_PREVENTION_CONSTITUTION.md",
-      "docs/engineering/VIBE_CODING_RECOVERY_PLAN.md",
-      "scripts/fitness/check_hard_currency_engine.py",
-      "scripts/fitness/check_vibe_coding_constitution.py",
+      ".memory/ci-gates.md",
+      "docs/governance/NEGATIVE_PROOFS.json",
+      "pytest-hce.ini",
       "tests/fitness/test_check_hard_currency_engine.py",
       "tests/fitness/test_check_vibe_coding_constitution.py"
     ],
-    "content_sha256_excluding_packet": "5a0b4e7566599dc3e28933ff37f14517fc0e7289c3fb93662a32614d38edf33e",
-    "refreshed_on": "2026-10-03",
-    "refresh_command": "manual refresh for D-306 constitution"
+    "content_sha256_excluding_packet": "1181a4fd616b2f125125b1098abc8c88cf1f54fe1bdf1234dc3385875f73e4ec"
   }
 }
