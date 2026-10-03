@@ -62,10 +62,10 @@
     "commands": [
       "python scripts/fitness/check_vibe_coding_constitution.py — PASS",
       "python scripts/fitness/check_documentation_contract.py — PASS (52 وثائق حية)",
-      "git diff --check — PASS",
-      "python scripts/fitness/check_code_acceptance.py — pending until packet is included in this diff",
-      "python -m compileall -q scripts/fitness/check_vibe_coding_constitution.py tests/fitness/test_check_vibe_coding_constitution.py — PASS",
-      "python scripts/fitness/check_memory_coherence.py — PASS (CLAUDE.md restored to 1262 lines)"
+      "python scripts/fitness/check_hard_currency_engine.py — PASS",
+      "python -m pytest ... --confcutdir=tests/unit/tools --cov-fail-under=70 — PASS locally: 41 tests, 83.09%",
+      "ruff check and ruff format --check on changed Python files — PASS",
+      "git diff --check — PASS"
     ]
   },
   "curriculum": {
@@ -157,11 +157,22 @@
     "tests/fitness/test_check_vibe_coding_constitution.py"
   ],
   "git_change_snapshot": {
-    "base_ref": "428c56b",
+    "base_ref": "3d27eb16d2524e7fdd5888d7dece657dd0b3f717",
     "changed_paths_excluding_packet": [
-      "CLAUDE.md"
+      ".github/workflows/ci.yml",
+      ".github/workflows/hard-currency-engine.yml",
+      "AGENTS.md",
+      "CLAUDE.md",
+      "docs/DOCUMENTATION_INDEX.md",
+      "docs/DOCUMENTATION_MANIFEST.json",
+      "docs/architecture/VIBE_CODING_PREVENTION_CONSTITUTION.md",
+      "docs/engineering/VIBE_CODING_RECOVERY_PLAN.md",
+      "scripts/fitness/check_hard_currency_engine.py",
+      "scripts/fitness/check_vibe_coding_constitution.py",
+      "tests/fitness/test_check_hard_currency_engine.py",
+      "tests/fitness/test_check_vibe_coding_constitution.py"
     ],
-    "content_sha256_excluding_packet": "cbd7427b94c95175326a5c34e320e2ca0d2882236d6950ffdbdb4cfc9c2818da",
+    "content_sha256_excluding_packet": "5a0b4e7566599dc3e28933ff37f14517fc0e7289c3fb93662a32614d38edf33e",
     "refreshed_on": "2026-10-03",
     "refresh_command": "manual refresh for D-306 constitution"
   }

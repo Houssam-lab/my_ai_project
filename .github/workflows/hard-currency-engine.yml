@@ -52,6 +52,7 @@ jobs:
           python -m pytest -q
           tests/unit/tools/test_hard_currency_engine.py
           tests/fitness/test_check_hard_currency_engine.py
+          --confcutdir=tests/unit/tools
           --tb=short
           --cov=tools/hard_currency_engine
           --cov-report=term-missing

@@ -61,7 +61,9 @@ def _failures() -> list[str]:
         failures.append(f"retired modules exposed by customer CLI: {', '.join(leaked)}")
 
     required_symbols = {"build_parser", "cmd_france", "cmd_belgium", "cmd_crm"}
-    symbols = {node.name for node in tree.body if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))}
+    symbols = {
+        node.name for node in tree.body if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))
+    }
     missing = sorted(required_symbols - symbols)
     if missing:
         failures.append(f"CLI contract symbols missing: {', '.join(missing)}")
