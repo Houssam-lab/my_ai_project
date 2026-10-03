@@ -261,6 +261,16 @@ Two minimal, shrink-only repairs (not applied — owner's call): assert a
 
 ## G. Auth Differential Results — INTEGRATION VERIFIED
 
+> **Now permanent.** This section was a one-off script in `/tmp`; it is now a
+> committed, CI-collected test:
+> `tests/security/test_auth_cross_service_differential.py`
+> (9 passed, 4 xfailed). The four divergences below are encoded as
+> `xfail(strict=True)` contracts, so whoever closes the gap is forced by a
+> failing build to acknowledge it — the hole cannot be closed silently, nor
+> forgotten open. Negative-proven: simulating the fix in `user_service`'s
+> `crypto.py` flipped all four to `XPASS(strict)` failures; the mutation was
+> then reverted and the tree verified clean.
+
 Both real `AuthCrypto` implementations were loaded into one process, given the
 **same** `SECRET_KEY` (which is what D-WS-SECRET-KEY-001's fix mandates in
 deployment), and exercised across the full cross-product. No behaviour simulated.
