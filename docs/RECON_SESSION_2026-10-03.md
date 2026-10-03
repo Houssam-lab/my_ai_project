@@ -47,7 +47,8 @@ repeat the attempt:
 - Consequence: **the root `conftest.py` is uncollectable on 3.11**, so the entire
   612-file test suite produced **zero** runtime evidence here.
   `pytest --collect-only` dies at `tests/conftest_support/helpers.py:51`
-  (`def _run_async[TResult](`).
+  on the PEP 695 generic function definition `_run_async` declared with a
+  `[TResult]` type-parameter list.
 
 **Therefore: no claim in this document reaches RUNTIME VERIFIED for application
 behaviour.** Static gates below are VERIFIED only.

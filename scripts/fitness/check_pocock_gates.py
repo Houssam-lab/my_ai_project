@@ -7,7 +7,15 @@ constitution — this gate never removes or alters anything.
 import pathlib
 import sys
 
-REPO = pathlib.Path("/home/ubuntu/NAAS-Agentic-Core")
+# D-274: the repository root is derived from this file's location, never
+# hardcoded. It previously read `/home/ubuntu/NAAS-Agentic-Core` — an absolute
+# path from one developer's machine — so on every other checkout (CI, Codespaces,
+# any other clone) the gate reported all four skills and both documents as
+# "missing" and exited 1, although every one of them is present and valid.
+# A gate that cannot pass anywhere except one laptop enforces nothing; this one
+# went unnoticed because it is wired into no workflow. Same derivation as every
+# other gate in this directory.
+REPO = pathlib.Path(__file__).resolve().parents[2]
 SKILLS = REPO / ".claude/skills"
 
 REQUIRED = {
