@@ -135,6 +135,9 @@
     "check_secret_capture_parity.py": [
       "tests/fitness/test_secret_capture_parity.py"
     ],
+    "check_secret_key_consistency.py": [
+      "tests/fitness/test_check_secret_key_consistency.py"
+    ],
     "check_source_adoption_matrix.py": [
       "tests/fitness/test_source_adoption_ratchet.py"
     ],
@@ -201,7 +204,6 @@
     "check_ports_consistency.py": "بلا أيّ اختبار — لا يُعرَف إن كانت تحجب عند الخرق",
     "check_probability_brain_parity.py": "بلا أيّ اختبار — لا يُعرَف إن كانت تحجب عند الخرق",
     "check_route_registry_parity.py": "مذكورة في اختبارٍ لا يؤكّد فشلاً — تُثبِت أنّها تعمل ولا تُثبِت أنّها تحجب",
-    "check_secret_key_consistency.py": "بلا أيّ اختبار — لا يُعرَف إن كانت تحجب عند الخرق",
     "check_service_catalog_parity.py": "مذكورة في اختبارٍ لا يؤكّد فشلاً — تُثبِت أنّها تعمل ولا تُثبِت أنّها تحجب",
     "check_single_brain_control_plane.py": "مذكورة في اختبارٍ لا يؤكّد فشلاً — تُثبِت أنّها تعمل ولا تُثبِت أنّها تحجب",
     "check_skills_doctrine.py": "بلا أيّ اختبار — لا يُعرَف إن كانت تحجب عند الخرق",

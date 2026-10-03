@@ -238,7 +238,19 @@ uncomfortable number: `NEGATIVE_PROOFS.json` records that of 81 gates measured
 in declared, shrink-only debt. **I did not need to discover that the guard system
 is partly unproven — the repository says so, in writing, with counts.**
 
-### F.4 Mutation test: `check_secret_key_consistency` — STRONG on the instance, FAIL-OPEN on the class
+### F.4 Mutation test: `check_secret_key_consistency` — STRONG on the instance, FAIL-OPEN on the class — **NOW CLOSED**
+
+> **Resolved.** Both holes below are fixed, and the fix is itself negative-proven
+> by `tests/fitness/test_check_secret_key_consistency.py` (8 tests). Detection no
+> longer keys on variable *names* but on the `${SECRET_KEY:-...}` expansion, which
+> a rename cannot escape; a shrink-only floor rejects a narrowing scope; and
+> finding zero assignments is now failure, not "cannot verify".
+>
+> Proof that the hardening is not cosmetic: run the same 8 tests against the
+> previous gate and **4 fail**. The gate moved from `frozen_debt` to `proven` in
+> `NEGATIVE_PROOFS.json` — debt 56 → 55, proven 48 → 49.
+>
+> Not weakened, widened: the two old patterns are literal subsets of the new one.
 
 The gate guarding the repository's worst incident was mutation-tested on an
 isolated copy. It currently finds 5 real assignments and passes legitimately.
@@ -363,7 +375,7 @@ repository — see §O).
 The fix closes the **instance** (divergent literals in `supervisor.sh`, same
 syntax) and is proven to do so (§F.4 M1). It does **not** close the class:
 
-- M2/M3 show the gate is blind to the same drift after a variable rename, and
+- M2/M3 showed the gate blind to the same drift after a variable rename, and
   fail-open when its regex matches nothing.
 - The gate reads **only** `.devcontainer/supervisor.sh`. `docker-compose*.yml`
   (5 files), `.env*` (5 files), and Kubernetes/infra manifests are unexamined —
@@ -402,7 +414,7 @@ Each claim was actively attacked.
 4. `ruff==0.14.0` check + format green; `mypy==1.8.0` green on its 73-file scope.
 5. **97/103 gates pass; 0 crash.**
 6. `check_pocock_gates` was permanently broken on every checkout; fixed here and negative-proven. **Still broken on `main` as of `6385a2d`** — this is the one defect in this report that `main` has not independently fixed.
-7. `check_secret_key_consistency` detects the historical instance (M1) and misses the class (M2/M3).
+7. `check_secret_key_consistency` detected the historical instance (M1) and missed the class (M2/M3) — **now closed and negative-proven** (§F.4).
 8. **Cross-service JWT type confusion exists and is reachable** (§G).
 9. Both auth implementations correctly reject wrong-secret, `alg=none`, malformed, empty and expired tokens.
 10. The monolith's "legacy token" clause is load-bearing for live cross-service login.
