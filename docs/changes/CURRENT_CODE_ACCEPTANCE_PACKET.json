@@ -60,7 +60,7 @@
       "python -m unittest tests.unit.tools.test_hard_currency_engine -q — PASS (39 tests)",
       "python -m compileall -q scripts/fitness/check_hard_currency_engine.py tests/fitness/test_check_hard_currency_engine.py tools/hard_currency_engine — PASS",
       "git diff --check — PASS",
-      "python -m pytest ... — NOT RUN: pytest is not installed in the local sandbox; CI installs pytest 8.3.5"
+      "python -m pytest ... — NOT RUN: pytest is not installed locally; CI installs pytest 8.3.5 + pytest-cov 6.0.0 and enforces 70% HCE coverage"
     ]
   },
   "curriculum": {
@@ -151,12 +151,9 @@
   "git_change_snapshot": {
     "base_ref": "3d27eb16d2524e7fdd5888d7dece657dd0b3f717",
     "changed_paths_excluding_packet": [
-      ".github/workflows/hard-currency-engine.yml",
-      "docs/engineering/VIBE_CODING_RECOVERY_PLAN.md",
-      "scripts/fitness/check_hard_currency_engine.py",
-      "tests/fitness/test_check_hard_currency_engine.py"
+      ".github/workflows/hard-currency-engine.yml"
     ],
-    "content_sha256_excluding_packet": "cbba1c3cc0e606774fb493a41935c0d4d251ab9718a527e13ea9dafc2090afa0",
+    "content_sha256_excluding_packet": "e4ce7a4e905fb8bf1a0b8f693ea2cbae61abcf6d6a8e018a531c8e4fcae6668c",
     "refreshed_on": "2026-10-03",
     "refresh_command": "manual refresh for HCE quality packet"
   }

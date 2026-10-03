@@ -41,7 +41,10 @@ jobs:
         with:
           python-version: ${{ env.PYTHON_VERSION }}
       - name: Install pinned test runner
-        run: python -m pip install --disable-pip-version-check "pytest==8.3.5"
+        run: >-
+          python -m pip install --disable-pip-version-check
+          "pytest==8.3.5"
+          "pytest-cov==6.0.0"
       - name: Run bounded-path gate
         run: python scripts/fitness/check_hard_currency_engine.py
       - name: Run HCE unit and gate tests
@@ -50,3 +53,6 @@ jobs:
           tests/unit/tools/test_hard_currency_engine.py
           tests/fitness/test_check_hard_currency_engine.py
           --tb=short
+          --cov=tools/hard_currency_engine
+          --cov-report=term-missing
+          --cov-fail-under=70
