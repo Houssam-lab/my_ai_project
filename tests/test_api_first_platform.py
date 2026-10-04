@@ -1,6 +1,5 @@
 # tests/test_api_first_platform.py
 import asyncio
-import os
 
 import pytest
 from fastapi.testclient import TestClient
@@ -14,13 +13,14 @@ pytestmark = pytest.mark.filterwarnings(
     "ignore:The garbage collector is trying to clean up non-checked-in connection.*:sqlalchemy.exc.SAWarning"
 )
 
-# نحن بحاجة لضبط متغيرات البيئة قبل إنشاء الإعدادات
-os.environ["DATABASE_URL"] = "sqlite+aiosqlite:///:memory:"
-os.environ["SECRET_KEY"] = "super_secret_key_at_least_32_chars_long_for_testing"
-os.environ["ENVIRONMENT"] = "testing"
-
-# إنشاء إعدادات نظيفة
-settings = AppSettings()
+# إعدادات هذا التطبيق التجريبي محلية له فقط. لا نكتب في ``os.environ`` وقت
+# collection: ذلك كان يغيّر مفتاح JWT المشترك بعد أن تكون user_service قد خزّنت
+# إعداداتها، فينتج مفتاحان داخل العملية نفسها وتفشل بوابة التكافؤ الأمنية.
+settings = AppSettings(
+    DATABASE_URL="sqlite+aiosqlite:///:memory:",
+    SECRET_KEY="super_secret_key_at_least_32_chars_long_for_testing",
+    ENVIRONMENT="testing",
+)
 
 # إنشاء نواة التطبيق
 kernel = RealityKernel(settings=settings)
