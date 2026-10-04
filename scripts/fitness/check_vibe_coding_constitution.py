@@ -103,20 +103,41 @@ def main() -> int:  # noqa: PLR0912, PLR0915
     if MICROSCOPE_GATE not in constitution or MICROSCOPE_FIELD not in constitution:
         failures.append("constitution does not bind the repository microscope gate")
     if DIAGNOSTIC not in constitution or REMEDIATION_PLAN not in constitution:
-        failures.append("constitution does not bind the live diagnostic and mandatory remediation plan")
+        failures.append(
+            "constitution does not bind the live diagnostic and mandatory remediation plan"
+        )
     if FOUNDATION_CONSTITUTION not in constitution:
         failures.append("constitution does not bind the foundation safety constitution")
     foundation = _read(ROOT / FOUNDATION_CONSTITUTION)
-    for anchor in ("### L1 —", "### L12 —", "الأفق التاريخي والمستقبلي", "المجهر الكامل غير الدائري"):
+    for anchor in (
+        "### L1 —",
+        "### L12 —",
+        "الأفق التاريخي والمستقبلي",
+        "المجهر الكامل غير الدائري",
+    ):
         if anchor not in foundation:
             failures.append(f"foundation constitution is missing: {anchor}")
     for path in (DIAGNOSTIC, REMEDIATION_PLAN, FOUNDATION_CONSTITUTION):
         if not (ROOT / path).is_file() or not (ROOT / path).read_text(encoding="utf-8").strip():
-            failures.append(f"mandatory diagnostic/remediation artifact is missing or empty: {path}")
-    if DIAGNOSTIC not in agents or REMEDIATION_PLAN not in agents or FOUNDATION_CONSTITUTION not in agents:
-        failures.append("AGENTS.md does not require the diagnostic, remediation plan, and foundation constitution")
-    if DIAGNOSTIC not in claude or REMEDIATION_PLAN not in claude or FOUNDATION_CONSTITUTION not in claude:
-        failures.append("CLAUDE.md does not require the diagnostic, remediation plan, and foundation constitution")
+            failures.append(
+                f"mandatory diagnostic/remediation artifact is missing or empty: {path}"
+            )
+    if (
+        DIAGNOSTIC not in agents
+        or REMEDIATION_PLAN not in agents
+        or FOUNDATION_CONSTITUTION not in agents
+    ):
+        failures.append(
+            "AGENTS.md does not require the diagnostic, remediation plan, and foundation constitution"
+        )
+    if (
+        DIAGNOSTIC not in claude
+        or REMEDIATION_PLAN not in claude
+        or FOUNDATION_CONSTITUTION not in claude
+    ):
+        failures.append(
+            "CLAUDE.md does not require the diagnostic, remediation plan, and foundation constitution"
+        )
     if LEGACY_PHRASE not in claude or "مستقبلي" not in claude:
         failures.append("CLAUDE.md does not bind old and future code to the constitution")
     if "existing code" not in agents or "future code" not in agents:

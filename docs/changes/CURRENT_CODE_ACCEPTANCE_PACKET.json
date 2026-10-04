@@ -91,7 +91,8 @@
       "docs/governance/ENGINEERING_GOVERNANCE_POLICY.json project_remediation_gate",
       "scripts/fitness/check_engineering_governance.py validate_project_remediation_gate",
       "scripts/ci_guardrails.py parse-failure fail-closed behavior",
-      "docs/governance/amendments/D-312-CI-GREEN-REMEDIATION-GATE-FOLLOWUP.md"
+      "docs/governance/amendments/D-312-CI-GREEN-REMEDIATION-GATE-FOLLOWUP.md",
+      "docs/governance/amendments/D-313-CI-REALITY-AND-FORMAT-FOLLOWUP.md"
     ],
     "runtime_evidence_paths": [
       "scripts/fitness/check_repository_microscope.py",
@@ -108,7 +109,8 @@
       "docs/governance/amendments/D-311-MANDATORY-REMEDIATION-START-GATE.md",
       "tests/guardrails/test_ci_guardrails.py",
       "scripts/ci_guardrails.py",
-      "docs/governance/amendments/D-312-CI-GREEN-REMEDIATION-GATE-FOLLOWUP.md"
+      "docs/governance/amendments/D-312-CI-GREEN-REMEDIATION-GATE-FOLLOWUP.md",
+      "docs/governance/amendments/D-313-CI-REALITY-AND-FORMAT-FOLLOWUP.md"
     ],
     "failure_behavior_ar": "أي غياب للتشخيص أو خطة العلاج من مداخل الوكيل، أو محاولة جعل OPEN/UNKNOWN/UNVERIFIED غير حاجزة لعلاج CRITICAL، يفشل بوابة الحوكمة. وأي SyntaxError في guardrails يتحول الآن إلى انتهاك لا إلى PASS صامت.",
     "observability_ar": "المتحقق يطبع الانتهاك المحدد وملفات الحوكمة؛ الحزمة تسجل الأوامر والبراهين السلبية، ولا تسجل نجاح حماية GitHub الخارجية دون صلاحية API.",
@@ -132,15 +134,14 @@
   "verification": {
     "result": "PASS",
     "commands": [
+      "python scripts/fitness/check_constitution_reality.py — PASS",
       "python scripts/fitness/check_documentation_contract.py — PASS",
-      "python scripts/fitness/check_engineering_governance.py — PASS",
-      "python scripts/fitness/check_code_acceptance.py — PASS",
+      "/tmp/ruff-venv/bin/ruff check . — PASS",
+      "/tmp/ruff-venv/bin/ruff format --check . — PASS",
+      "GOVERNANCE_BASE_SHA=origin/main python scripts/fitness/check_engineering_governance.py — PASS",
+      "CODE_ACCEPTANCE_BASE_SHA=origin/main python scripts/fitness/check_code_acceptance.py — PASS",
       "python scripts/fitness/check_repository_microscope.py — PASS",
-      "python scripts/fitness/check_vibe_coding_constitution.py — PASS",
-      "python scripts/fitness/check_agent_context.py — PASS",
-      "/tmp/ruff-venv/bin/ruff check scripts/ci_guardrails.py scripts/fitness/check_engineering_governance.py tests/fitness/test_engineering_governance_gate.py tests/guardrails/test_ci_guardrails.py — PASS",
       "/tmp/ruff-venv/bin/python -m pytest -q -c /dev/null --confcutdir=tests/fitness tests/fitness/test_engineering_governance_gate.py tests/guardrails/test_ci_guardrails.py — PASS (32 passed)",
-      "python -m py_compile scripts/ci_guardrails.py scripts/fitness/check_engineering_governance.py tests/fitness/test_engineering_governance_gate.py tests/guardrails/test_ci_guardrails.py — PASS",
       "git diff --check — PASS"
     ]
   },
@@ -223,35 +224,43 @@
     "owner": "curriculum-governance"
   },
   "changed_paths": [
-    ".memory/project_diagnostic_truth.md",
-    "docs/changes/CURRENT_CODE_ACCEPTANCE_PACKET.json",
-    "docs/governance/amendments/D-312-CI-GREEN-REMEDIATION-GATE-FOLLOWUP.md",
-    "scripts/fitness/check_engineering_governance.py"
+    "README.ar.md",
+    "README.md",
+    "docs/DOCUMENTATION_INDEX.md",
+    "docs/governance/amendments/D-313-CI-REALITY-AND-FORMAT-FOLLOWUP.md",
+    "scripts/ci_guardrails.py",
+    "scripts/fitness/check_engineering_governance.py",
+    "scripts/fitness/check_vibe_coding_constitution.py"
   ],
   "git_change_snapshot": {
     "base_ref": "origin/main",
     "changed_paths_excluding_packet": [
       ".memory/project_diagnostic_truth.md",
       "ENGINEERING_CONSTITUTION.md",
+      "README.ar.md",
+      "README.md",
+      "docs/DOCUMENTATION_INDEX.md",
       "docs/governance/AGENT_CONTEXT_REGISTRY.json",
       "docs/governance/ENGINEERING_GOVERNANCE_POLICY.json",
       "docs/governance/amendments/D-311-MANDATORY-REMEDIATION-START-GATE.md",
       "docs/governance/amendments/D-312-CI-GREEN-REMEDIATION-GATE-FOLLOWUP.md",
+      "docs/governance/amendments/D-313-CI-REALITY-AND-FORMAT-FOLLOWUP.md",
       "scripts/ci_guardrails.py",
       "scripts/fitness/check_engineering_governance.py",
+      "scripts/fitness/check_vibe_coding_constitution.py",
       "tests/fitness/test_engineering_governance_gate.py",
       "tests/guardrails/test_ci_guardrails.py"
     ],
-    "content_sha256_excluding_packet": "94c62db9965b0e9751237a8ab94d549891e7c8f64a3beceedbc5f3242d32d807",
+    "content_sha256_excluding_packet": "00a470bc38321ccd9fca506423bc8e76342efaab5959c8de1a623fd07ff11a04",
     "refreshed_on": "2026-10-04",
     "refresh_command": "python3 scripts/research/refresh_acceptance_diff_snapshot.py"
   },
   "repository_microscope": {
     "mode": "FULL_REPOSITORY_BYTE_CENSUS_EXCLUDING_PACKET",
-    "file_count_excluding_packet": 3460,
-    "total_bytes_excluding_packet": 50143168,
-    "total_newlines_excluding_packet": 881566,
-    "sha256_excluding_packet": "616a86751d4061ae30c4a5d7e5ec5779ea65c72342590bbfe28a988f6741e8bb",
+    "file_count_excluding_packet": 3461,
+    "total_bytes_excluding_packet": 50145267,
+    "total_newlines_excluding_packet": 881603,
+    "sha256_excluding_packet": "16987e2ed0efad716503500d75ef47d71afedf15260b9f31621bf567dfd74d24",
     "largest_file_excluding_packet": {
       "path": "Introduction to Agents.pdf",
       "bytes": 9473606

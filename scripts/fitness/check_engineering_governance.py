@@ -202,9 +202,10 @@ def validate_project_remediation_gate(  # noqa: PLR0912, PLR0915
                 for field in required_fields:
                     if item.get(field) in (None, "", [], {}):
                         failures.append(f"project remediation record {index} missing `{field}`")
-                if item.get("severity") in set(gate.get("critical_severities", [])) and item.get(
-                    "status"
-                ) in blocked_statuses:
+                if (
+                    item.get("severity") in set(gate.get("critical_severities", []))
+                    and item.get("status") in blocked_statuses
+                ):
                     critical_blockers += 1
             if critical_blockers and "BLOCKED" not in str(plan_payload.get("status", "")):
                 failures.append(
@@ -218,9 +219,7 @@ def validate_project_remediation_gate(  # noqa: PLR0912, PLR0915
             failures.append(f"project remediation entrypoint is missing: {entrypoint}")
             continue
         if diagnostic not in text or remediation_plan not in text:
-            failures.append(
-                f"{entrypoint} does not bind the live diagnostic and remediation plan"
-            )
+            failures.append(f"{entrypoint} does not bind the live diagnostic and remediation plan")
     return failures
 
 

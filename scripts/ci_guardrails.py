@@ -151,9 +151,7 @@ def check_file(filepath: Path) -> list[str]:
         content = filepath.read_text(encoding="utf-8")
         tree = ast.parse(content, filename=str(filepath))
     except Exception as exc:
-        message = (
-            f"{filepath} - Unable to parse Python source; guardrails must fail closed: {exc}"
-        )
+        message = f"{filepath} - Unable to parse Python source; guardrails must fail closed: {exc}"
         print(f"Error parsing {filepath}: {exc}", file=sys.stderr)
         errors.append(message)
         return errors
