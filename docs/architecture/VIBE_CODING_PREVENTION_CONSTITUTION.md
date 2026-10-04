@@ -28,7 +28,7 @@
 
 ### L1 — السياق قبل الحرف الأول
 
-قبل القراءة التحليلية أو التخطيط أو التعديل، يجب تحميل:
+قبل القراءة التحليلية أو التخطيط أو التعديل، يجب تحميل دستور الأساس [`docs/architecture/FOUNDATION_SAFETY_CONSTITUTION.md`](FOUNDATION_SAFETY_CONSTITUTION.md) ثم:
 
 1. `CLAUDE.md`
 2. `AGENTS.md`
