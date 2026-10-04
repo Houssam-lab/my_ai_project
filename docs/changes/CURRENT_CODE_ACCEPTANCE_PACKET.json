@@ -240,7 +240,7 @@
     "tests/fitness/test_process_governance_gates.py"
   ],
   "git_change_snapshot": {
-    "base_ref": "WORKTREE",
+    "base_ref": "90205eca5b0df6a12e6f4dff8537ff81516d54a8",
     "changed_paths_excluding_packet": [
       ".github/CODEOWNERS",
       ".github/PULL_REQUEST_TEMPLATE.md",
