@@ -63,6 +63,21 @@ Every change must trace its dependency path and identify unresolved historical d
 
 A foundational defect must be repaired or explicitly contained before feature extension. This rule does **not** demand unrelated cosmetic cleanup: debt outside the affected dependency path is recorded, not used as an arbitrary veto.
 
+## 5.1 Microscopic diagnosis and compulsory remediation start gate
+
+Before any agent begins implementation, design extension, refactor, documentation promotion, or production claim, it must load and apply all of the following as a single start gate:
+
+1. `.memory/project_diagnostic_truth.md` — the current measured diagnosis of the repository foundation;
+2. `docs/governance/PROJECT_REMEDIATION_PLAN.json` — the mandatory remediation ledger;
+3. `docs/changes/CURRENT_CODE_ACCEPTANCE_PACKET.json` — the current evidence packet, including `repository_microscope`;
+4. the affected dependency path and every remediation ID touched, depended upon, or used as evidence.
+
+This start gate is not advisory. If a critical remediation on the affected foundation is `OPEN`, `UNKNOWN`, `UNVERIFIED`, or otherwise lacks reproducible evidence, the agent is blocked from building above it. The only normal-path work permitted in that area is foundation repair, containment, negative-proof strengthening, evidence capture, or rollback-safe documentation of the blocker.
+
+The old project is never grandfathered. Existing code, tests, CI, contracts, data paths, and documentation that are touched, invoked, imported, cited, or used as proof must be diagnosed before new capability is layered on top. Treating legacy uncertainty as a reason to proceed faster is constitutional circumvention.
+
+No agent may close a remediation it authored or touched by assertion. Closure requires reproducible evidence, updated diagnostic/remediation records, the relevant gates, and independent human/code-owner review. A local checkout may record `UNKNOWN`; it may not transform it into `PASS` without the required proof.
+
 ## 6. Modification, architecture, testing, security, and migration rules
 
 - Make the smallest reversible change that preserves the existing architectural boundaries.

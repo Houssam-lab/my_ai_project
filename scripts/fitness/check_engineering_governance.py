@@ -144,6 +144,84 @@ def _require_nonempty_list(policy: dict[str, Any], field: str, failures: list[st
     return value
 
 
+def validate_project_remediation_gate(policy: dict[str, Any], root: Path = ROOT) -> list[str]:
+    """Validate the mandatory live diagnostic and remediation start gate."""
+    failures: list[str] = []
+    gate = policy.get("project_remediation_gate")
+    if not isinstance(gate, dict):
+        return ["policy.project_remediation_gate must be an object"]
+
+    diagnostic = str(gate.get("diagnostic_path", ""))
+    remediation_plan = str(gate.get("remediation_plan_path", ""))
+    if not diagnostic or not (root / diagnostic).is_file():
+        failures.append("project remediation diagnostic path is missing")
+    elif not _read(root / diagnostic).strip():
+        failures.append("project remediation diagnostic is empty")
+
+    plan_payload: dict[str, Any] | None = None
+    if not remediation_plan or not (root / remediation_plan).is_file():
+        failures.append("project remediation plan path is missing")
+    else:
+        try:
+            loaded_plan = json.loads((root / remediation_plan).read_text(encoding="utf-8"))
+        except json.JSONDecodeError as exc:
+            failures.append(f"project remediation plan is invalid JSON: {exc}")
+        else:
+            if not isinstance(loaded_plan, dict):
+                failures.append("project remediation plan root must be an object")
+            else:
+                plan_payload = loaded_plan
+
+    blocked_statuses = set(gate.get("blocked_statuses_for_critical", []))
+    for status in ("OPEN", "UNKNOWN", "UNVERIFIED"):
+        if status not in blocked_statuses:
+            failures.append(f"critical remediation status `{status}` must remain blocking")
+    if "CRITICAL" not in set(gate.get("critical_severities", [])):
+        failures.append("project remediation gate must treat CRITICAL severity as blocking")
+    if gate.get("non_self_certification_required") is not True:
+        failures.append("project remediation closure must require non-self-certification")
+
+    if plan_payload is not None:
+        for field in gate.get("required_plan_fields", []):
+            if plan_payload.get(str(field)) in (None, "", [], {}):
+                failures.append(f"project remediation plan missing `{field}`")
+        if diagnostic and plan_payload.get("diagnostic") != diagnostic:
+            failures.append("project remediation plan diagnostic path does not match policy")
+        remediations = plan_payload.get("remediations")
+        if not isinstance(remediations, list) or not remediations:
+            failures.append("project remediation plan must contain remediation records")
+        else:
+            required_fields = [str(field) for field in gate.get("required_remediation_fields", [])]
+            critical_blockers = 0
+            for index, item in enumerate(remediations, start=1):
+                if not isinstance(item, dict):
+                    failures.append(f"project remediation record {index} must be an object")
+                    continue
+                for field in required_fields:
+                    if item.get(field) in (None, "", [], {}):
+                        failures.append(f"project remediation record {index} missing `{field}`")
+                if item.get("severity") in set(gate.get("critical_severities", [])) and item.get(
+                    "status"
+                ) in blocked_statuses:
+                    critical_blockers += 1
+            if critical_blockers and "BLOCKED" not in str(plan_payload.get("status", "")):
+                failures.append(
+                    "project remediation plan has critical blockers but does not declare a blocked status"
+                )
+
+    for entrypoint in gate.get("required_agent_entrypoints", []):
+        entrypoint_path = root / str(entrypoint)
+        text = _read(entrypoint_path)
+        if not text:
+            failures.append(f"project remediation entrypoint is missing: {entrypoint}")
+            continue
+        if diagnostic not in text or remediation_plan not in text:
+            failures.append(
+                f"{entrypoint} does not bind the live diagnostic and remediation plan"
+            )
+    return failures
+
+
 def validate_policy(policy: dict[str, Any], root: Path = ROOT) -> list[str]:  # noqa: PLR0912, PLR0915
     """Validate static law, wiring, documentation, and ownership connections."""
     failures: list[str] = []
@@ -163,6 +241,7 @@ def validate_policy(policy: dict[str, Any], root: Path = ROOT) -> list[str]:  # 
             failures.append(f"policy entrypoint is missing: {path!r}")
     _require_nonempty_list(policy, "protected_paths", failures)
     _require_nonempty_list(policy, "required_evidence_statuses", failures)
+    failures.extend(validate_project_remediation_gate(policy, root))
 
     packet = policy.get("pre_modification_packet")
     required_pre_modification = {
@@ -214,6 +293,7 @@ def validate_policy(policy: dict[str, Any], root: Path = ROOT) -> list[str]:  # 
     for anchor in (
         "Mandatory pre-modification gate",
         "Old-problem frontier",
+        "Microscopic diagnosis and compulsory remediation",
         "No self-certification",
         "Constitutional amendment",
         "Evidence status",

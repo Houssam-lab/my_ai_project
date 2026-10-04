@@ -150,8 +150,12 @@ def check_file(filepath: Path) -> list[str]:
     try:
         content = filepath.read_text(encoding="utf-8")
         tree = ast.parse(content, filename=str(filepath))
-    except Exception as exc:  # pragma: no cover - diagnostic only
+    except Exception as exc:
+        message = (
+            f"{filepath} - Unable to parse Python source; guardrails must fail closed: {exc}"
+        )
         print(f"Error parsing {filepath}: {exc}", file=sys.stderr)
+        errors.append(message)
         return errors
 
     parts = filepath.parts

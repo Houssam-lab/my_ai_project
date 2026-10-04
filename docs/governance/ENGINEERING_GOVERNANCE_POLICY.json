@@ -52,7 +52,11 @@
     "docs/architecture/ENGINEERING_MATURITY_MATRIX.md",
     "docs/governance/**",
     "scripts/fitness/**",
-    "tests/fitness/**"
+    "tests/fitness/**",
+    "docs/architecture/FOUNDATION_SAFETY_CONSTITUTION.md",
+    ".memory/project_diagnostic_truth.md",
+    "scripts/ci_guardrails.py",
+    "scripts/ci/**"
   ],
   "amendment_records": {
     "directory": "docs/governance/amendments",
@@ -142,5 +146,39 @@
       "OPERATIONALLY VERIFIED"
     ],
     "limitation": "Repository files can declare and locally audit desired controls, but only a GitHub administrator or an API token with branch-protection read access can prove the live platform configuration."
+  },
+  "project_remediation_gate": {
+    "diagnostic_path": ".memory/project_diagnostic_truth.md",
+    "remediation_plan_path": "docs/governance/PROJECT_REMEDIATION_PLAN.json",
+    "required_agent_entrypoints": [
+      "AGENTS.md",
+      "CLAUDE.md",
+      "docs/governance/AGENT_CONTEXT_REGISTRY.json"
+    ],
+    "blocked_statuses_for_critical": [
+      "OPEN",
+      "UNKNOWN",
+      "UNVERIFIED"
+    ],
+    "critical_severities": [
+      "CRITICAL"
+    ],
+    "required_plan_fields": [
+      "$schema_version",
+      "status",
+      "diagnostic",
+      "owner",
+      "rule",
+      "remediations",
+      "amendment_rule"
+    ],
+    "required_remediation_fields": [
+      "id",
+      "severity",
+      "title",
+      "status",
+      "acceptance"
+    ],
+    "non_self_certification_required": true
   }
 }

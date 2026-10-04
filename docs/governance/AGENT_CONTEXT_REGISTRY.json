@@ -74,6 +74,16 @@
       "rank": 14,
       "path": ".memory/reference_backbone_truth.md",
       "role_ar": "الحالة الحالية للعمود الفقري المرجعي"
+    },
+    {
+      "rank": 15,
+      "path": ".memory/project_diagnostic_truth.md",
+      "role_ar": "تشخيص الأساس الحي وحالة العوائق قبل أي بداية"
+    },
+    {
+      "rank": 16,
+      "path": "docs/governance/PROJECT_REMEDIATION_PLAN.json",
+      "role_ar": "سجل العلاج الإجباري وحالات الإغلاق الممنوعة ذاتياً"
     }
   ],
   "boot_sequence": [
@@ -113,9 +123,11 @@
       "read": [
         ".memory/runtime_truth.md",
         ".memory/reference_backbone_truth.md",
-        ".memory/deep_tech_constitution_truth.md"
+        ".memory/deep_tech_constitution_truth.md",
+        ".memory/project_diagnostic_truth.md",
+        "docs/governance/PROJECT_REMEDIATION_PLAN.json"
       ],
-      "outcome_ar": "تمييز ACTIVE وPROPOSED وDORMANT وعدم تحويل النية إلى حقيقة"
+      "outcome_ar": "تمييز ACTIVE وPROPOSED وDORMANT وعدم تحويل النية إلى حقيقة؛ وتحديد عوائق التشخيص وخطة العلاج قبل أي بناء أعلى منها"
     },
     {
       "step": 5,
@@ -177,7 +189,9 @@
       "اكتب فرضية القيمة التجارية والعميل المتأثر قبل ميزة جديدة.",
       "تحقق من القوانين والفوارض والعقود وحدود الأمن.",
       "تحقق من الحالة الحية قبل وصف أي قدرة بأنها موجودة.",
-      "اختر أقل تغيير إضافي يحقق الهدف ولا تحذف أي أصل."
+      "اختر أقل تغيير إضافي يحقق الهدف ولا تحذف أي أصل.",
+      "حمّل التشخيص الحي وخطة العلاج وحدد remediation IDs المتأثرة قبل أي تغيير.",
+      "إذا كان عائق حرج OPEN أو UNKNOWN أو UNVERIFIED على المسار المتأثر، عالج الأساس أو توقف؛ لا تبن فوقه."
     ],
     "during_change_ar": [
       "لا تخترع أرقاماً أو نتائج أو حالة تنفيذ.",
@@ -243,7 +257,9 @@
     "docs/architecture/REFERENCE_BACKBONE_CONSTITUTION.md",
     "docs/adr/ADR-013-reference-backbone.md",
     "ENGINEERING_CONSTITUTION.md",
-    "docs/governance/ENGINEERING_GOVERNANCE_POLICY.json"
+    "docs/governance/ENGINEERING_GOVERNANCE_POLICY.json",
+    ".memory/project_diagnostic_truth.md",
+    "docs/governance/PROJECT_REMEDIATION_PLAN.json"
   ],
   "enforcer": "scripts/fitness/check_agent_context.py"
 }

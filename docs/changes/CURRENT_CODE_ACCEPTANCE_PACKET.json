@@ -1,9 +1,9 @@
 {
   "$schema_version": 1,
-  "packet_id": "CAP-2026-10-04-engineering-governance-bootstrap",
+  "packet_id": "CAP-2026-10-04-mandatory-remediation-start-gate",
   "status": "READY_FOR_GATE",
   "decision": "D-277",
-  "decision_of_change": "Bootstrap دستوري فقط: توحيد سلطة مسار التعديل في ENGINEERING_CONSTITUTION.md، وسياسة قابلة للفحص، وسجل تعديل دستوري، وفارض CI، وبراهين سلبية؛ دون تغيير سلوك المنتج أو التطبيق.",
+  "decision_of_change": "D-311: جعل التشخيص المجهري وخطة العلاج الإجباري بوابة بدء غير قابلة للتجاوز في الدستور الهندسي، مع إنفاذ آلي وربط سياق الوكلاء وإثبات سلبي لفشل القراءة.",
   "standards": [
     "system-design-101",
     "clean-code-book",
@@ -74,7 +74,7 @@
   ],
   "production": {
     "owner": "engineering-governance / anti-vibe-coding",
-    "status": "CONSTITUTIONAL_ENGINEERING_GOVERNANCE_BOOTSTRAP_NO_RUNTIME_PRODUCT_FEATURE",
+    "status": "CONSTITUTIONAL_REMEDIATION_START_GATE_NO_RUNTIME_PRODUCT_FEATURE",
     "interfaces": [
       "CLAUDE.md boot context",
       "AGENTS.md agent directives",
@@ -86,7 +86,11 @@
       "ENGINEERING_CONSTITUTION.md",
       "docs/governance/ENGINEERING_GOVERNANCE_POLICY.json",
       "scripts/fitness/check_engineering_governance.py",
-      "docs/governance/amendments/BOOTSTRAP-ENGINEERING-GOVERNANCE.md"
+      "docs/governance/amendments/BOOTSTRAP-ENGINEERING-GOVERNANCE.md",
+      "ENGINEERING_CONSTITUTION.md §5.1 microscopic diagnosis and compulsory remediation start gate",
+      "docs/governance/ENGINEERING_GOVERNANCE_POLICY.json project_remediation_gate",
+      "scripts/fitness/check_engineering_governance.py validate_project_remediation_gate",
+      "scripts/ci_guardrails.py parse-failure fail-closed behavior"
     ],
     "runtime_evidence_paths": [
       "scripts/fitness/check_repository_microscope.py",
@@ -99,12 +103,15 @@
       "docs/changes/CURRENT_CODE_ACCEPTANCE_PACKET.json",
       "scripts/fitness/check_engineering_governance.py",
       "tests/fitness/test_engineering_governance_gate.py",
-      "tests/fitness/test_code_acceptance_gate.py"
+      "tests/fitness/test_code_acceptance_gate.py",
+      "docs/governance/amendments/D-311-MANDATORY-REMEDIATION-START-GATE.md",
+      "tests/guardrails/test_ci_guardrails.py",
+      "scripts/ci_guardrails.py"
     ],
-    "failure_behavior_ar": "تغيير محمي بلا سجل تعديل، ضعف اختبار، تبعية بلا ADR، أو هجرة مدمرة في المسار العادي يجعل check_engineering_governance أو check_code_acceptance يفشل. حماية GitHub الحية تبقى UNKNOWN إن لم يتوفر Admin/API.",
+    "failure_behavior_ar": "أي غياب للتشخيص أو خطة العلاج من مداخل الوكيل، أو محاولة جعل OPEN/UNKNOWN/UNVERIFIED غير حاجزة لعلاج CRITICAL، يفشل بوابة الحوكمة. وأي SyntaxError في guardrails يتحول الآن إلى انتهاك لا إلى PASS صامت.",
     "observability_ar": "المتحقق يطبع الانتهاك المحدد وملفات الحوكمة؛ الحزمة تسجل الأوامر والبراهين السلبية، ولا تسجل نجاح حماية GitHub الخارجية دون صلاحية API.",
     "security_boundary_ar": "حوكمة ساكنة محلية فقط؛ لا شبكة أو أسرار أو LLM. CODEOWNERS وحماية branch مستقلة خارج checkout.",
-    "rollback_ar": "git revert للدفعة الحوكمية بعد مراجعة مستقلة؛ لا أثر تشغيل منتج ولا تغير بيانات."
+    "rollback_ar": "git revert لدفعة D-311 بعد مراجعة مستقلة؛ لا تغيّر runtime أو بيانات إنتاجية."
   },
   "commercial_trace": {
     "offer_ids": [
@@ -123,16 +130,16 @@
   "verification": {
     "result": "PASS",
     "commands": [
-      "PYTHONPATH=. /tmp/naas-governance-venv/bin/python -m pytest -q -c /dev/null --confcutdir=tests/fitness -o cache_dir=/tmp/naas-governance-pytest-cache tests/fitness/test_engineering_governance_gate.py tests/fitness/test_code_acceptance_gate.py tests/fitness/test_process_governance_gates.py tests/fitness/test_check_vibe_coding_constitution.py — PASS (47 passed)",
-      "/tmp/naas-governance-venv/bin/python scripts/fitness/check_governance_registry.py — PASS (107 gates; 1 declared execution debt)",
-      "/tmp/naas-governance-venv/bin/python scripts/fitness/check_ci_workflow_hygiene.py — PASS",
-      "/tmp/naas-governance-venv/bin/python scripts/fitness/check_gate_negative_proof.py — PASS (53/107 proven; 54 declared debt)",
-      "python scripts/fitness/check_engineering_governance.py — PASS (external branch-protection state explicitly EXTERNAL_ADMIN_VERIFICATION_REQUIRED)",
-      "/tmp/naas-governance-venv/bin/ruff check <changed Python files> — PASS",
-      "/tmp/naas-governance-venv/bin/ruff format --check <changed Python files> — PASS",
+      "python scripts/fitness/check_engineering_governance.py — PASS",
+      "python scripts/fitness/check_vibe_coding_constitution.py — PASS",
+      "python scripts/fitness/check_repository_microscope.py — PASS (3459 files, 50141077 bytes)",
+      "python scripts/fitness/check_code_acceptance.py — PASS",
+      "python -m py_compile scripts/ci_guardrails.py scripts/fitness/check_engineering_governance.py tests/fitness/test_engineering_governance_gate.py tests/guardrails/test_ci_guardrails.py — PASS",
+      "focused function proofs for validate_project_remediation_gate and ci_guardrails parse failure — PASS",
       "git diff --check — PASS",
-      "Python 3.12 runtime verification — UNAVAILABLE in this sandbox; focused checks executed with Python 3.11 only because no Python 3.12 interpreter was installed.",
-      "/tmp/naas-governance-venv/bin/pre-commit run engineering-governance --all-files — PASS"
+      "python -m pytest -q tests/fitness/test_engineering_governance_gate.py tests/guardrails/test_ci_guardrails.py — UNAVAILABLE locally: /usr/bin/python has no pytest installed",
+      "ruff check changed Python files — UNAVAILABLE locally: ruff command not installed",
+      "python scripts/ci_guardrails.py — EXPECTED FAIL-CLOSED locally under Python 3.11; parse errors are now blocking violations instead of silent PASS"
     ]
   },
   "curriculum": {
@@ -214,68 +221,38 @@
     "owner": "curriculum-governance"
   },
   "changed_paths": [
-    ".github/CODEOWNERS",
-    ".github/PULL_REQUEST_TEMPLATE.md",
-    ".github/scripts/validate_pr_description.py",
-    ".github/workflows/ci.yml",
-    ".memory/ci-gates.md",
-    ".pre-commit-config.yaml",
-    "AGENTS.md",
-    "CLAUDE.md",
-    "CONTRIBUTING.md",
     "ENGINEERING_CONSTITUTION.md",
-    "docs/DOCUMENTATION_INDEX.md",
-    "docs/DOCUMENTATION_MANIFEST.json",
     "docs/changes/CURRENT_CODE_ACCEPTANCE_PACKET.json",
     "docs/governance/AGENT_CONTEXT_REGISTRY.json",
-    "docs/governance/CONSTITUTION_REGISTRY.json",
     "docs/governance/ENGINEERING_GOVERNANCE_POLICY.json",
-    "docs/governance/NEGATIVE_PROOFS.json",
-    "docs/governance/NO_BYPASS_CONTROL_PLANE.md",
-    "docs/governance/amendments/BOOTSTRAP-ENGINEERING-GOVERNANCE.md",
-    "scripts/fitness/check_code_acceptance.py",
+    "docs/governance/amendments/D-311-MANDATORY-REMEDIATION-START-GATE.md",
+    "scripts/ci_guardrails.py",
     "scripts/fitness/check_engineering_governance.py",
-    "tests/fitness/test_code_acceptance_gate.py",
     "tests/fitness/test_engineering_governance_gate.py",
-    "tests/fitness/test_process_governance_gates.py"
+    "tests/guardrails/test_ci_guardrails.py"
   ],
   "git_change_snapshot": {
-    "base_ref": "90205eca5b0df6a12e6f4dff8537ff81516d54a8",
+    "base_ref": "WORKTREE",
     "changed_paths_excluding_packet": [
-      ".github/CODEOWNERS",
-      ".github/PULL_REQUEST_TEMPLATE.md",
-      ".github/scripts/validate_pr_description.py",
-      ".github/workflows/ci.yml",
-      ".memory/ci-gates.md",
-      ".pre-commit-config.yaml",
-      "AGENTS.md",
-      "CLAUDE.md",
-      "CONTRIBUTING.md",
       "ENGINEERING_CONSTITUTION.md",
-      "docs/DOCUMENTATION_INDEX.md",
-      "docs/DOCUMENTATION_MANIFEST.json",
       "docs/governance/AGENT_CONTEXT_REGISTRY.json",
-      "docs/governance/CONSTITUTION_REGISTRY.json",
       "docs/governance/ENGINEERING_GOVERNANCE_POLICY.json",
-      "docs/governance/NEGATIVE_PROOFS.json",
-      "docs/governance/NO_BYPASS_CONTROL_PLANE.md",
-      "docs/governance/amendments/BOOTSTRAP-ENGINEERING-GOVERNANCE.md",
-      "scripts/fitness/check_code_acceptance.py",
+      "docs/governance/amendments/D-311-MANDATORY-REMEDIATION-START-GATE.md",
+      "scripts/ci_guardrails.py",
       "scripts/fitness/check_engineering_governance.py",
-      "tests/fitness/test_code_acceptance_gate.py",
       "tests/fitness/test_engineering_governance_gate.py",
-      "tests/fitness/test_process_governance_gates.py"
+      "tests/guardrails/test_ci_guardrails.py"
     ],
-    "content_sha256_excluding_packet": "f1972f43c22c4d1c9624ce64e97303e772d9f4e0eae3d31a68893f0709c35bfb",
+    "content_sha256_excluding_packet": "1e5e73fc678cd2673ac9bff323df5c62735a05c898a555752ca98809cd872bd2",
     "refreshed_on": "2026-10-04",
     "refresh_command": "python3 scripts/research/refresh_acceptance_diff_snapshot.py"
   },
   "repository_microscope": {
     "mode": "FULL_REPOSITORY_BYTE_CENSUS_EXCLUDING_PACKET",
-    "file_count_excluding_packet": 3458,
-    "total_bytes_excluding_packet": 50128200,
-    "total_newlines_excluding_packet": 881307,
-    "sha256_excluding_packet": "d0e0f3c8af7e6818f7e60db2402ade3f490195484d477476558926880c30ad99",
+    "file_count_excluding_packet": 3459,
+    "total_bytes_excluding_packet": 50141077,
+    "total_newlines_excluding_packet": 881545,
+    "sha256_excluding_packet": "7b205b7be776f38eb42272f0dc66c6a3effa5c3a021edc1f8d2c7fa508a971ef",
     "largest_file_excluding_packet": {
       "path": "Introduction to Agents.pdf",
       "bytes": 9473606
@@ -291,7 +268,7 @@
     "operator_attestation_ar": "هذا ليس ادعاء فهم شامل بذاته؛ إنه شرط مجهر آلي يسبق التحليل البشري والمصفوفة، ويجعل تجاهل القديم مرئياً."
   },
   "pre_modification": {
-    "current_state": "TESTED: توجد دساتير وبوابات وCODEOWNERS وسياسة حماية معلنة، لكن لا كان يوجد دستور حاكم واحد لمسار التعديل ولا سجل تعديل دستوري آلي. فحص GitHub الحي تعذر بـ403، لذلك حالة الحماية الخارجية UNKNOWN وليست مثبتة.",
+    "current_state": "TESTED: مجهر المستودع قرأ 3459 ملفاً؛ دستور منع Vibe Coding كان يربط التشخيص وخطة العلاج، لكن الدستور الهندسي الأعلى لم يكن يملك قسماً صريحاً وفحصاً خاصاً project_remediation_gate. محلياً Python 3.11 يجعل guardrails يفشل fail-closed على صياغة 3.12، وهذا عائق معلن لا نجاح مزيف.",
     "architecture_and_boundaries": [
       "ENGINEERING_CONSTITUTION.md هو قانون مسار التعديل، لا بديل لدساتير النطاق.",
       "docs/governance/ENGINEERING_GOVERNANCE_POLICY.json مصدر السياسة القابل للفحص.",
@@ -299,47 +276,48 @@
       "GitHub CODEOWNERS وحماية الفرع سلطة خارجية مستقلة؛ لا يدعي الفارض المحلي إثباتها."
     ],
     "existing_failures_and_old_debt": [
-      "FOUND: check_code_acceptance كان يقرأ الحذف المعلن فقط ولا يقارن مسارات D الفعلية، لذا يمكن نظرياً إخفاء حذف اختبار في packet.",
-      "FOUND: لا برهان سلبي مخصص سابقاً لـcheck_code_acceptance أو لدستور هندسة حاكم.",
-      "UNKNOWN: GitHub API لحماية main ردت بـ403 في بيئة التنفيذ؛ يلزم تحقق Human/Admin خارجي."
+      "FOUND: ci_guardrails.py كان يحول parse errors إلى رسائل stderr ثم يرجع PASS؛ عولج بأن تصبح أخطاء التحليل violations.",
+      "FOUND: ENGINEERING_CONSTITUTION.md لم يكن يملك قسم بدء صريح يربط project_diagnostic_truth وPROJECT_REMEDIATION_PLAN؛ أضيف §5.1.",
+      "FOUND: AGENT_CONTEXT_REGISTRY.json لم يكن يربط التشخيص وخطة العلاج في boot_sequence/required_sources؛ أضيف الربط.",
+      "REMAINS OPEN: R1/R3 من خطة العلاج يحتاجان Python 3.12 واختبارات قابلة لإعادة التشغيل ومراجعة مستقلة."
     ],
     "dependency_path": [
-      "AGENTS.md/CLAUDE.md/AGENT_CONTEXT_REGISTRY.json → ENGINEERING_CONSTITUTION.md → policy → governance gate → ci.yml guardrails → required-ci → branch protection/CODEOWNERS"
+      "AGENTS.md/CLAUDE.md/AGENT_CONTEXT_REGISTRY.json → ENGINEERING_CONSTITUTION.md §5.1 → ENGINEERING_GOVERNANCE_POLICY.project_remediation_gate → check_engineering_governance.py → CI guardrails → independent review",
+      "scripts/ci_guardrails.py parse path → check_file() → run_guardrails() → required guardrails job"
     ],
     "foundational_frontier": {
       "status": "REPAIRED_OR_CONTAINED_BEFORE_EXTENSION",
       "relevant_defects": [
-        "غياب فحص الحذف الفعلي في قبول التغيير.",
-        "غياب عقد تعديل دستوري آلي للمسارات الحساسة.",
-        "ادعاء قديم بأن API يثبت حماية GitHub رغم عدم توفر الصلاحية."
+        "الربط الدستوري الأعلى للتشخيص والعلاج كان غير صريح.",
+        "فشل parsing في guardrails كان لا يفشل البوابة محلياً.",
+        "حالة Python 3.12 والاختبارات الكاملة ما زالت عائقاً حرجاً مفتوحاً وليست مغلقة ذاتياً."
       ],
-      "decision": "أصلح/احتوِ هذه الفجوات الحاكمة قبل أي تطوير منتج؛ لا يطلب هذا bootstrap إصلاح دين تطبيق غير مرتبط."
+      "decision": "تم إصلاح/احتواء عيب البوابة والدستور قبل أي ميزة؛ لا يدعي هذا التغيير إغلاق كل خطة العلاج أو جاهزية الإنتاج."
     },
-    "root_cause": "الضوابط موجودة في طبقات متعددة، لكن لم يكن بينها مصدر سياسة واحد يربط حساسية الملفات بسجل تعديل منفصل وفحص حذف فعلي وحدّ صريح على ما يمكن إثباته من Checkout.",
-    "intended_change": "إضافة دستور وسياسة وفارض وبراهين سلبية وربطها ببوابة guardrails، مع تحديث حزمة القبول لتطلب دليل ما قبل التعديل والتحقق من الحذف الفعلي.",
+    "root_cause": "كانت قاعدة العلاج قبل الجديد موجودة في دستور منع Vibe Coding وتعليمات الوكلاء، لكنها لم تكن مصعدة بما يكفي داخل ENGINEERING_CONSTITUTION والسياسة القابلة للفحص، وكان guardrails يطبع أخطاء parsing دون تحويلها إلى فشل.",
+    "intended_change": "إضافة §5.1 إلى الدستور الهندسي، project_remediation_gate إلى السياسة، فحص validate_project_remediation_gate وبراهينه السلبية، وربط AGENT_CONTEXT_REGISTRY، وجعل فشل parsing في ci_guardrails انتهاكاً fail-closed.",
     "affected_invariants": [
-      "لا تصديق ذاتي.",
-      "القديم ذي الصلة قبل التمديد.",
-      "بوابات CI لا تُضعف لتمرير تغيير.",
-      "حذف الاختبارات لا يختبئ في packet.",
-      "UNKNOWN لا يتحول إلى ادعاء حماية خارجية."
+      "لا ميزة قبل الأساس.",
+      "القديم المتأثر يعالج قبل الجديد.",
+      "UNKNOWN/UNVERIFIED لا يتحولان إلى PASS.",
+      "لا إغلاق علاج ذاتي.",
+      "بوابة parsing تفشل مغلقة."
     ],
     "test_plan": [
-      "اختبار سلبي لتعديل ملف محمي بلا amendment record.",
-      "اختبار سلبي لإضافة pytest.skip.",
-      "اختبار سلبي لتغيير dependency manifest بلا ADR.",
-      "اختبار سلبي لهجرة DROP TABLE.",
-      "اختبار سلبي لحزمة قبول بلا pre_modification.",
-      "اختبار لمسار حذف فعلي.",
-      "اختبار سلبي لتضعيف CI عبر --deselect.",
-      "اختبار سلبي لادعاء RUNTIME VERIFIED لحماية الفرع من Checkout محلي."
+      "فحص سلبي: AGENT_CONTEXT/AGENTS/CLAUDE لا يربط التشخيص وخطة العلاج ⇒ فشل.",
+      "فحص سلبي: إزالة UNKNOWN/UNVERIFIED من حالات الحجب الحرجة ⇒ فشل.",
+      "فحص سلبي: ملف Python غير قابل للتحليل في guardrails ⇒ violation.",
+      "تشغيل governance audit وrepository microscope وcode acceptance وgit diff --check."
     ],
     "rollback_strategy": "git revert للدفعة الحوكمية كاملة بعد مراجعة مستقلة؛ لا هجرة ولا تغير بيانات أو runtime.",
     "verification_strategy": [
-      "تشغيل governance audit والبوابات القائمة والمركزة واختبارات pytest الجديدة.",
-      "تشغيل check_gate_negative_proof لتأكيد أن الفارضين انتقلا من debt إلى proven.",
-      "تشغيل check_code_acceptance وrepository microscope بعد تحديث البصمات.",
-      "تنفيذ Human/Admin لأمر GitHub API بحساب يملك branch-protection read للوصول من UNKNOWN إلى VERIFIED أو تسجيل العائق."
+      "python scripts/fitness/check_engineering_governance.py",
+      "python scripts/fitness/check_vibe_coding_constitution.py",
+      "python scripts/fitness/check_repository_microscope.py",
+      "python scripts/fitness/check_code_acceptance.py",
+      "python -m py_compile للملفات المتغيرة ذات الصلة",
+      "focused function proofs لبوابة العلاج وفشل parsing",
+      "python scripts/ci_guardrails.py يجب أن يفشل محلياً fail-closed تحت Python 3.11 بسبب عائق R1 المعلن"
     ],
     "claim_statuses": {
       "current_state": "TESTED",
@@ -347,7 +325,8 @@
       "negative_proofs": "TESTED",
       "ci_wiring": "IMPLEMENTED",
       "branch_protection_live_state": "UNKNOWN",
-      "runtime_product_change": "IMPLEMENTED"
+      "runtime_product_change": "IMPLEMENTED",
+      "full_python312_test_run": "UNKNOWN"
     }
   }
 }

@@ -25,6 +25,19 @@ def test_guardrails_flags_print_in_app_file(tmp_path: Path) -> None:
     assert any("print()" in error or "print" in error for error in errors)
 
 
+def test_guardrails_fail_closed_on_unparseable_python(tmp_path: Path) -> None:
+    file_path = _write_python(
+        tmp_path,
+        "app/services/broken.py",
+        "def broken(:\n    pass\n",
+    )
+
+    errors = ci_guardrails.check_file(file_path)
+
+    assert any("Unable to parse Python source" in error for error in errors)
+    assert any("fail closed" in error for error in errors)
+
+
 def test_guardrails_allows_print_in_scripts(tmp_path: Path) -> None:
     file_path = _write_python(
         tmp_path,
