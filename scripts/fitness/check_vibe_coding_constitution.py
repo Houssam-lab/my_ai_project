@@ -106,6 +106,10 @@ def main() -> int:  # noqa: PLR0912, PLR0915
         failures.append("constitution does not bind the live diagnostic and mandatory remediation plan")
     if FOUNDATION_CONSTITUTION not in constitution:
         failures.append("constitution does not bind the foundation safety constitution")
+    foundation = _read(ROOT / FOUNDATION_CONSTITUTION)
+    for anchor in ("### L1 —", "### L12 —", "الأفق التاريخي والمستقبلي", "المجهر الكامل غير الدائري"):
+        if anchor not in foundation:
+            failures.append(f"foundation constitution is missing: {anchor}")
     for path in (DIAGNOSTIC, REMEDIATION_PLAN, FOUNDATION_CONSTITUTION):
         if not (ROOT / path).is_file() or not (ROOT / path).read_text(encoding="utf-8").strip():
             failures.append(f"mandatory diagnostic/remediation artifact is missing or empty: {path}")
