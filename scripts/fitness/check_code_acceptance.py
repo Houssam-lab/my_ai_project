@@ -15,6 +15,7 @@ MATRIX = ROOT / "docs/governance/SOURCE_ADOPTION_MATRIX.json"
 EVIDENCE = ROOT / "docs/research/EVIDENCE_CATALOG.json"
 CURRICULUM = ROOT / "docs/research/CURRICULUM_APPLICATION_MATRIX.json"
 OFFERS = ROOT / "docs/commercial/OFFER_CATALOG.json"
+GOVERNANCE_POLICY = ROOT / "docs/governance/ENGINEERING_GOVERNANCE_POLICY.json"
 FAILURES: list[str] = []
 PACKET_REL = "docs/changes/CURRENT_CODE_ACCEPTANCE_PACKET.json"
 
@@ -98,13 +99,88 @@ def fingerprint(paths: list[str]) -> str:
     return digest.hexdigest()
 
 
+def current_deleted_paths() -> list[str]:
+    """Return actual deletions; a packet must not hide a removed test or control."""
+    base = os.environ.get("CODE_ACCEPTANCE_BASE_SHA", "").strip()
+    paths: set[str] = set()
+    if base:
+        paths.update(
+            line.strip()
+            for line in run_git(
+                ["diff", "--name-only", "--diff-filter=D", f"{base}...HEAD"]
+            ).splitlines()
+            if line.strip()
+        )
+    else:
+        for args in (
+            ["diff", "--name-only", "--diff-filter=D"],
+            ["diff", "--cached", "--name-only", "--diff-filter=D"],
+        ):
+            paths.update(line.strip() for line in run_git(args).splitlines() if line.strip())
+    return sorted(paths)
+
+
+def load_governance_policy() -> dict | None:
+    return load(GOVERNANCE_POLICY, "engineering governance policy")
+
+
+def validate_pre_modification(packet: dict, policy: dict) -> list[str]:
+    """Validate the pre-change evidence required by the engineering constitution."""
+    failures: list[str] = []
+    contract = policy.get("pre_modification_packet")
+    if not isinstance(contract, dict):
+        return ["engineering governance policy lacks pre_modification_packet"]
+    required = contract.get("required_fields")
+    if not isinstance(required, list) or not required:
+        return ["engineering governance policy lacks pre-modification required fields"]
+    pre_modification = packet.get("pre_modification")
+    if not isinstance(pre_modification, dict):
+        return ["packet must contain a pre_modification evidence object"]
+    for field in required:
+        value = pre_modification.get(str(field))
+        if value is None or value in ("", [], {}):
+            failures.append(f"pre_modification missing `{field}`")
+
+    frontier = pre_modification.get("foundational_frontier")
+    allowed_frontier = set(contract.get("foundational_frontier_statuses", []))
+    if not isinstance(frontier, dict):
+        failures.append("pre_modification.foundational_frontier must be an object")
+    elif frontier.get("status") not in allowed_frontier:
+        failures.append("pre_modification.foundational_frontier has an invalid status")
+    elif frontier.get("status") == "BLOCKED_PENDING_FOUNDATIONAL_REPAIR":
+        failures.append("change is blocked pending foundational repair; it cannot be accepted")
+
+    statuses = pre_modification.get("claim_statuses")
+    allowed_statuses = set(policy.get("required_evidence_statuses", []))
+    if not isinstance(statuses, dict) or not statuses:
+        failures.append("pre_modification.claim_statuses must be a non-empty object")
+    else:
+        invalid = sorted(key for key, status in statuses.items() if status not in allowed_statuses)
+        if invalid:
+            failures.append(f"claim_statuses uses unsupported evidence statuses: {invalid}")
+        forbidden_external = set(
+            policy.get("platform_controls", {}).get("forbidden_local_claim_statuses", [])
+        )
+        branch_protection_status = statuses.get("branch_protection_live_state")
+        if branch_protection_status in forbidden_external:
+            failures.append(
+                "pre_modification falsely claims local verification of external branch protection; "
+                "record UNKNOWN until an authorized external audit is attached"
+            )
+    return failures
+
+
 def main() -> int:
     packet = load(PACKET, "code acceptance packet")
     matrix = load(MATRIX, "source adoption matrix")
     evidence = load(EVIDENCE, "evidence catalog")
     curriculum = load(CURRICULUM, "curriculum application matrix")
     offers = load(OFFERS, "offer catalog")
-    if any(payload is None for payload in (packet, matrix, evidence, curriculum, offers)):
+    governance_policy = load_governance_policy()
+    if any(
+        payload is None
+        for payload in (packet, matrix, evidence, curriculum, offers, governance_policy)
+    ):
         return 1
     assert (
         packet is not None
@@ -112,10 +188,13 @@ def main() -> int:
         and evidence is not None
         and curriculum is not None
         and offers is not None
+        and governance_policy is not None
     )
 
     if packet.get("status") != "READY_FOR_GATE":
         fail("packet status must be READY_FOR_GATE")
+    for violation in validate_pre_modification(packet, governance_policy):
+        fail(violation)
     changed_paths = packet.get("changed_paths", [])
     snapshot = packet.get("git_change_snapshot", {})
     actual_paths = current_changed_paths()
@@ -258,8 +337,14 @@ def main() -> int:
             fail(f"commercial trace missing `{field}`")
 
     deletions = packet.get("deletions", {})
+    actual_deletions = current_deleted_paths()
+    if actual_deletions:
+        fail(
+            "code acceptance rejects actual deleted paths; a packet cannot hide deletion: "
+            f"{actual_deletions}"
+        )
     if deletions.get("count") != 0 or deletions.get("paths") != []:
-        fail("code acceptance requires zero deletions")
+        fail("code acceptance requires zero declared deletions")
     verification = packet.get("verification", {})
     if verification.get("result") != "PASS" or not verification.get("commands"):
         fail("verification must include commands and PASS result")

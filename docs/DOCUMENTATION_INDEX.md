@@ -25,6 +25,7 @@
 | ملف | الدور |
 |-----|------|
 | [`START_HERE.md`](START_HERE.md) | نقطة البداية الوحيدة للمطورين الجدد — المسار التشغيلي الحي |
+| [`../ENGINEERING_CONSTITUTION.md`](../ENGINEERING_CONSTITUTION.md) · [`governance/ENGINEERING_GOVERNANCE_POLICY.json`](governance/ENGINEERING_GOVERNANCE_POLICY.json) | 🔒 الدستور الحاكم لمسار التعديل: أسبقية السلطة، بوابة ما قبل التعديل، الدين القديم، حالات الدليل، تعديلات الدستور، والحدّ الصريح بين الحماية المحلية وسلطة GitHub الخارجية؛ يحرسه `check_engineering_governance` |
 | [`DOCUMENTATION_CONTRACT.md`](DOCUMENTATION_CONTRACT.md) · [`DOCUMENTATION_MANIFEST.json`](DOCUMENTATION_MANIFEST.json) | عقد التوثيق الحي وبيانه الآلي؛ يحدد الوثائق الحية ويفحص كل Markdown غير مؤرشف؛ الفشل في بوابته يمنع الدمج |
 | [`ARCHITECTURE.md`](ARCHITECTURE.md) | نظرة معمارية مبسطة (التفصيل الحيّ: CLAUDE.md §3) |
 | [`REPOSITORY_MAP.md`](REPOSITORY_MAP.md) | خريطة المستودع |

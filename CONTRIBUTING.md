@@ -15,6 +15,8 @@ pip install -r requirements-test.txt
 
 ## 2) Required local checks before opening a PR
 
+Read [`ENGINEERING_CONSTITUTION.md`](ENGINEERING_CONSTITUTION.md) and run `python scripts/fitness/check_engineering_governance.py` before proposing a change. If the PR changes a constitution, CI, gate, governance test, entry protocol, dependency manifest, or migration, follow the amendment and pre-modification evidence rules rather than treating it as an ordinary edit.
+
 Use the canonical entrypoints from the repository root. Do not replace a failing gate with a warning, `|| true`, a skipped job, or a hand-written claim in the PR description.
 
 ```bash

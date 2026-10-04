@@ -1,0 +1,146 @@
+{
+  "$schema_version": "1",
+  "policy_id": "engineering-governance-bootstrap",
+  "canonical_constitution": "ENGINEERING_CONSTITUTION.md",
+  "entrypoints": [
+    "AGENTS.md",
+    "CLAUDE.md",
+    "docs/governance/AGENT_CONTEXT_REGISTRY.json"
+  ],
+  "enforcer": "scripts/fitness/check_engineering_governance.py",
+  "required_evidence_statuses": [
+    "UNKNOWN",
+    "ASSUMED",
+    "IMPLEMENTED",
+    "TESTED",
+    "INTEGRATED",
+    "RUNTIME VERIFIED",
+    "FAILURE TESTED",
+    "OPERATIONALLY VERIFIED"
+  ],
+  "pre_modification_packet": {
+    "path": "docs/changes/CURRENT_CODE_ACCEPTANCE_PACKET.json",
+    "required_fields": [
+      "current_state",
+      "architecture_and_boundaries",
+      "existing_failures_and_old_debt",
+      "dependency_path",
+      "foundational_frontier",
+      "root_cause",
+      "intended_change",
+      "affected_invariants",
+      "test_plan",
+      "rollback_strategy",
+      "verification_strategy",
+      "claim_statuses"
+    ],
+    "foundational_frontier_statuses": [
+      "NO_BLOCKING_FOUNDATIONAL_DEFECT_IDENTIFIED",
+      "REPAIRED_OR_CONTAINED_BEFORE_EXTENSION",
+      "BLOCKED_PENDING_FOUNDATIONAL_REPAIR"
+    ]
+  },
+  "protected_paths": [
+    "ENGINEERING_CONSTITUTION.md",
+    "AGENTS.md",
+    "CLAUDE.md",
+    "CONTRIBUTING.md",
+    ".pre-commit-config.yaml",
+    ".github/**",
+    "docs/architecture/VIBE_CODING_PREVENTION_CONSTITUTION.md",
+    "docs/architecture/CODE_ACCEPTANCE_CONSTITUTION.md",
+    "docs/architecture/ENGINEERING_MATURITY_MATRIX.md",
+    "docs/governance/**",
+    "scripts/fitness/**",
+    "tests/fitness/**"
+  ],
+  "amendment_records": {
+    "directory": "docs/governance/amendments",
+    "new_record_required_for_protected_change": true,
+    "append_only": true,
+    "allowed_statuses": [
+      "PROPOSED_PENDING_INDEPENDENT_REVIEW",
+      "EMERGENCY_PENDING_RETROSPECTIVE",
+      "BOOTSTRAP_PENDING_INDEPENDENT_REVIEW"
+    ],
+    "required_markers": [
+      "Change ID:",
+      "Status:",
+      "Reason:",
+      "Scope:",
+      "Affected invariants:",
+      "Risk:",
+      "Owner:",
+      "Independent reviewer:",
+      "Mitigation:",
+      "Rollback:",
+      "Verification plan:",
+      "Expiration:",
+      "Human/admin approval required: YES"
+    ]
+  },
+  "test_integrity": {
+    "test_prefixes": [
+      "tests/",
+      "scripts/ci/",
+      "microservices/"
+    ],
+    "forbidden_added_tokens": [
+      "pytest.skip(",
+      "pytest.mark.skip",
+      "pytest.mark.xfail",
+      "@pytest.mark.xfail",
+      "--deselect",
+      "--ignore="
+    ]
+  },
+  "dependency_control": {
+    "manifest_globs": [
+      "requirements*.txt",
+      "constraints.txt",
+      "pyproject.toml",
+      "frontend/package.json",
+      "frontend/package-lock.json"
+    ],
+    "required_adr_glob": "docs/adr/*.md"
+  },
+  "migration_control": {
+    "path_globs": [
+      "scripts/migrations/*.sql",
+      "migrations_archive/versions/*.py",
+      "microservices/**/migrations/*.py",
+      "app/core/db_schema_config.py"
+    ],
+    "forbidden_sql_patterns": [
+      "DROP TABLE",
+      "DROP COLUMN",
+      "TRUNCATE",
+      "DELETE FROM"
+    ],
+    "requires_changed_test": true
+  },
+  "required_ci": {
+    "workflow": ".github/workflows/ci.yml",
+    "job": "guardrails",
+    "aggregator": "required-ci"
+  },
+  "platform_controls": {
+    "desired_policy": ".github/branch-protection-policy.json",
+    "codeowners": ".github/CODEOWNERS",
+    "required": [
+      "protected main branch",
+      "required-ci status check",
+      "doc-integrity status check",
+      "code-owner review",
+      "independent approval after last push",
+      "no force push",
+      "no branch deletion"
+    ],
+    "verification_status": "EXTERNAL_ADMIN_VERIFICATION_REQUIRED",
+    "forbidden_local_claim_statuses": [
+      "RUNTIME VERIFIED",
+      "OPERATIONALLY VERIFIED"
+    ],
+    "limitation": "Repository files can declare and locally audit desired controls, but only a GitHub administrator or an API token with branch-protection read access can prove the live platform configuration."
+  }
+}

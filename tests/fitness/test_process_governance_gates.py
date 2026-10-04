@@ -177,6 +177,26 @@ def test_pr_rejects_missing_linked_issue(tmp_path: Path) -> None:
     assert "بلاغ مرتبط" in out
 
 
+def test_pr_rejects_sensitive_change_without_amendment_declaration(tmp_path: Path) -> None:
+    """A CI/constitution change cannot enter as an ordinary feature PR."""
+    code, out = _run_pr(GOOD_BODY, files=["AGENTS.md"], tmp_path=tmp_path)
+    assert code == 1
+    assert "Constitutional Amendment" in out
+
+
+def test_pr_accepts_sensitive_change_with_amendment_declaration(tmp_path: Path) -> None:
+    body = (
+        GOOD_BODY
+        + """
+## Constitutional Amendment
+- Amendment record: docs/governance/amendments/EXAMPLE.md
+- Independent reviewer: @independent-code-owner
+"""
+    )
+    code, out = _run_pr(body, files=["AGENTS.md"], tmp_path=tmp_path)
+    assert code == 0, out
+
+
 def test_pr_rejects_empty_body(tmp_path: Path) -> None:
     code, _ = _run_pr("   \n", tmp_path=tmp_path)
     assert code == 1

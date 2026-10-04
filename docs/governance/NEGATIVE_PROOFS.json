@@ -9,9 +9,9 @@
     "«اختبارٌ يستدعي البوّابة ويتوقّع نجاحها» ليس برهاناً سلبياً — يُثبِت أنّها تعمل لا أنّها تحجب."
   ],
   "measured_2026_08_19": {
-    "gates": 81,
-    "proven": 30,
-    "debt": 51
+    "gates": 107,
+    "proven": 53,
+    "debt": 54
   },
   "proven": {
     "check_agent_reliability_constitution.py": [
@@ -167,6 +167,12 @@
     ],
     "check_vibe_coding_constitution.py": [
       "tests/fitness/test_check_vibe_coding_constitution.py"
+    ],
+    "check_code_acceptance.py": [
+      "tests/fitness/test_code_acceptance_gate.py"
+    ],
+    "check_engineering_governance.py": [
+      "tests/fitness/test_engineering_governance_gate.py"
     ]
   },
   "frozen_debt": {
@@ -221,7 +227,6 @@
     "check_transcript_stage_coverage.py": "مذكورة في اختبارٍ لا يؤكّد فشلاً — تُثبِت أنّها تعمل ولا تُثبِت أنّها تحجب",
     "check_understanding_evidence.py": "بلا أيّ اختبار — لا يُعرَف إن كانت تحجب عند الخرق",
     "check_agent_context.py": "بوابة سياق الوكيل جديدة في سجل البراهين؛ تحتاج اختبارًا يكسر مصدرًا أو مسارًا ويثبت خروجًا غير صفري.",
-    "check_code_acceptance.py": "بوابة حزمة القبول جديدة في سجل البراهين؛ تحتاج اختبارًا يقدّم packet غير صالح ويثبت رفضه.",
     "check_reference_backbone.py": "بوابة العمود المرجعي بلا اختبار سلبي مخصص؛ لا يُعلن برهان الحجب قبل إضافة fixture مكسور.",
     "check_deep_tech_constitution.py": "Newly added, lacking negative proof for now.",
     "check_pocock_gates.py": "Newly added, lacking negative proof for now."

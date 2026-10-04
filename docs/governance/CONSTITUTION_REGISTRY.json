@@ -53,7 +53,8 @@
           "shellcheck": "لا يشغّله أيّ workflow."
         },
         "local_only_repos": {
-          "pre-commit/pre-commit-hooks": "نظافة ملفّاتٍ محلّية بحتة (مسافات · نهاية سطر · صحّة YAML/JSON/TOML · تعارض دمج · مفتاح خاصّ). لا تناقض CI بأيّ وجه: ruff format يوافقها على مسافات بايثون ونهاية الملفّ، وdetect-private-key صدىً مبكّر لبوّابة check_no_committed_secrets (D-268)."
+          "pre-commit/pre-commit-hooks": "نظافة ملفّاتٍ محلّية بحتة (مسافات · نهاية سطر · صحّة YAML/JSON/TOML · تعارض دمج · مفتاح خاصّ). لا تناقض CI بأيّ وجه: ruff format يوافقها على مسافات بايثون ونهاية الملفّ، وdetect-private-key صدىً مبكّر لبوّابة check_no_committed_secrets (D-268).",
+          "local": "خطّاف repository-local بلا تبعية خارجية يشغّل check_engineering_governance.py نفسه الموجود في CI؛ pass_filenames=false وalways_run=true لأن تدقيق السياسة يعتمد الدفعة كاملة."
         }
       }
     },
@@ -80,7 +81,8 @@
       "enforcers": [
         "check_constitution_reality.py",
         "check_memory_coherence.py",
-        "check_authority_links.py"
+        "check_authority_links.py",
+        "check_engineering_governance.py"
       ]
     },
     {

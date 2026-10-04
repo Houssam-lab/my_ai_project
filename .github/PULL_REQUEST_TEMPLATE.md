@@ -71,6 +71,11 @@ pytest tests/fitness -q               # 30 passed
 قبل الإصلاح ثمّ النتيجة بعده (لقطة طرفية تكفي لما ليس واجهة).
 -->
 
+## Constitutional Amendment
+<!-- Required only when this PR changes a constitutionally sensitive artifact. Name the new append-only record under docs/governance/amendments/ and the independent reviewer. The author must never mark their own amendment approved. Otherwise write: N/A — no protected artifact changed. -->
+- Amendment record:
+- Independent reviewer:
+
 ## Governance Checklist (Required)
 - [ ] I updated docs when runtime/CI behavior changed.
 - [ ] I did not add duplicate CI truth layers.

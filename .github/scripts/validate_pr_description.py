@@ -35,6 +35,7 @@
 from __future__ import annotations
 
 import argparse
+import fnmatch
 import json
 import os
 import re
@@ -86,6 +87,9 @@ CODE_BLOCK_RE = re.compile(r"```[\s\S]{10,}?```")
 
 #: مساراتٌ تجعل التغيير مرئياً للطالب ⇒ لقطةٌ إلزامية.
 FRONTEND_PREFIXES: tuple[str, ...] = ("frontend/",)
+GOVERNANCE_POLICY = (
+    Path(__file__).resolve().parents[2] / "docs/governance/ENGINEERING_GOVERNANCE_POLICY.json"
+)
 
 READY_LABEL = "ready-for-dev"
 
@@ -192,6 +196,37 @@ def _check_frontend_media(files: list[str], body: str, problems: list[str]) -> N
         problems.append(
             f"L1: تغييرٌ في الواجهة ({len(touched)} ملفّاً) بلا لقطةٍ أو فيديو — "
             "ما يراه الطالب يُرى في المراجعة."
+        )
+
+
+def _protected_paths() -> tuple[str, ...] | None:
+    """Read protected paths from the shared policy; invalid policy is not assumed safe."""
+    try:
+        policy = json.loads(GOVERNANCE_POLICY.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return None
+    paths = policy.get("protected_paths")
+    return tuple(str(path) for path in paths) if isinstance(paths, list) else None
+
+
+def _check_constitutional_amendment(
+    files: list[str], sections: dict[str, str], problems: list[str]
+) -> None:
+    patterns = _protected_paths()
+    if patterns is None:
+        problems.append("الحوكمة: لا يمكن قراءة سياسة حماية المسارات؛ لا يُفترض أنها سليمة.")
+        return
+    if not any(fnmatch.fnmatchcase(path, pattern) for path in files for pattern in patterns):
+        return
+    declaration = sections.get("Constitutional Amendment", "")
+    if "docs/governance/amendments/" not in declaration:
+        problems.append(
+            "الحوكمة: دفعة تمسّ دستوراً أو CI أو فارضاً تحتاج `## Constitutional Amendment` "
+            "يسمّي سجلاً جديداً تحت `docs/governance/amendments/`."
+        )
+    if "Independent reviewer:" not in declaration:
+        problems.append(
+            "الحوكمة: تعديل دستوري يحتاج تسمية `Independent reviewer:`؛ المؤلف لا يصدّق نفسه."
         )
 
 
@@ -335,6 +370,7 @@ def main(argv: list[str] | None = None) -> int:
     _check_test_evidence(sections, problems)
     _check_bugfix_reproduction(body, sections, problems)
     _check_frontend_media(files, body, problems)
+    _check_constitutional_amendment(files, sections, problems)
     _check_linked_issue(body, problems)
 
     if problems:

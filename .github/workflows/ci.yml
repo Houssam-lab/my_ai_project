@@ -168,6 +168,17 @@ jobs:
           # constitution. Keep this in the required guardrails path; a standalone
           # workflow would allow the constitution to become decorative documentation.
           python scripts/fitness/check_vibe_coding_constitution.py
+          # Engineering Constitution bootstrap: machine-check the protected-artifact
+          # policy, amendment record, test/dependency/migration controls, and entry
+          # wiring. It reports external GitHub branch protection as an explicit
+          # admin-verification requirement instead of pretending a checkout can prove it.
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            GOVERNANCE_BASE_SHA="${{ github.event.pull_request.base.sha }}" python scripts/fitness/check_engineering_governance.py
+          elif [ -n "${{ github.event.before }}" ] && [ "${{ github.event.before }}" != "0000000000000000000000000000000000000000" ]; then
+            GOVERNANCE_BASE_SHA="${{ github.event.before }}" python scripts/fitness/check_engineering_governance.py
+          else
+            python scripts/fitness/check_engineering_governance.py
+          fi
           # D-306/EMM: the anti-vibe-coding ladder is now a machine-readable
           # maturity matrix (M00→M28, 200-300 checkpoints). This gate prevents the
           # matrix from becoming decorative prose and keeps the current audit tied

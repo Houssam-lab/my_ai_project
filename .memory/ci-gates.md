@@ -16,8 +16,9 @@
 > them. All seven are wired now and `check_governance_registry.py` makes an
 > eighth impossible. Total gates on disk (derived, verified in CI):
 >
-> <!-- derived:gates_total=106 -->
-> **106** on disk in `scripts/fitness/` + `tools/ci/` — 105 executed, 1 declared debt
+> <!-- derived:gates_total=107 -->
+> **107** on disk in `scripts/fitness/` + `tools/ci/` — 106 executed, 1 declared debt
+> **2026-10-04 engineering-governance note:** `check_engineering_governance.py` adds a machine-readable protected-artifact policy, amendment-record control, and normal-path checks for test weakening, dependency manifests, and destructive migrations (106 → 107).
 > **2026-10-03 EMM note:** `check_engineering_maturity_matrix.py` adds the 29-stage / 295-checkpoint maturity matrix to required guardrails; it carries a negative-proof test and keeps the audit tied to D-300.
 > **2026-10-04 microscope note:** `check_repository_microscope.py` adds the non-circular byte census of old + future scope (105 → 106); it refuses future-only application and stale repository fingerprints.
 > **2026-10-03 honesty note:** the commit that added `check_hard_currency_engine.py`

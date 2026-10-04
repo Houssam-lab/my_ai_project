@@ -80,6 +80,13 @@
       "status": "live"
     },
     {
+      "path": "ENGINEERING_CONSTITUTION.md",
+      "audience": "all-contributors",
+      "role": "canonical-engineering-governance-constitution",
+      "authority": "primary",
+      "status": "live"
+    },
+    {
       "path": "docs/architecture/VIBE_CODING_PREVENTION_CONSTITUTION.md",
       "audience": "coding-agent",
       "role": "vibe-coding-prevention-constitution",
