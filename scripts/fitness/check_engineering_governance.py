@@ -144,7 +144,9 @@ def _require_nonempty_list(policy: dict[str, Any], field: str, failures: list[st
     return value
 
 
-def validate_project_remediation_gate(policy: dict[str, Any], root: Path = ROOT) -> list[str]:
+def validate_project_remediation_gate(  # noqa: PLR0912, PLR0915
+    policy: dict[str, Any], root: Path = ROOT
+) -> list[str]:
     """Validate the mandatory live diagnostic and remediation start gate."""
     failures: list[str] = []
     gate = policy.get("project_remediation_gate")

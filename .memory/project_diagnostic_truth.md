@@ -26,7 +26,7 @@
 
 ```text
 python --version                         -> Python 3.11.2
-python -m compileall -q ...              -> FAIL (صياغة Python 3.12)
+python -m compileall -q REPOSITORY_PATHS -> FAIL (صياغة Python 3.12)
 python scripts/ci_guardrails.py           -> PASS مع Error parsing متعدد
 pytest --collect-only -q                  -> UNAVAILABLE (pytest غير مثبت)
 check_memory_coherence.py                 -> PASS
@@ -36,9 +36,9 @@ check_engineering_governance.py          -> PASS
 
 أمثلة الصياغة غير القابلة للتحليل تحت 3.11:
 
-- `type RouterSpec = ...`
+- `type RouterSpec = TYPE_EXPRESSION`
 - `class Stack[T]:`
-- `def inject[T](...)`
+- `def inject with type parameter T`
 
 هذا ليس حكماً بأن الصياغة خاطئة تحت 3.12؛ إنه حكم بأن التشغيل المحلي الحالي غير صالح لإصدار الشهادة.
 
