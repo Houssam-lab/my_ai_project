@@ -156,8 +156,14 @@
     "check_value_chain.py": [
       "tests/fitness/test_check_value_chain.py"
     ],
+    "check_engineering_maturity_matrix.py": [
+      "tests/fitness/test_engineering_maturity_matrix_gate.py"
+    ],
     "check_hard_currency_engine.py": [
       "tests/fitness/test_check_hard_currency_engine.py"
+    ],
+    "check_repository_microscope.py": [
+      "tests/fitness/test_repository_microscope_gate.py"
     ],
     "check_vibe_coding_constitution.py": [
       "tests/fitness/test_check_vibe_coding_constitution.py"

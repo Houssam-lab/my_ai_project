@@ -1,0 +1,457 @@
+{
+  "$schema_version": "1",
+  "title_ar": "تطبيق أولي لمصفوفة النضج الهندسي على NAAS-Agentic-Core",
+  "date_utc": "2026-10-03",
+  "scope": {
+    "repository": "bakabala27-svg/NAAS-Agentic-Core",
+    "active_product_thesis": "fr-be-einvoicing-referential-cleansing",
+    "governing_decision": "D-300",
+    "frozen_platform": true,
+    "policy_ar": "التطبيق هنا لا يفتح المنصة التعليمية ولا يدعي نضجاً عاماً؛ إنه يضيف أداة تدقيق وقراءة محافظة لحالة المستودع.",
+    "coverage_policy": {
+      "existing_tracked_code": true,
+      "future_changes": true,
+      "legacy_is_not_exempt_ar": "كل مسار قديم في المستودع يخضع للمصفوفة عند لمسه أو الاعتماد عليه؛ إن لم يكن ناضجاً لا يختفي، بل يسجل كفجوة موروثة.",
+      "future_is_not_exempt_ar": "كل مسار مستقبلي يخضع للمصفوفة قبل دخوله، ولا يسمح بوعد تطبيق لاحق بعد الدمج.",
+      "repository_microscope_required": true,
+      "old_before_new": true,
+      "gate": "scripts/fitness/check_repository_microscope.py"
+    }
+  },
+  "scoring_model": {
+    "statuses": [
+      "EVIDENCED",
+      "PARTIAL",
+      "UNKNOWN",
+      "NOT_APPLICABLE"
+    ],
+    "rule_ar": "EVIDENCED يعني وجود دليل ملفّي أو بوابة أو اختبار؛ PARTIAL يعني وجود بنية مع فجوة معلنة؛ UNKNOWN أفضل من يقين مزيف."
+  },
+  "stage_assessments": [
+    {
+      "stage_id": "M00",
+      "stage_number": 0,
+      "name_ar": "الوجود",
+      "current_status": "EVIDENCED",
+      "evidence_paths": [
+        "README.md",
+        "docs/VALUE_DOCTRINE.md",
+        ".memory/decisions.md"
+      ],
+      "summary_ar": "الهدف والقيمة والحدود التجارية موثقة، مع تجميد صريح لما ليس نشطاً.",
+      "risk_of_vibe_jump_ar": "محدود حالياً بشرط بقاء الدليل والبوابات محدثة.",
+      "next_investigation_ar": "حوّل أي ادعاء جديد في هذه المرحلة إلى مسار دليل: فهم → تصميم → تنفيذ → تحقق → قابلية تطور."
+    },
+    {
+      "stage_id": "M01",
+      "stage_number": 1,
+      "name_ar": "الإدراك",
+      "current_status": "PARTIAL",
+      "evidence_paths": [
+        "docs/architecture/CS_KNOWLEDGE_MAP.md",
+        "docs/architecture/ENGINEERING_DOCTRINE.md",
+        ".memory/runtime_truth.md"
+      ],
+      "summary_ar": "النماذج والكيانات كثيرة ومصنفة، لكن المنصة التعليمية مجمدة وبعض المسارات ليست حية.",
+      "risk_of_vibe_jump_ar": "عالٍ إذا استُخدمت الطبقات العليا كدليل نضج دون إكمال أدلة هذه المرحلة.",
+      "next_investigation_ar": "حوّل أي ادعاء جديد في هذه المرحلة إلى مسار دليل: فهم → تصميم → تنفيذ → تحقق → قابلية تطور."
+    },
+    {
+      "stage_id": "M02",
+      "stage_number": 2,
+      "name_ar": "اللغة",
+      "current_status": "EVIDENCED",
+      "evidence_paths": [
+        "shared/curriculum/registry.py",
+        "shared/notation/registry.py",
+        "docs/DOCUMENTATION_INDEX.md"
+      ],
+      "summary_ar": "توجد مصادر لغة قانونية للمفاهيم والرموز، وتحرسها بوابات.",
+      "risk_of_vibe_jump_ar": "محدود حالياً بشرط بقاء الدليل والبوابات محدثة.",
+      "next_investigation_ar": "حوّل أي ادعاء جديد في هذه المرحلة إلى مسار دليل: فهم → تصميم → تنفيذ → تحقق → قابلية تطور."
+    },
+    {
+      "stage_id": "M03",
+      "stage_number": 3,
+      "name_ar": "الرموز والكتابة",
+      "current_status": "EVIDENCED",
+      "evidence_paths": [
+        "pyproject.toml",
+        "app/kernel.py",
+        "shared",
+        "scripts/fitness"
+      ],
+      "summary_ar": "الأبجدية التنفيذية موجودة ومحمية بأسلوب وفحص نوعي/تنسيقي جزئي.",
+      "risk_of_vibe_jump_ar": "محدود حالياً بشرط بقاء الدليل والبوابات محدثة.",
+      "next_investigation_ar": "حوّل أي ادعاء جديد في هذه المرحلة إلى مسار دليل: فهم → تصميم → تنفيذ → تحقق → قابلية تطور."
+    },
+    {
+      "stage_id": "M04",
+      "stage_number": 4,
+      "name_ar": "الحساب والمنطق",
+      "current_status": "EVIDENCED",
+      "evidence_paths": [
+        "app/core/foundations",
+        "app/core/reasoning",
+        "shared/illusion"
+      ],
+      "summary_ar": "المشروع يحمل طبقات حتمية للمنطق والأسس وتجنب اليقين المزيف.",
+      "risk_of_vibe_jump_ar": "محدود حالياً بشرط بقاء الدليل والبوابات محدثة.",
+      "next_investigation_ar": "حوّل أي ادعاء جديد في هذه المرحلة إلى مسار دليل: فهم → تصميم → تنفيذ → تحقق → قابلية تطور."
+    },
+    {
+      "stage_id": "M05",
+      "stage_number": 5,
+      "name_ar": "الرياضيات",
+      "current_status": "EVIDENCED",
+      "evidence_paths": [
+        "app/core/foundations",
+        "tests/core/test_foundations_first_roots.py"
+      ],
+      "summary_ar": "الرياضيات الأساسية ممثلة في وحدات حتمية واختبارات.",
+      "risk_of_vibe_jump_ar": "محدود حالياً بشرط بقاء الدليل والبوابات محدثة.",
+      "next_investigation_ar": "حوّل أي ادعاء جديد في هذه المرحلة إلى مسار دليل: فهم → تصميم → تنفيذ → تحقق → قابلية تطور."
+    },
+    {
+      "stage_id": "M06",
+      "stage_number": 6,
+      "name_ar": "علوم الحاسوب",
+      "current_status": "PARTIAL",
+      "evidence_paths": [
+        "docs/architecture/CS_KNOWLEDGE_MAP.md",
+        "scripts/fitness/check_cs_knowledge_map.py"
+      ],
+      "summary_ar": "خريطة علوم الحاسوب موجودة، لكن ليست كل المجالات حية تشغيلياً.",
+      "risk_of_vibe_jump_ar": "عالٍ إذا استُخدمت الطبقات العليا كدليل نضج دون إكمال أدلة هذه المرحلة.",
+      "next_investigation_ar": "حوّل أي ادعاء جديد في هذه المرحلة إلى مسار دليل: فهم → تصميم → تنفيذ → تحقق → قابلية تطور."
+    },
+    {
+      "stage_id": "M07",
+      "stage_number": 7,
+      "name_ar": "هندسة البرمجيات الأولى",
+      "current_status": "EVIDENCED",
+      "evidence_paths": [
+        "docs/architecture/CODE_ACCEPTANCE_CONSTITUTION.md",
+        "scripts/fitness/check_code_acceptance.py",
+        ".github/workflows/ci.yml"
+      ],
+      "summary_ar": "قبول التغيير مرتبط بسياق ومعايير ودليل وبوابات.",
+      "risk_of_vibe_jump_ar": "محدود حالياً بشرط بقاء الدليل والبوابات محدثة.",
+      "next_investigation_ar": "حوّل أي ادعاء جديد في هذه المرحلة إلى مسار دليل: فهم → تصميم → تنفيذ → تحقق → قابلية تطور."
+    },
+    {
+      "stage_id": "M08",
+      "stage_number": 8,
+      "name_ar": "التفكير في الزمن",
+      "current_status": "PARTIAL",
+      "evidence_paths": [
+        ".memory/roadmap.md",
+        ".memory/decisions.md",
+        "docs/architecture/EXTENSION_SEAMS.md"
+      ],
+      "summary_ar": "يوجد تفكير تطوري، لكن العمر الطويل نفسه فرضية لا دليل زمني.",
+      "risk_of_vibe_jump_ar": "عالٍ إذا استُخدمت الطبقات العليا كدليل نضج دون إكمال أدلة هذه المرحلة.",
+      "next_investigation_ar": "حوّل أي ادعاء جديد في هذه المرحلة إلى مسار دليل: فهم → تصميم → تنفيذ → تحقق → قابلية تطور."
+    },
+    {
+      "stage_id": "M09",
+      "stage_number": 9,
+      "name_ar": "الاختبار الحقيقي",
+      "current_status": "EVIDENCED",
+      "evidence_paths": [
+        "tests",
+        "scripts/fitness",
+        "docs/governance/NEGATIVE_PROOFS.json"
+      ],
+      "summary_ar": "اختبارات وبوابات كثيرة وبرهان سلبي لجزء معتبر من الحراسة.",
+      "risk_of_vibe_jump_ar": "محدود حالياً بشرط بقاء الدليل والبوابات محدثة.",
+      "next_investigation_ar": "حوّل أي ادعاء جديد في هذه المرحلة إلى مسار دليل: فهم → تصميم → تنفيذ → تحقق → قابلية تطور."
+    },
+    {
+      "stage_id": "M10",
+      "stage_number": 10,
+      "name_ar": "الأمن",
+      "current_status": "PARTIAL",
+      "evidence_paths": [
+        "SECURITY.md",
+        "docs/governance/SUPPLY_CHAIN.json",
+        "scripts/fitness/check_no_committed_secrets.py"
+      ],
+      "summary_ar": "الحدود الأمنية والسلسلة موجودة، لكن الأمن الكامل يتطلب مراجعات حية ومستمرة.",
+      "risk_of_vibe_jump_ar": "عالٍ إذا استُخدمت الطبقات العليا كدليل نضج دون إكمال أدلة هذه المرحلة.",
+      "next_investigation_ar": "حوّل أي ادعاء جديد في هذه المرحلة إلى مسار دليل: فهم → تصميم → تنفيذ → تحقق → قابلية تطور."
+    },
+    {
+      "stage_id": "M11",
+      "stage_number": 11,
+      "name_ar": "قواعد البيانات والحقيقة",
+      "current_status": "PARTIAL",
+      "evidence_paths": [
+        "app/core/db_schema_config.py",
+        "migrations_archive",
+        ".memory/runtime_truth.md"
+      ],
+      "summary_ar": "مصادر الحقيقة والـschema موثقة جزئياً، مع فجوات تشغيلية معلنة.",
+      "risk_of_vibe_jump_ar": "عالٍ إذا استُخدمت الطبقات العليا كدليل نضج دون إكمال أدلة هذه المرحلة.",
+      "next_investigation_ar": "حوّل أي ادعاء جديد في هذه المرحلة إلى مسار دليل: فهم → تصميم → تنفيذ → تحقق → قابلية تطور."
+    },
+    {
+      "stage_id": "M12",
+      "stage_number": 12,
+      "name_ar": "الأنظمة الموزعة",
+      "current_status": "PARTIAL",
+      "evidence_paths": [
+        "shared/messaging",
+        "docker-compose.yml",
+        "docs/architecture/MICROSERVICES_CONSTITUTION.md"
+      ],
+      "summary_ar": "الحافلة والعقود موجودة، لكن ليس كل النظام الموزع يعمل في CI.",
+      "risk_of_vibe_jump_ar": "عالٍ إذا استُخدمت الطبقات العليا كدليل نضج دون إكمال أدلة هذه المرحلة.",
+      "next_investigation_ar": "حوّل أي ادعاء جديد في هذه المرحلة إلى مسار دليل: فهم → تصميم → تنفيذ → تحقق → قابلية تطور."
+    },
+    {
+      "stage_id": "M13",
+      "stage_number": 13,
+      "name_ar": "الأداء",
+      "current_status": "PARTIAL",
+      "evidence_paths": [
+        "scripts/fitness/check_endpoint_complexity.py",
+        "scripts/reports/turn_latency.py",
+        "benchmarks"
+      ],
+      "summary_ar": "توجد مؤشرات تعقيد وزمن، وليست منصة أداء مكتملة.",
+      "risk_of_vibe_jump_ar": "عالٍ إذا استُخدمت الطبقات العليا كدليل نضج دون إكمال أدلة هذه المرحلة.",
+      "next_investigation_ar": "حوّل أي ادعاء جديد في هذه المرحلة إلى مسار دليل: فهم → تصميم → تنفيذ → تحقق → قابلية تطور."
+    },
+    {
+      "stage_id": "M14",
+      "stage_number": 14,
+      "name_ar": "التشغيل",
+      "current_status": "PARTIAL",
+      "evidence_paths": [
+        "docs/DEPLOYMENT_GUIDE.md",
+        ".devcontainer/supervisor.sh",
+        ".memory/runbooks"
+      ],
+      "summary_ar": "التشغيل موثق ومسارات محلية موجودة؛ الإنتاج الكامل ليس مثبتاً لكل الخدمات.",
+      "risk_of_vibe_jump_ar": "عالٍ إذا استُخدمت الطبقات العليا كدليل نضج دون إكمال أدلة هذه المرحلة.",
+      "next_investigation_ar": "حوّل أي ادعاء جديد في هذه المرحلة إلى مسار دليل: فهم → تصميم → تنفيذ → تحقق → قابلية تطور."
+    },
+    {
+      "stage_id": "M15",
+      "stage_number": 15,
+      "name_ar": "الملاحظة",
+      "current_status": "PARTIAL",
+      "evidence_paths": [
+        "observability",
+        ".memory/observability-topology.md",
+        "scripts/fitness/check_tracing_gate.py"
+      ],
+      "summary_ar": "الملاحظة مبدأ وحراس موجودة، وبعض البواعث والدلائل تحمل فجوات معلنة.",
+      "risk_of_vibe_jump_ar": "عالٍ إذا استُخدمت الطبقات العليا كدليل نضج دون إكمال أدلة هذه المرحلة.",
+      "next_investigation_ar": "حوّل أي ادعاء جديد في هذه المرحلة إلى مسار دليل: فهم → تصميم → تنفيذ → تحقق → قابلية تطور."
+    },
+    {
+      "stage_id": "M16",
+      "stage_number": 16,
+      "name_ar": "العلم التجريبي",
+      "current_status": "EVIDENCED",
+      "evidence_paths": [
+        "research",
+        "studies",
+        "scripts/research"
+      ],
+      "summary_ar": "البحث والقياسات الحتمية موجودة، مع فصل ما لا يدعي إيراداً.",
+      "risk_of_vibe_jump_ar": "محدود حالياً بشرط بقاء الدليل والبوابات محدثة.",
+      "next_investigation_ar": "حوّل أي ادعاء جديد في هذه المرحلة إلى مسار دليل: فهم → تصميم → تنفيذ → تحقق → قابلية تطور."
+    },
+    {
+      "stage_id": "M17",
+      "stage_number": 17,
+      "name_ar": "التصميم المقارن",
+      "current_status": "PARTIAL",
+      "evidence_paths": [
+        "docs/adr",
+        "docs/architecture/ENGINEERING_DOCTRINE.md"
+      ],
+      "summary_ar": "ADRs وبدائل موجودة، لكن ليست كل القرارات تحمل مقارنة كاملة.",
+      "risk_of_vibe_jump_ar": "عالٍ إذا استُخدمت الطبقات العليا كدليل نضج دون إكمال أدلة هذه المرحلة.",
+      "next_investigation_ar": "حوّل أي ادعاء جديد في هذه المرحلة إلى مسار دليل: فهم → تصميم → تنفيذ → تحقق → قابلية تطور."
+    },
+    {
+      "stage_id": "M18",
+      "stage_number": 18,
+      "name_ar": "إدارة التعقيد",
+      "current_status": "EVIDENCED",
+      "evidence_paths": [
+        "scripts/fitness/check_endpoint_complexity.py",
+        "docs/engineering/VIBE_CODING_RECOVERY_PLAN.md"
+      ],
+      "summary_ar": "إدارة التعقيد محروسة في مواضع متعددة، وD-300 يجمّد التوسع غير المثبت.",
+      "risk_of_vibe_jump_ar": "محدود حالياً بشرط بقاء الدليل والبوابات محدثة.",
+      "next_investigation_ar": "حوّل أي ادعاء جديد في هذه المرحلة إلى مسار دليل: فهم → تصميم → تنفيذ → تحقق → قابلية تطور."
+    },
+    {
+      "stage_id": "M19",
+      "stage_number": 19,
+      "name_ar": "أنظمة تستخدم AI",
+      "current_status": "PARTIAL",
+      "evidence_paths": [
+        "shared/ai_models/registry.py",
+        "docs/architecture/AGENTIC_ORCHESTRATION_DOCTRINE.md",
+        ".memory/runtime_truth.md"
+      ],
+      "summary_ar": "AI موجود ضمن عقود، مع فجوات مزود ونماذج معلنة؛ ليس كل شيء حياً.",
+      "risk_of_vibe_jump_ar": "عالٍ إذا استُخدمت الطبقات العليا كدليل نضج دون إكمال أدلة هذه المرحلة.",
+      "next_investigation_ar": "حوّل أي ادعاء جديد في هذه المرحلة إلى مسار دليل: فهم → تصميم → تنفيذ → تحقق → قابلية تطور."
+    },
+    {
+      "stage_id": "M20",
+      "stage_number": 20,
+      "name_ar": "Agents",
+      "current_status": "PARTIAL",
+      "evidence_paths": [
+        "docs/architecture/AGENTIC_ORCHESTRATION_DOCTRINE.md",
+        ".memory/agentic_runtime_doctrine.md"
+      ],
+      "summary_ar": "طبقات الوكلاء مصنفة، وبعضها مخطط أو جزئي لا حي بالكامل.",
+      "risk_of_vibe_jump_ar": "عالٍ إذا استُخدمت الطبقات العليا كدليل نضج دون إكمال أدلة هذه المرحلة.",
+      "next_investigation_ar": "حوّل أي ادعاء جديد في هذه المرحلة إلى مسار دليل: فهم → تصميم → تنفيذ → تحقق → قابلية تطور."
+    },
+    {
+      "stage_id": "M21",
+      "stage_number": 21,
+      "name_ar": "التحقق من AI نفسه",
+      "current_status": "PARTIAL",
+      "evidence_paths": [
+        "naas_verifier",
+        "docs/governance/GATE_LEDGER.json",
+        "scripts/fitness/check_naas_verification.py"
+      ],
+      "summary_ar": "التحقق من AI/الوكلاء منضبط بحالات صادقة، لكنه لا يدعي بوابات مكتملة.",
+      "risk_of_vibe_jump_ar": "عالٍ إذا استُخدمت الطبقات العليا كدليل نضج دون إكمال أدلة هذه المرحلة.",
+      "next_investigation_ar": "حوّل أي ادعاء جديد في هذه المرحلة إلى مسار دليل: فهم → تصميم → تنفيذ → تحقق → قابلية تطور."
+    },
+    {
+      "stage_id": "M22",
+      "stage_number": 22,
+      "name_ar": "المعرفة المؤسسية",
+      "current_status": "EVIDENCED",
+      "evidence_paths": [
+        ".memory/decisions.md",
+        ".memory/runtime_truth.md",
+        "docs/DOCUMENTATION_INDEX.md"
+      ],
+      "summary_ar": "المعرفة المؤسسية واسعة ومفهرسة ومحمية جزئياً من الانجراف.",
+      "risk_of_vibe_jump_ar": "محدود حالياً بشرط بقاء الدليل والبوابات محدثة.",
+      "next_investigation_ar": "حوّل أي ادعاء جديد في هذه المرحلة إلى مسار دليل: فهم → تصميم → تنفيذ → تحقق → قابلية تطور."
+    },
+    {
+      "stage_id": "M23",
+      "stage_number": 23,
+      "name_ar": "الهندسة المضادة",
+      "current_status": "PARTIAL",
+      "evidence_paths": [
+        "docs/governance/NEGATIVE_PROOFS.json",
+        "naas_verifier/benchmarks",
+        "tests/chaos"
+      ],
+      "summary_ar": "البراهين السلبية والكناري موجودة، لكن red-team/chaos الشامل ليس كاملاً.",
+      "risk_of_vibe_jump_ar": "عالٍ إذا استُخدمت الطبقات العليا كدليل نضج دون إكمال أدلة هذه المرحلة.",
+      "next_investigation_ar": "حوّل أي ادعاء جديد في هذه المرحلة إلى مسار دليل: فهم → تصميم → تنفيذ → تحقق → قابلية تطور."
+    },
+    {
+      "stage_id": "M24",
+      "stage_number": 24,
+      "name_ar": "التطور",
+      "current_status": "PARTIAL",
+      "evidence_paths": [
+        ".memory/decisions.md",
+        "CHANGELOG.md",
+        "docs/architecture/EXTENSION_SEAMS.md"
+      ],
+      "summary_ar": "التطور موثق عبر قرارات، لا عبر عقود أجيال زمنية حقيقية.",
+      "risk_of_vibe_jump_ar": "عالٍ إذا استُخدمت الطبقات العليا كدليل نضج دون إكمال أدلة هذه المرحلة.",
+      "next_investigation_ar": "حوّل أي ادعاء جديد في هذه المرحلة إلى مسار دليل: فهم → تصميم → تنفيذ → تحقق → قابلية تطور."
+    },
+    {
+      "stage_id": "M25",
+      "stage_number": 25,
+      "name_ar": "التفكير عبر الأجيال",
+      "current_status": "PARTIAL",
+      "evidence_paths": [
+        ".memory/decisions.md",
+        "docs/DOCUMENTATION_INDEX.md",
+        "docs/architecture/VIBE_CODING_PREVENTION_CONSTITUTION.md"
+      ],
+      "summary_ar": "المؤسساتية موجودة؛ اختبار 100 سنة افتراضي يبقى نموذج تدقيق لا دليل عمر.",
+      "risk_of_vibe_jump_ar": "عالٍ إذا استُخدمت الطبقات العليا كدليل نضج دون إكمال أدلة هذه المرحلة.",
+      "next_investigation_ar": "حوّل أي ادعاء جديد في هذه المرحلة إلى مسار دليل: فهم → تصميم → تنفيذ → تحقق → قابلية تطور."
+    },
+    {
+      "stage_id": "M26",
+      "stage_number": 26,
+      "name_ar": "الاستمرارية التطورية",
+      "current_status": "PARTIAL",
+      "evidence_paths": [
+        "docs/architecture/CODE_ACCEPTANCE_CONSTITUTION.md",
+        ".memory/runtime_truth.md",
+        "docs/governance/CONSTITUTION_REGISTRY.json"
+      ],
+      "summary_ar": "الاستمرارية محمية بالحوكمة، لكنها تعتمد على صيانة بشرية مستمرة.",
+      "risk_of_vibe_jump_ar": "عالٍ إذا استُخدمت الطبقات العليا كدليل نضج دون إكمال أدلة هذه المرحلة.",
+      "next_investigation_ar": "حوّل أي ادعاء جديد في هذه المرحلة إلى مسار دليل: فهم → تصميم → تنفيذ → تحقق → قابلية تطور."
+    },
+    {
+      "stage_id": "M27",
+      "stage_number": 27,
+      "name_ar": "المستوى الحضاري",
+      "current_status": "PARTIAL",
+      "evidence_paths": [
+        "README.md",
+        "GOVERNANCE.md",
+        "SAFEGUARDING.md",
+        "DATA_PROTECTION.md"
+      ],
+      "summary_ar": "الأطراف المتأثرة موثقة، ومع ذلك لا يدعي المشروع أثراً حضارياً مثبتاً.",
+      "risk_of_vibe_jump_ar": "عالٍ إذا استُخدمت الطبقات العليا كدليل نضج دون إكمال أدلة هذه المرحلة.",
+      "next_investigation_ar": "حوّل أي ادعاء جديد في هذه المرحلة إلى مسار دليل: فهم → تصميم → تنفيذ → تحقق → قابلية تطور."
+    },
+    {
+      "stage_id": "M28",
+      "stage_number": 28,
+      "name_ar": "الحكمة الهندسية",
+      "current_status": "EVIDENCED",
+      "evidence_paths": [
+        ".memory/decisions.md",
+        "docs/architecture/VIBE_CODING_PREVENTION_CONSTITUTION.md",
+        "docs/engineering/VIBE_CODING_RECOVERY_PLAN.md"
+      ],
+      "summary_ar": "قرار D-300 وتجميد المنصة دليل على حكم هندسي: ما لا نبنيه أهم مما نضيفه.",
+      "risk_of_vibe_jump_ar": "محدود حالياً بشرط بقاء الدليل والبوابات محدثة.",
+      "next_investigation_ar": "حوّل أي ادعاء جديد في هذه المرحلة إلى مسار دليل: فهم → تصميم → تنفيذ → تحقق → قابلية تطور."
+    }
+  ],
+  "jump_findings": [
+    {
+      "id": "JUMP-001",
+      "finding_ar": "المستودع يحمل طبقات AI/Agents/Verification متقدمة، لكن الحالة القانونية نفسها تسمي أجزاء منها PARTIAL أو ABSENT؛ لذلك لا يجوز قراءة وجود المجلدات أو الوثائق كدليل نضج تشغيلي.",
+      "evidence_paths": [
+        ".memory/runtime_truth.md",
+        "docs/governance/GATE_LEDGER.json",
+        "docs/architecture/AGENTIC_ORCHESTRATION_DOCTRINE.md"
+      ],
+      "required_action_ar": "أي ترقية لقدرة وكيلية يجب أن تقدم البرهان الثلاثي: import + call chain + runtime evidence، ثم اختبار/بوابة."
+    },
+    {
+      "id": "JUMP-002",
+      "finding_ar": "المشروع التجاري النشط ضيق ومقصود؛ توسيع المنتج أو بناء ميزات منصة مجمدة سيكون قفزة Vibe Coding فوق مرحلة الوجود والقيمة.",
+      "evidence_paths": [
+        ".memory/decisions.md",
+        "docs/engineering/VIBE_CODING_RECOVERY_PLAN.md"
+      ],
+      "required_action_ar": "اربط أي عمل جديد بإسفين الفوترة FR/BE أو صنفه كتغيير أساس غير تجاري مع سبب واضح."
+    }
+  ],
+  "owner_next_step_ar": "استخدم المصفوفة كبوابة مراجعة قبل كل قدرة جديدة: لا تسأل هل الكود موجود، بل هل كل طبقة معرفية تحتها مغطاة أو مُبرر تجاوزها بدليل."
+}

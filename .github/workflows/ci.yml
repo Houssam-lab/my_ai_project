@@ -168,6 +168,16 @@ jobs:
           # constitution. Keep this in the required guardrails path; a standalone
           # workflow would allow the constitution to become decorative documentation.
           python scripts/fitness/check_vibe_coding_constitution.py
+          # D-306/EMM: the anti-vibe-coding ladder is now a machine-readable
+          # maturity matrix (M00→M28, 200-300 checkpoints). This gate prevents the
+          # matrix from becoming decorative prose and keeps the current audit tied
+          # to D-300 instead of reopening the frozen educational platform.
+          python scripts/fitness/check_engineering_maturity_matrix.py
+          # D-306/L15: before any new character is accepted, the repository is read
+          # byte-for-byte (tracked files + new untracked files, excluding only the
+          # proof packet to avoid a circular hash). This makes "old code first" a
+          # checked artifact, not a slogan.
+          python scripts/fitness/check_repository_microscope.py
           # ADR-013: the mandatory reference backbone is pinned, additive, and
           # non-runtime. Removing or silently replacing a source is a hard failure.
           python scripts/fitness/check_reference_backbone.py

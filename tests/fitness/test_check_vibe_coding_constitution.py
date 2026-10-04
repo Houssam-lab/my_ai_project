@@ -44,3 +44,40 @@ def test_gate_blocks_when_agents_entrypoint_drops_the_constitution(
     severed_agents.write_text("# agents file with no constitution link\n", encoding="utf-8")
     monkeypatch.setattr(module, "AGENTS", severed_agents)
     assert module.main() == 1
+
+
+def test_gate_blocks_when_maturity_matrix_is_not_bound_to_constitution(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    """أي دستور يسمح بالقفز فوق مصفوفة النضج ليس دستور منع Vibe Coding."""
+    module = _load_gate()
+    severed_constitution = tmp_path / "VIBE_CODING_PREVENTION_CONSTITUTION.md"
+    text = module.CONSTITUTION.read_text(encoding="utf-8").replace(
+        module.MATURITY_GATE,
+        "scripts/fitness/missing_maturity_gate.py",
+    )
+    severed_constitution.write_text(text, encoding="utf-8")
+    monkeypatch.setattr(module, "CONSTITUTION", severed_constitution)
+    assert module.main() == 1
+
+
+def test_gate_blocks_when_old_and_future_code_clause_is_removed(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    """الكود القديم والمستقبلي كلاهما تحت الدستور؛ حذف ذلك يحمّر البوابة."""
+    module = _load_gate()
+    weakened_constitution = tmp_path / "VIBE_CODING_PREVENTION_CONSTITUTION.md"
+    text = (
+        module.CONSTITUTION.read_text(encoding="utf-8")
+        .replace(
+            module.LEGACY_PHRASE,
+            "legacy gap hidden",
+        )
+        .replace(
+            module.FUTURE_PHRASE,
+            "future gap hidden",
+        )
+    )
+    weakened_constitution.write_text(text, encoding="utf-8")
+    monkeypatch.setattr(module, "CONSTITUTION", weakened_constitution)
+    assert module.main() == 1

@@ -1,74 +1,122 @@
 {
   "$schema_version": 1,
-  "packet_id": "CAP-2026-10-03-crm-draft-truth-guard",
+  "packet_id": "CAP-2026-10-04-repository-microscope-old-before-new",
   "status": "READY_FOR_GATE",
   "decision": "D-277",
-  "decision_of_change": "تحويل فشلٍ مقيس في مسودات CRM إلى معرفة محروسة: مسودتان نشطتان من HCE حملتا نسباً غير مقيسة (40% و99%) داخل نص يقرأه المشتري، خلاف D-304. التغيير يبدّل العبارات إلى آلية قابلة للدفاع ويضيف اختباراً يمنع عودة النسب أو الضمانات في المسودات المولدة والمحفوظة. لا يفتح المنصة التعليمية المجمدة.",
+  "decision_of_change": "ترقية طلب المالك من تطبيق المصفوفة على القديم والمستقبل إلى شرط مجهر مستودع: قبل أي حرف، تقرأ البوابة كل الملفات المتتبعة وكل الملفات الجديدة غير المتتبعة بايتياً وتطابق بصمة repository_microscope غير دائرية داخل حزمة القبول. القديم ليس معفى؛ والجديد لا يدخل قبل الدليل. لا يفتح المنصة التعليمية المجمدة ولا يضيف قدرة عميل جديدة.",
   "standards": [
-    "clean-code-book"
+    "system-design-101",
+    "clean-code-book",
+    "developer-roadmap"
   ],
   "evidence": [
+    "harvard-cs50x-foundations",
+    "harvard-cs-concentration-domains",
     "nist-ssdf-1.1",
+    "nist-ai-rmf-1.0",
+    "owasp-agent-security",
     "dora-core"
   ],
   "local_application": [
     {
+      "standard": "system-design-101",
+      "paths": [
+        "docs/architecture/VIBE_CODING_PREVENTION_CONSTITUTION.md",
+        "docs/architecture/ENGINEERING_MATURITY_MATRIX.md",
+        "docs/governance/ENGINEERING_MATURITY_MATRIX.json",
+        "docs/governance/ENGINEERING_MATURITY_AUDIT.json",
+        "scripts/fitness/check_engineering_maturity_matrix.py",
+        "scripts/fitness/check_repository_microscope.py"
+      ],
+      "gate": "python scripts/fitness/check_repository_microscope.py && python scripts/fitness/check_engineering_maturity_matrix.py && python scripts/fitness/check_vibe_coding_constitution.py",
+      "application_ar": "تحويل قاعدة القديم قبل الجديد إلى بصمة مستودع كاملة: كل الملفات المتتبعة والجديدة غير المتتبعة تُقرأ بايتياً، ثم تطبق المصفوفة على القديم المتأثر قبل أي إضافة مستقبلية."
+    },
+    {
       "standard": "clean-code-book",
       "paths": [
-        "docs/commercial/MASTER_CLIENT_TARGETS_GLOBAL_2026.csv",
-        "docs/commercial/outreach/drafts_2026/06_FR_VULN_SECTOR_Groupe_Spie_Batignolles__Filiales_regionales_.txt",
-        "docs/commercial/outreach/drafts_2026/07_FR_VULN_SECTOR_Pomona__Reseau_distribution_alimentaire_.txt",
-        "tests/unit/tools/test_outreach_truth.py",
-        "tools/hard_currency_engine/crm_dispatcher.py"
+        "scripts/fitness/check_repository_microscope.py",
+        "tests/fitness/test_repository_microscope_gate.py",
+        "scripts/fitness/check_vibe_coding_constitution.py",
+        "tests/fitness/test_check_vibe_coding_constitution.py",
+        "scripts/fitness/check_engineering_maturity_matrix.py",
+        "tests/fitness/test_engineering_maturity_matrix_gate.py",
+        "docs/governance/NEGATIVE_PROOFS.json"
       ],
-      "gate": "python scripts/fitness/check_hard_currency_engine.py && python scripts/fitness/check_documentation_contract.py && python scripts/fitness/check_code_acceptance.py && git diff --check",
-      "application_ar": "نصوص CRM التي يقرأها المشتري تُعامل ككود قابل للاختبار: لا نسب غير مقيسة ولا ضمانات. الاختبار يشغل dispatch_campaign على المصدر الحي ويفحص أيضاً المسودات المحفوظة ذات STATUS: DRAFT."
+      "gate": "ruff check/format + pytest negative proofs + check_gate_negative_proof",
+      "application_ar": "بوابة المجهر تفصل بناء البصمة عن تحقق الحمولة، وتملك براهين سلبية ضد البصمة المتقادمة وضد تطبيق المستقبل دون القديم."
+    },
+    {
+      "standard": "developer-roadmap",
+      "paths": [
+        "CLAUDE.md",
+        "AGENTS.md",
+        "docs/architecture/VIBE_CODING_PREVENTION_CONSTITUTION.md",
+        "docs/architecture/ENGINEERING_MATURITY_MATRIX.md",
+        "docs/DOCUMENTATION_INDEX.md",
+        "docs/DOCUMENTATION_MANIFEST.json",
+        ".memory/ci-gates.md",
+        ".github/workflows/ci.yml"
+      ],
+      "gate": "python scripts/fitness/check_documentation_contract.py && python scripts/fitness/check_governance_registry.py",
+      "application_ar": "كل مدخل يقرأه الوكيل الآن يرى أن القديم والمستقبل داخل النطاق، وأن حزمة القبول يجب أن تحمل repository_microscope قبل الدمج."
     }
   ],
   "production": {
-    "owner": "hard-currency-engine / commercial-truth",
-    "status": "DATA_COPY_CHANGE_WITH_REGRESSION_GUARD_NO_RUNTIME_PLATFORM_FEATURE",
+    "owner": "engineering-governance / anti-vibe-coding",
+    "status": "CONSTITUTIONAL_REPOSITORY_MICROSCOPE_GATE_NO_RUNTIME_PRODUCT_FEATURE",
     "interfaces": [
-      "tools/hard_currency_engine/cli.py crm يقرأ MASTER_CLIENT_TARGETS_GLOBAL_2026.csv ويولد مسودات outreach/drafts_2026"
+      "CLAUDE.md boot context",
+      "AGENTS.md agent directives",
+      "docs/architecture/VIBE_CODING_PREVENTION_CONSTITUTION.md L13/L14/L15",
+      "python scripts/fitness/check_repository_microscope.py",
+      "python scripts/fitness/check_vibe_coding_constitution.py",
+      "python scripts/fitness/check_engineering_maturity_matrix.py",
+      "docs/changes/CURRENT_CODE_ACCEPTANCE_PACKET.json repository_microscope"
     ],
     "runtime_evidence_paths": [
-      "tools/hard_currency_engine/crm_dispatcher.py",
-      "docs/commercial/MASTER_CLIENT_TARGETS_GLOBAL_2026.csv",
-      "docs/commercial/outreach/drafts_2026",
-      "tests/unit/tools/test_outreach_truth.py"
+      "scripts/fitness/check_repository_microscope.py",
+      "tests/fitness/test_repository_microscope_gate.py",
+      "scripts/fitness/check_vibe_coding_constitution.py",
+      "tests/fitness/test_check_vibe_coding_constitution.py",
+      "scripts/fitness/check_engineering_maturity_matrix.py",
+      "tests/fitness/test_engineering_maturity_matrix_gate.py",
+      ".github/workflows/ci.yml",
+      "docs/changes/CURRENT_CODE_ACCEPTANCE_PACKET.json"
     ],
-    "failure_behavior_ar": "إذا عادت نسبة مئوية أو ضمان إلى مسودة CRM نشطة، يفشل اختبار truth قبل الإرسال؛ المسودات المسحوبة تبقى WITHDRAWN ولا تُرسل.",
-    "observability_ar": "الدليل هو مخرجات dispatch_campaign وعدد المسودات النشطة، إضافة إلى فشل/نجاح اختبار test_outreach_truth.",
-    "security_boundary_ar": "لا أسرار، لا شبكة، لا إرسال بريد. التغيير نصي داخل بيانات ومسودات محلية فقط.",
-    "rollback_ar": "git revert يعيد النصوص والاختبار؛ لا هجرة بيانات ولا أثر خارجي لأن المسودات لم تُرسل."
+    "failure_behavior_ar": "إذا تغير أي ملف خارج حزمة القبول ولم تُحدّث بصمة repository_microscope، تفشل check_repository_microscope. إذا حاول الدستور أو AGENTS/CLAUDE حذف إلزام القديم والمستقبل أو فصل بوابة المجهر، تفشل check_vibe_coding_constitution.",
+    "observability_ar": "مخرجات بوابة المجهر تطبع عدد الملفات والبايتات المقروءة وبصمة المستودع؛ check_governance_registry يثبت تنفيذها؛ NEGATIVE_PROOFS يسجل اختبارات الحجب.",
+    "security_boundary_ar": "حوكمة وتوثيق وبوابات محلية فقط؛ تقرأ ملفات المستودع محلياً ولا ترسل شيئاً للشبكة ولا تستخدم LLM ولا أسرار.",
+    "rollback_ar": "git revert يعيد الدستور والبوابات والاختبارات والربط؛ لا هجرات بيانات ولا أثر تشغيل منتج."
   },
   "commercial_trace": {
     "offer_ids": [
       "fr-be-einvoicing-referential-cleansing"
     ],
-    "customer_problem_ar": "المشتري يقرأ مسودة outreach؛ نسبة غير مقيسة أو ضمان غير مثبت يعرّض العرض لفقدان الثقة ويخالف D-304.",
-    "value_hypothesis_ar": "نزع الادعاءات غير المقيسة من مسودات CRM يزيد صدق الرسالة ويقلل خطر وعد لا يستطيع HCE إثباته.",
-    "foreign_currency_path_ar": "يحمي مسار التواصل للعرض النشط FR/BE؛ لا يدّعي صفقة أو إيراداً جديداً.",
-    "foundation_exception_ar": "تغيير جودة وحوكمة تجارية حول الإسفين النشط، لا ميزة منصة تعليمية ولا توسعة عرض جديد."
+    "customer_problem_ar": "الصور تلخص خطر بيع أو بناء شيء فوق أساس قديم فوضوي. الإسفين النشط يحتاج ضماناً أن القديم لا يصبح أساساً صامتاً لقدرة جديدة.",
+    "value_hypothesis_ar": "مجهر المستودع يجعل تجاهل القديم مرئياً، ويمنع أن يضيف الوكيل كوداً مستقبلياً فوق دين غير مرئي، ما يحافظ على تركيز HCE ومسار أول قيمة مدفوعة.",
+    "foreign_currency_path_ar": "يحمي مسار العرض النشط FR/BE من الانحراف الهندسي؛ لا يدعي صفقة أو إيراداً جديداً.",
+    "foundation_exception_ar": "تغيير حوكمة دستورية حول منع Vibe Coding وتدقيق القديم قبل الجديد، لا ميزة منصة تعليمية ولا عرض تجاري جديد."
   },
   "deletions": {
     "count": 0,
     "paths": [],
-    "policy_ar": "صفر حذف؛ تعديل نصوص وإضافة اختبار فقط."
+    "policy_ar": "صفر حذف؛ إضافة مصفوفة وبوابة واختبار وربط توثيقي فقط."
   },
   "verification": {
     "result": "PASS",
     "commands": [
-      "reproducer before fix: dispatch_campaign generated 12 active drafts with 2 unmeasured-claim problems (40%, 99%) — FAIL as expected",
-      "manual execution of tests.unit.tools.test_outreach_truth functions — PASS",
-      "CSV rectangularity check for MASTER_CLIENT_TARGETS_GLOBAL_2026.csv — PASS (16 fields, 0 malformed rows)",
-      "committed CRM drafts equal deterministic dispatch_campaign output — PASS (27/27 files)",
-      "committed France/Belgium demo reports and cleaned CSV equal deterministic generators with fixed date — PASS",
-      "python scripts/fitness/check_hard_currency_engine.py — PASS",
-      "python tools/hard_currency_engine/cli.py crm docs/commercial/MASTER_CLIENT_TARGETS_GLOBAL_2026.csv --output-dir /tmp/hce_exp_after/drafts — PASS (12 drafts)",
+      "python scripts/fitness/check_repository_microscope.py --update — PASS (repository_microscope refreshed)",
+      "python scripts/fitness/check_repository_microscope.py — PASS (3440 files read byte-wise, 49922481 bytes)",
+      "python scripts/fitness/check_vibe_coding_constitution.py — PASS",
+      "python scripts/fitness/check_engineering_maturity_matrix.py — PASS (29 stages, 295 checkpoints)",
+      "PYTHONPATH=. /tmp/naas-pytest-venv/bin/python -m pytest -q -c /dev/null --confcutdir=tests/fitness -o cache_dir=/tmp/naas-pytest-cache tests/fitness/test_check_vibe_coding_constitution.py tests/fitness/test_engineering_maturity_matrix_gate.py tests/fitness/test_repository_microscope_gate.py — PASS (11 passed)",
+      "/tmp/naas-pytest-venv/bin/python -m ruff check scripts/fitness/check_vibe_coding_constitution.py tests/fitness/test_check_vibe_coding_constitution.py scripts/fitness/check_engineering_maturity_matrix.py tests/fitness/test_engineering_maturity_matrix_gate.py scripts/fitness/check_repository_microscope.py tests/fitness/test_repository_microscope_gate.py — PASS",
+      "/tmp/naas-pytest-venv/bin/python -m ruff format --check scripts/fitness/check_vibe_coding_constitution.py tests/fitness/test_check_vibe_coding_constitution.py scripts/fitness/check_engineering_maturity_matrix.py tests/fitness/test_engineering_maturity_matrix_gate.py scripts/fitness/check_repository_microscope.py tests/fitness/test_repository_microscope_gate.py — PASS",
+      "python scripts/fitness/check_gate_negative_proof.py — PASS (51/106 proven, 55 debt)",
       "python scripts/fitness/check_documentation_contract.py — PASS",
-      "git diff --check — PASS",
-      "python scripts/fitness/check_code_acceptance.py — PASS after packet refresh"
+      "/tmp/naas-pytest-venv/bin/python scripts/fitness/check_governance_registry.py — PASS",
+      "python scripts/fitness/check_code_acceptance.py — PASS",
+      "git diff --check — PASS"
     ]
   },
   "curriculum": {
@@ -150,22 +198,68 @@
     "owner": "curriculum-governance"
   },
   "changed_paths": [
-    "docs/commercial/MASTER_CLIENT_TARGETS_GLOBAL_2026.csv",
-    "docs/commercial/outreach/drafts_2026/06_FR_VULN_SECTOR_Groupe_Spie_Batignolles__Filiales_regionales_.txt",
-    "docs/commercial/outreach/drafts_2026/07_FR_VULN_SECTOR_Pomona__Reseau_distribution_alimentaire_.txt",
-    "tests/unit/tools/test_outreach_truth.py",
-    "docs/changes/CURRENT_CODE_ACCEPTANCE_PACKET.json"
+    ".github/workflows/ci.yml",
+    ".memory/ci-gates.md",
+    "AGENTS.md",
+    "CLAUDE.md",
+    "docs/DOCUMENTATION_INDEX.md",
+    "docs/DOCUMENTATION_MANIFEST.json",
+    "docs/architecture/ENGINEERING_MATURITY_MATRIX.md",
+    "docs/architecture/VIBE_CODING_PREVENTION_CONSTITUTION.md",
+    "docs/changes/CURRENT_CODE_ACCEPTANCE_PACKET.json",
+    "docs/governance/ENGINEERING_MATURITY_AUDIT.json",
+    "docs/governance/ENGINEERING_MATURITY_MATRIX.json",
+    "docs/governance/NEGATIVE_PROOFS.json",
+    "scripts/fitness/check_engineering_maturity_matrix.py",
+    "scripts/fitness/check_repository_microscope.py",
+    "scripts/fitness/check_vibe_coding_constitution.py",
+    "tests/fitness/test_check_vibe_coding_constitution.py",
+    "tests/fitness/test_engineering_maturity_matrix_gate.py",
+    "tests/fitness/test_repository_microscope_gate.py"
   ],
   "git_change_snapshot": {
-    "base_ref": "origin/main",
+    "base_ref": "WORKTREE",
     "changed_paths_excluding_packet": [
-      "docs/commercial/MASTER_CLIENT_TARGETS_GLOBAL_2026.csv",
-      "docs/commercial/outreach/drafts_2026/06_FR_VULN_SECTOR_Groupe_Spie_Batignolles__Filiales_regionales_.txt",
-      "docs/commercial/outreach/drafts_2026/07_FR_VULN_SECTOR_Pomona__Reseau_distribution_alimentaire_.txt",
-      "tests/unit/tools/test_outreach_truth.py"
+      ".github/workflows/ci.yml",
+      ".memory/ci-gates.md",
+      "AGENTS.md",
+      "CLAUDE.md",
+      "docs/DOCUMENTATION_INDEX.md",
+      "docs/DOCUMENTATION_MANIFEST.json",
+      "docs/architecture/ENGINEERING_MATURITY_MATRIX.md",
+      "docs/architecture/VIBE_CODING_PREVENTION_CONSTITUTION.md",
+      "docs/governance/ENGINEERING_MATURITY_AUDIT.json",
+      "docs/governance/ENGINEERING_MATURITY_MATRIX.json",
+      "docs/governance/NEGATIVE_PROOFS.json",
+      "scripts/fitness/check_engineering_maturity_matrix.py",
+      "scripts/fitness/check_repository_microscope.py",
+      "scripts/fitness/check_vibe_coding_constitution.py",
+      "tests/fitness/test_check_vibe_coding_constitution.py",
+      "tests/fitness/test_engineering_maturity_matrix_gate.py",
+      "tests/fitness/test_repository_microscope_gate.py"
     ],
-    "content_sha256_excluding_packet": "60884028a676167891218f3db0d64e993381f0ff940168c61e2224a402ed063d",
+    "content_sha256_excluding_packet": "7b11198b8c04e2c17ac2a1c4c8bc7997d9525a7a819e76f53c1ede71c6c7d3ca",
     "refreshed_on": "2026-10-03",
     "refresh_command": "python3 scripts/research/refresh_acceptance_diff_snapshot.py"
+  },
+  "repository_microscope": {
+    "mode": "FULL_REPOSITORY_BYTE_CENSUS_EXCLUDING_PACKET",
+    "file_count_excluding_packet": 3440,
+    "total_bytes_excluding_packet": 49922481,
+    "total_newlines_excluding_packet": 878181,
+    "sha256_excluding_packet": "8a5d655a9f99bf602448ac83b371f9a7ff9c59058dd1331a4cd7b3af809eb8ed",
+    "largest_file_excluding_packet": {
+      "path": "Introduction to Agents.pdf",
+      "bytes": 9473606
+    },
+    "packet_excluded_for_non_circular_hash": "docs/changes/CURRENT_CODE_ACCEPTANCE_PACKET.json",
+    "refresh_command": "python scripts/fitness/check_repository_microscope.py --update",
+    "applies_to_existing_code": true,
+    "applies_to_future_code": true,
+    "old_before_new": true,
+    "grandfathering_forbidden": true,
+    "legacy_rule_ar": "قُرئ المستودع المتتبع والملفات الجديدة غير المتتبعة قراءة بايتية غير دائرية؛ الكود القديم ليس معفى ويُدقَّق عند لمسه أو الاعتماد عليه.",
+    "future_rule_ar": "أي كود أو عقد أو Workflow مستقبلي لا يدخل قبل تحديث هذه البصمة وحزمة القبول.",
+    "operator_attestation_ar": "هذا ليس ادعاء فهم شامل بذاته؛ إنه شرط مجهر آلي يسبق التحليل البشري والمصفوفة، ويجعل تجاهل القديم مرئياً."
   }
 }

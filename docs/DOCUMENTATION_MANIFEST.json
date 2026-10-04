@@ -87,6 +87,13 @@
       "status": "live"
     },
     {
+      "path": "docs/architecture/ENGINEERING_MATURITY_MATRIX.md",
+      "audience": "coding-agent",
+      "role": "engineering-maturity-matrix",
+      "authority": "primary",
+      "status": "live"
+    },
+    {
       "path": "docs/DOCUMENTATION_INDEX.md",
       "audience": "all",
       "role": "documentation-navigation",
