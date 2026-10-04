@@ -1219,8 +1219,6 @@ exercise_explanation_with_context(2.5) → LangGraph(3.0) → general_chat(4.0)`
 | صدق الفوارض · الحيرة لا تُهنَّأ | **D-208** (ISS-149 — الأسبقية · الفعل الكلامي على المؤشّرات · بوّابة لا تشهد بما لم تقرأ) |
 | التنسيق · الطبقات التسع | **D-209** (`AGENTIC_ORCHESTRATION_DOCTRINE.md` + `.memory/agentic_runtime_doctrine.md`) |
 | القيمة والإيراد (§0.10) | **D-210 → D-223** (`docs/VALUE_DOCTRINE.md` · `docs/REVENUE_ENGINE_SPEC.md` · `.memory/revenue_engine_truth.md` — تحرسها `check_revenue_doctrine`) |
-
-
 ## 0.25. Deep Tech & Hard-Currency Constitution (D-273) — المجّاني الاستهلاكي محظور، والعملة الصعبة هي الهدف
 > **القانون:** [`docs/DEEP_TECH_CONSTITUTION.md`](docs/DEEP_TECH_CONSTITUTION.md) ·
 > **الحالة:** [`.memory/deep_tech_constitution_truth.md`](.memory/deep_tech_constitution_truth.md) ·

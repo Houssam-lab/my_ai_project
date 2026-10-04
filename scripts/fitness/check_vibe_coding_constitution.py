@@ -52,6 +52,20 @@ def main() -> int:  # noqa: PLR0912, PLR0915
     for law in REQUIRED_LAWS:
         if f"### {law} —" not in constitution:
             failures.append(f"constitution is missing {law}")
+    # D-307: this repository is high-consequence by default. The risk ladder is
+    # part of the enforced constitution, not explanatory prose that an agent may
+    # bypass by calling a change "small" or "documentation-only".
+    for anchor in (
+        "تصنيف الخطر الكارثي للمشروع",
+        "C0 — سلامة الحوكمة",
+        "C1 — سلامة البيانات والخصوصية",
+        "C2 — سلامة القرار الوكيلي",
+        "C3 — سلامة التشغيل",
+        "إذا تعذر تحديد المستوى، يُعامل التغيير كأعلى مستوى",
+        "اختبار إيجابي وسلبي",
+    ):
+        if anchor not in constitution:
+            failures.append(f"constitution is missing catastrophic-risk control: {anchor}")
 
     agents = _read(AGENTS)
     claude = _read(CLAUDE)
