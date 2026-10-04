@@ -21,6 +21,8 @@ LEGACY_PHRASE = "الكود القديم"
 FUTURE_PHRASE = "كود مستقبلي"
 MICROSCOPE_GATE = "scripts/fitness/check_repository_microscope.py"
 MICROSCOPE_FIELD = "repository_microscope"
+DIAGNOSTIC = ".memory/project_diagnostic_truth.md"
+REMEDIATION_PLAN = "docs/governance/PROJECT_REMEDIATION_PLAN.json"
 REQUIRED_LAWS = (
     "L1",
     "L2",
@@ -99,6 +101,15 @@ def main() -> int:  # noqa: PLR0912, PLR0915
         failures.append("constitution does not explicitly bind old and future code")
     if MICROSCOPE_GATE not in constitution or MICROSCOPE_FIELD not in constitution:
         failures.append("constitution does not bind the repository microscope gate")
+    if DIAGNOSTIC not in constitution or REMEDIATION_PLAN not in constitution:
+        failures.append("constitution does not bind the live diagnostic and mandatory remediation plan")
+    for path in (DIAGNOSTIC, REMEDIATION_PLAN):
+        if not (ROOT / path).is_file() or not (ROOT / path).read_text(encoding="utf-8").strip():
+            failures.append(f"mandatory diagnostic/remediation artifact is missing or empty: {path}")
+    if DIAGNOSTIC not in agents or REMEDIATION_PLAN not in agents:
+        failures.append("AGENTS.md does not require the live diagnostic and remediation plan")
+    if DIAGNOSTIC not in claude or REMEDIATION_PLAN not in claude:
+        failures.append("CLAUDE.md does not require the live diagnostic and remediation plan")
     if LEGACY_PHRASE not in claude or "مستقبلي" not in claude:
         failures.append("CLAUDE.md does not bind old and future code to the constitution")
     if "existing code" not in agents or "future code" not in agents:

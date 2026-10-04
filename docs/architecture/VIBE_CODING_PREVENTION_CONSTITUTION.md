@@ -37,8 +37,9 @@
 5. `docs/architecture/CODE_ACCEPTANCE_CONSTITUTION.md`
 6. `docs/architecture/ENGINEERING_MATURITY_MATRIX.md`
 7. `docs/governance/ENGINEERING_MATURITY_MATRIX.json` و`docs/governance/ENGINEERING_MATURITY_AUDIT.json`
-8. بصمة مجهر المستودع في حزمة القبول، المفحوصة بـ `scripts/fitness/check_repository_microscope.py`
-9. حزمة القبول الحالية في `docs/changes/CURRENT_CODE_ACCEPTANCE_PACKET.json`
+8. `.memory/project_diagnostic_truth.md` و`docs/governance/PROJECT_REMEDIATION_PLAN.json`؛ الأول يصف الحالة والثاني يفرض العلاج وحالة الإغلاق
+9. بصمة مجهر المستودع في حزمة القبول، المفحوصة بـ `scripts/fitness/check_repository_microscope.py`
+10. حزمة القبول الحالية في `docs/changes/CURRENT_CODE_ACCEPTANCE_PACKET.json`
 
 إذا تعذر تحميل مصدر حاكم، يتوقف الوكيل ويذكر العائق؛ لا يخمّن ولا يستبدل المصدر بذاكرته.
 

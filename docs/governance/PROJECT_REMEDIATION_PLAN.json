@@ -1,0 +1,16 @@
+{
+  "$schema_version": "1",
+  "status": "OPEN_BLOCKED_FOR_PRODUCTION_CLAIMS",
+  "diagnostic": ".memory/project_diagnostic_truth.md",
+  "owner": "human/admin constitutional authority",
+  "rule": "No agent may promote a capability or claim production readiness while a CRITICAL remediation is OPEN, UNKNOWN, or UNVERIFIED.",
+  "remediations": [
+    {"id":"R1","severity":"CRITICAL","title":"Pin and enforce Python 3.12","status":"OPEN","acceptance":"compile and test evidence under the declared Python 3.12 environment"},
+    {"id":"R2","severity":"CRITICAL","title":"Make parser failures fail closed","status":"OPEN","acceptance":"negative test proves SyntaxError produces non-zero guardrail exit"},
+    {"id":"R3","severity":"CRITICAL","title":"Restore reproducible test execution","status":"OPEN","acceptance":"pytest collection and required suites run under Python 3.12"},
+    {"id":"R4","severity":"HIGH","title":"Classify and close incomplete capabilities","status":"OPEN","acceptance":"every TODO/NotImplemented on a reachable path has owner, state, evidence, and disposition"},
+    {"id":"R5","severity":"HIGH","title":"Resolve app and microservice source-of-truth drift","status":"OPEN","acceptance":"contracts and boundary/parity tests identify one canonical source per sensitive concept"},
+    {"id":"R6","severity":"HIGH","title":"Prove runtime safety and rollback","status":"OPEN","acceptance":"synthetic-data probes, failure tests, monitoring, secrets isolation, and rollback evidence"}
+  ],
+  "amendment_rule": "Statuses may change only through a reviewed change with reproducible evidence; no agent may self-certify closure."
+}

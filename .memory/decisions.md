@@ -4,6 +4,16 @@
 > The chat interface is merely an assistive channel. The true core consists of the Interactive Canvas (Object UI), Cognitive Modeling, Error Memory, Adaptive Generation, and Simulation Engine.
 > See `cognitive_lab_philosophy.md` for the foundational doctrine.# Architectural Decisions
 
+## D-308 (2026-10-04) — التشخيص الحي وخطة العلاج الإجباري قبل أي ترقية
+
+**السياق:** التشخيص العميق أثبت فجوة بين الحوكمة وصحة التنفيذ: Python 3.11 محلياً مقابل هدف 3.12، compile غير صالح محلياً، وأخطاء parse ظهرت مع نجاح `ci_guardrails.py`، إضافة إلى اختبارات غير مثبتة وقدرات ناقصة وازدواجية محتملة بين `app` و`microservices`.
+
+**القرار:** `project_diagnostic_truth.md` هو مصدر حالة التشخيص، و`PROJECT_REMEDIATION_PLAN.json` هو سجل العلاج الإجباري. كل وكيل ملزم بتحميلهما وتحديد remediation IDs والتوقف أمام blocker حرج مفتوح أو غير مثبت. لا تغلق المعالجات إلا بدليل قابل لإعادة التشغيل ومراجعة مستقلة.
+
+**الدليل:** بوابة `check_vibe_coding_constitution.py` تتحقق من وجود الملفين وربطهما بالدستور و`AGENTS.md` و`CLAUDE.md`.
+
+**الأثر:** المشروع محظور من ادعاء الجاهزية الإنتاجية حتى إغلاق R1–R3 على الأقل؛ لا يرفع هذا القرار أي حالة تشغيلية.
+
 ## D-307 (2026-10-04) — تصنيف المشروع عالي العواقب وإضافة سلم خطر كارثي غير قابل للتجاوز
 
 **السياق:** الصور والاستعارة التشغيلية كشفت أن الخطر ليس في مظهر المخرجات فقط، بل في الأساسات التي قد تحملها. هذا المستودع يجمع وكلاء، بيانات، قرارات، أسراراً، خدمات، وعمليات نشر؛ لذلك لا يجوز اعتبار التغيير آمناً لمجرد أنه صغير أو توثيقي أو يعمل محلياً.
