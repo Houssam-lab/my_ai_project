@@ -218,7 +218,7 @@
     "tests/fitness/test_repository_microscope_gate.py"
   ],
   "git_change_snapshot": {
-    "base_ref": "WORKTREE",
+    "base_ref": "origin/main",
     "changed_paths_excluding_packet": [
       ".github/workflows/ci.yml",
       ".memory/ci-gates.md",
@@ -239,7 +239,7 @@
       "tests/fitness/test_repository_microscope_gate.py"
     ],
     "content_sha256_excluding_packet": "7b11198b8c04e2c17ac2a1c4c8bc7997d9525a7a819e76f53c1ede71c6c7d3ca",
-    "refreshed_on": "2026-10-03",
+    "refreshed_on": "2026-10-04",
     "refresh_command": "python3 scripts/research/refresh_acceptance_diff_snapshot.py"
   },
   "repository_microscope": {
