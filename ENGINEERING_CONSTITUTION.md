@@ -10,6 +10,10 @@ The repository is a living engineering system with history, boundaries, invarian
 
 It supplements, and does not replace, the existing operational and domain constitutions, especially `CLAUDE.md`, `AGENTS.md`, `docs/architecture/VIBE_CODING_PREVENTION_CONSTITUTION.md`, and `docs/architecture/CODE_ACCEPTANCE_CONSTITUTION.md`. Where rules conflict, the higher-precedence rule below controls.
 
+## 1.1 Supreme MASTER INDEX constitution
+
+[`docs/governance/MASTER_INDEX_CONSTITUTION.md`](docs/governance/MASTER_INDEX_CONSTITUTION.md) is part of this constitution and is binding character by character on every AI coding agent, every human, and every tool, in all circumstances: reading the repository, reviewing code, documentation, adding a character, deleting a character. Its supreme rule, its sections 00–47, and its gate chain `GATE 00..15` must be traversed and applied before any change. It may never be bypassed, weakened, converted into a to-do list, or downgraded to a warning, and its gates may not be skipped because code already exists. Amending it is a constitutional amendment under section 9.
+
 ## 2. Authority and precedence
 
 A lower item never silently overrides a higher item:

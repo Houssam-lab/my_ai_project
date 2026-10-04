@@ -20,6 +20,10 @@ This project adopts a fusion of two computer science methodologies. All code and
 
 ---
 
+## MASTER INDEX Constitution — Supreme, Binding Character by Character
+
+Before reading, planning, writing, documenting, adding one character, or deleting one character, every agent (AI or human) MUST load and fully apply [`docs/governance/MASTER_INDEX_CONSTITUTION.md`](docs/governance/MASTER_INDEX_CONSTITUTION.md). It carries the supreme rule (`NO FEATURE BEFORE FOUNDATION`, `NO ARCHITECTURE BEFORE UNDERSTANDING`, `NO IMPLEMENTATION BEFORE CONTRACT`, `NO CLAIM BEFORE EVIDENCE`, `NO SCALE BEFORE RELIABILITY`, `NO AUTONOMY BEFORE CONTROL`, `NO COMPLEXITY WITHOUT JUSTIFICATION`, `NO "DONE" WITHOUT VERIFICATION`), sections 00–47, and the gate chain `GATE 00..15`. No agent may bypass it, weaken it, turn its failure into a warning, treat it as a to-do list, or jump between gates merely because code exists. Amending it requires an amendment record under `docs/governance/amendments/` and independent human review.
+
 ## Vibe Coding Prevention Constitution — Mandatory for Every Character (D-306)
 
 Before writing, modifying, or enabling even one character, every agent MUST load and obey [`docs/architecture/VIBE_CODING_PREVENTION_CONSTITUTION.md`](docs/architecture/VIBE_CODING_PREVENTION_CONSTITUTION.md) and the mandatory maturity matrix [`docs/architecture/ENGINEERING_MATURITY_MATRIX.md`](docs/architecture/ENGINEERING_MATURITY_MATRIX.md). They are enforced by `scripts/fitness/check_vibe_coding_constitution.py`, `scripts/fitness/check_engineering_maturity_matrix.py`, and `scripts/fitness/check_repository_microscope.py` inside the required CI guardrails. No agent may weaken, bypass, or convert their failures into warnings. The constitution governs planning, design, tests, review, security, rollback, proof, zero-deletion policy, and the rule that no higher layer may be touched without evidence for the lower layers it depends on. This applies to existing code when touched or depended on, and to every future code path before it enters the repository; the current acceptance packet must carry a non-circular byte census in `repository_microscope`.
