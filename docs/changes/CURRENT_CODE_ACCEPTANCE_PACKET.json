@@ -1,9 +1,9 @@
 {
   "$schema_version": 1,
-  "packet_id": "CAP-2026-10-06-d315-monolith-test-timeout-headroom",
+  "packet_id": "CAP-2026-10-06-d316-codescene-pr-coverage-check",
   "status": "READY_FOR_GATE",
   "decision": "D-277",
-  "decision_of_change": "D-315 (قرار المالك 2026-10-06): main أحمر عند دمج PR #2595 لأنّ خطوة اختبارات المونوليث قُتلت عند حدّها 42 دقيقة والحزمة عند 96٪ بلا اختبارٍ فاشل (38.2 · 40.0 · قتلٌ عند 42.2 · ثمّ 40.0 في إعادة التشغيل الوحيدة، على شجرةٍ واحدة). يُرفَع سقف الوظيفة 45⇒55 والخطوة 42⇒52 بتعليقٍ مُقاس وسجلّ تعديلٍ دستوري؛ والجذر — إعادة ضبط المخطّط قبل كلّ اختبار في db_lifecycle — مُسجَّلٌ متابعةً مستحقّة لا مُخفى.",
+  "decision_of_change": "D-316 (قرار المالك 2026-10-06: «يجب أن تظهر علامة الصحّ الخضراء في الفروع الحالية أوّلاً»): فحص CodeScene Code Coverage الخارجي ينتهي timed_out بعد 6 ساعات على كلّ PR لأنّ وظيفة codescene-coverage تشغّل upload، وCodeScene تقبل بيانات الفروع غير main ولا تستعملها؛ بوّابة الـPR تُغذّى بـcs-coverage check. على pull_request يُشغَّل check مع CS_PROJECT_URL، ويبقى upload على push إلى main؛ والوظيفة خارج required-ci كما كانت.",
   "standards": [
     "clean-code-book"
   ],
@@ -17,28 +17,29 @@
       "standard": "clean-code-book",
       "paths": [
         ".github/workflows/ci.yml",
-        "docs/governance/amendments/D-315-MONOLITH-TEST-TIMEOUT-HEADROOM.md",
-        ".memory/decisions.md"
+        "docs/governance/amendments/D-316-CODESCENE-PR-COVERAGE-CHECK.md",
+        ".memory/decisions.md",
+        ".memory/code_quality_truth.md"
       ],
-      "gate": "python scripts/fitness/check_engineering_governance.py && python scripts/run_fitness_gates.py && git diff --check",
-      "application_ar": "تغييرٌ أصغر ما يمكن: رقمان وتعليقهما بالقياس، والقاعدة القائمة (الخطوة = الوظيفة − ~2.5) محفوظة؛ لا اختبار ولا deselect ولا أرضية تغطية تغيّرت."
+      "gate": "python scripts/fitness/check_engineering_governance.py && python scripts/fitness/check_ci_workflow_hygiene.py && python scripts/run_fitness_gates.py && git diff --check",
+      "application_ar": "تغييرٌ أصغر ما يمكن: خطوةٌ جديدة واحدة مشروطة بالحدث (check على pull_request) وتقييد خطوة upload بـpush؛ لا وظيفة أخرى ولا required-ci ولا اختبار يتغيّر."
     }
   ],
   "production": {
     "owner": "ci-maintainers",
-    "status": "CI_TIMEOUT_HEADROOM_ONLY",
+    "status": "CI_PR_COVERAGE_CHECK_ONLY",
     "interfaces": [
-      "CI job test-monolith: timeout-minutes 45 ⇒ 55",
-      "CI step Run monolith tests: timeout-minutes 42 ⇒ 52"
+      "CI job codescene-coverage: pull_request ⇒ cs-coverage check --verbose --coverage-files coverage.xml (CS_PROJECT_URL=https://api.codescene.io/v2/projects/83387)",
+      "CI job codescene-coverage: push ⇒ cs-coverage upload كما كان حرفياً"
     ],
     "runtime_evidence_paths": [
       ".github/workflows/ci.yml",
-      "docs/governance/amendments/D-315-MONOLITH-TEST-TIMEOUT-HEADROOM.md"
+      "docs/governance/amendments/D-316-CODESCENE-PR-COVERAGE-CHECK.md"
     ],
-    "failure_behavior_ar": "تشغيلٌ معلّق فعلاً يُوقَف بعد 52 دقيقة بدل 42 مع بقاء السجلّ؛ و--timeout=300 للاختبار الواحد يبقى كما هو فيُسمّي الاختبار المعلّق.",
-    "observability_ar": "مدّة الخطوة تُقرأ من سجلّ CI؛ والقياسات الثلاثة مكتوبةٌ في التعليق نفسه كي يُرى أيّ زحفٍ لاحق.",
-    "security_boundary_ar": "لا أثر أمني: لا سرّ ولا صلاحية ولا تبعية تتغيّر.",
-    "rollback_ar": "git revert للدفعة يعيد 45 و42 حرفياً؛ لا شيء آخر يعتمد عليهما."
+    "failure_behavior_ar": "فشل check (مصادقة أو بوّابة راسبة) يخرج بـ1 فتصير الخطوة حمراء ظاهرة؛ والوظيفة خارج required-ci فلا تحجب الدمج (D-234).",
+    "observability_ar": "ملخّص الخطوة يقول أيّ المسارين جرى (PR gate checked أو uploaded)، وحكم البوّابة نفسه هو فحص CodeScene Code Coverage على الـPR.",
+    "security_boundary_ar": "الرمز CS_ACCESS_TOKEN باقٍ على مستوى الوظيفة بحارسَي != '' و== ''؛ CS_PROJECT_URL مُعرِّفٌ عامّ لا سرّ؛ المُثبِّت يُنزَّل إلى ملفّ لا curl|sh؛ لا صلاحية ولا تبعية جديدة.",
+    "rollback_ar": "git revert للدفعة يعيد خطوة upload الوحيدة لكلّ حدث (ومعها المهلة على الـPR)."
   },
   "commercial_trace": {
     "offer_ids": [
@@ -52,16 +53,17 @@
   "deletions": {
     "count": 0,
     "paths": [],
-    "policy_ar": "صفر حذف: رقمان وتعليقاتٌ في ci.yml، وسجلّ تعديلٍ جديد، وقرارٌ مُلحَق."
+    "policy_ar": "صفر حذف: خطوةٌ جديدة وشروطٌ وتعليقاتٌ في ci.yml، وسجلّ تعديلٍ جديد، وقرارٌ مُلحَق."
   },
   "verification": {
     "result": "PASS",
     "commands": [
-      "check_engineering_governance (GOVERNANCE_BASE_SHA=origin/main) — PASS (سجلّ التعديل موجود، ولا رمز إضعاف اختبار مُضاف في ci.yml)",
+      "check_ci_workflow_hygiene — PASS (17 ملفّاً؛ الرمز محروس ومنطوق الغياب، ولا تكامل خارجي في required-ci)",
+      "check_engineering_governance (GOVERNANCE_BASE_SHA=origin/main) — PASS (سجلّ التعديل D-316 موجود)",
       "run_fitness_gates.py (CODE_ACCEPTANCE_BASE_SHA=GOVERNANCE_BASE_SHA=origin/main) — كلّ البوّابات خضراء",
-      "doc_integrity: check_memory_coherence · check_constitution_reality · check_authority_links · check_documentation_contract — PASS",
       "runtime_truth.py --check · git diff --check — PASS",
-      "الدليل على العطب: CI run 37462983764 / job test-monolith — 'The action Run monolith tests has timed out after 42 minutes' عند 96٪ بلا فشل"
+      "الأداة نفسها محلياً (sha256 مطابق للمنشور): check يقبل --coverage-files وحده، ويخرج بـ1 عند خطأ المصادقة",
+      "الدليل على العطب: check run 112247837361 (PR #2595) timed_out بعد 6 ساعات «No valid coverage report found in the build pipeline»، وسجلّ job 112454859769: «CodeScene only analyse the following branches: (\"main\")»"
     ]
   },
   "curriculum": {
@@ -145,36 +147,38 @@
   "changed_paths": [
     ".github/workflows/ci.yml",
     ".memory/README.md",
+    ".memory/code_quality_truth.md",
     ".memory/decisions.md",
     ".runtime/truth_table.lock.json",
     "README.ar.md",
     "README.md",
     "docs/DOCUMENTATION_INDEX.md",
     "docs/changes/CURRENT_CODE_ACCEPTANCE_PACKET.json",
-    "docs/governance/amendments/D-315-MONOLITH-TEST-TIMEOUT-HEADROOM.md"
+    "docs/governance/amendments/D-316-CODESCENE-PR-COVERAGE-CHECK.md"
   ],
   "git_change_snapshot": {
     "base_ref": "origin/main",
     "changed_paths_excluding_packet": [
       ".github/workflows/ci.yml",
       ".memory/README.md",
+      ".memory/code_quality_truth.md",
       ".memory/decisions.md",
       ".runtime/truth_table.lock.json",
       "README.ar.md",
       "README.md",
       "docs/DOCUMENTATION_INDEX.md",
-      "docs/governance/amendments/D-315-MONOLITH-TEST-TIMEOUT-HEADROOM.md"
+      "docs/governance/amendments/D-316-CODESCENE-PR-COVERAGE-CHECK.md"
     ],
-    "content_sha256_excluding_packet": "718639baf0ace5b658cf0692e7c31f6764f608805f5f2cf7d7b00610d926cbea",
+    "content_sha256_excluding_packet": "b1d78f7cdf0a5ba249bcb7a37e6f4530226a7dc140e3cdb1dc2097d5c26da08c",
     "refreshed_on": "2026-10-06",
     "refresh_command": "python3 scripts/research/refresh_acceptance_diff_snapshot.py"
   },
   "repository_microscope": {
     "mode": "FULL_REPOSITORY_BYTE_CENSUS_EXCLUDING_PACKET",
-    "file_count_excluding_packet": 3474,
-    "total_bytes_excluding_packet": 50772717,
-    "total_newlines_excluding_packet": 888208,
-    "sha256_excluding_packet": "3ab135421097fe798efc5250416732e63d723b5aa33e3b18c27de1721cb19f6f",
+    "file_count_excluding_packet": 3475,
+    "total_bytes_excluding_packet": 50783352,
+    "total_newlines_excluding_packet": 888319,
+    "sha256_excluding_packet": "4d7129714c228414de314e2e1cd2f3d5b643f9dea02b1551aae35b781a0c4e6c",
     "largest_file_excluding_packet": {
       "path": "Introduction to Agents.pdf",
       "bytes": 9473606
@@ -190,50 +194,50 @@
     "operator_attestation_ar": "هذا ليس ادعاء فهم شامل بذاته؛ إنه شرط مجهر آلي يسبق التحليل البشري والمصفوفة، ويجعل تجاهل القديم مرئياً."
   },
   "pre_modification": {
-    "current_state": "TESTED: main عند 9cfa5cd أحمر في CI بسبب مهلة خطوة test-monolith (42 دقيقة) لا بسبب اختبارٍ فاشل؛ guardrails وكلّ ما عداها أخضر.",
+    "current_state": "TESTED: main عند 9ec9994 (بعد دمج PR #2597) وكلّ فحوص Actions على PR #2597 خضراء؛ لكنّ فحص CodeScene Code Coverage الخارجي لا يكتمل على أيّ PR (timed_out بعد 6 ساعات على PR #2595).",
     "architecture_and_boundaries": [
-      ".github/workflows/ci.yml — وظيفة test-monolith وحدها؛ لا وظيفة أخرى تُمسّ.",
+      ".github/workflows/ci.yml — وظيفة codescene-coverage وحدها؛ required-ci وكلّ وظيفةٍ أخرى لا تُمسّ.",
       "مسارٌ محميّ تحت ENGINEERING_GOVERNANCE_POLICY ⇒ سجلّ تعديلٍ دستوري جديد بانتظار مراجعةٍ مستقلّة.",
-      "حماية الفرع وCODEOWNERS سلطةٌ خارجية لا يدّعيها هذا المستودع."
+      "إعدادات مشروع CodeScene (الفروع المُحلَّلة وعتبات البوّابة) سلطةٌ خارجية يملكها المالك لا هذا المستودع."
     ],
     "existing_failures_and_old_debt": [
-      "FOUND: db_lifecycle التلقائي يُسقط المخطّط ويعيد إنشاءه قبل كلّ اختبار (~0.3 ث × 6217) — هو أغلب زمن الحزمة؛ متابعةٌ مستحقّة في D-315.",
-      "FOUND: السقف رُفع سابقاً من 30 إلى 45 للسبب نفسه (تعليق ci.yml)؛ الزحف مستمرّ ما دامت الحزمة بطيئة.",
+      "FOUND: codescene-coverage يشغّل upload على فروع الـPR فتقبله CodeScene ولا تستعمله؛ فحص تغطية الـPR لم يكتمل قطّ منذ D-234 والوظيفة خضراء.",
+      "FOUND: بطء الحزمة (db_lifecycle) — متابعة D-315 المستحقّة، خارج هذا التغيير.",
       "REMAINS OPEN: R1–R3 في PROJECT_REMEDIATION_PLAN.json؛ هذا التغيير لا يغلق شيئاً منها."
     ],
     "dependency_path": [
-      "ci.yml:test-monolith → required-ci → علامة main الخضراء"
+      "ci.yml:codescene-coverage → cs-coverage check → فحص CodeScene Code Coverage على رأس الـPR → علامة الـPR الخضراء"
     ],
     "foundational_frontier": {
       "status": "REPAIRED_OR_CONTAINED_BEFORE_EXTENSION",
       "relevant_defects": [
-        "R3 (reproducible tests) OPEN — احتواء: سقفٌ بهامشٍ يمنع بوّابةً حمراء فوق تشغيلٍ أخضر؛ لا يُغلَق R3.",
-        "بطء الحزمة البنيوي (db_lifecycle) — غير مُصلَح هنا، مُعلَنٌ متابعةً."
+        "R3 (reproducible tests) OPEN — غير مُمسوس؛ هذا تغييرٌ في توصيل تقرير التغطية لا في الاختبارات.",
+        "وظيفةٌ خضراء لا تفعل شيئاً (D-235) — مُصلَحة هنا للـPR."
       ],
-      "decision": "احتواءٌ لا إصلاح: يعيد هامشاً قدره ~12 دقيقة دون إضعاف أيّ اختبار؛ ولا يُرفَع السقف مرّةً ثالثة قبل محاولة تسريع الحزمة."
+      "decision": "إصلاح أساس CI مسموحٌ تحت §5.1؛ لا ميزة ولا ترقية قدرة."
     },
-    "root_cause": "زمن الحزمة (38–42+ دقيقة) بلغ سقف الخطوة (42) فصار تباين المشغِّلات (>2 دقيقة) يقرّر الأحمر والأخضر؛ والسبب الأعمق إعادة ضبط المخطّط قبل كلّ اختبار.",
-    "intended_change": "timeout-minutes لوظيفة test-monolith 45⇒55 وللخطوة 42⇒52، مع تعليقٍ مُقاس وسجلّ تعديل وقرار D-315.",
+    "root_cause": "الأمر الخطأ للحدث: upload يغذّي الفرع المُحلَّل (main) وحده، وبوّابة الـPR تُغذّى بـcheck؛ والخطوة تخرج بـ0 فيخفي الأخضرُ العطل.",
+    "intended_change": "في codescene-coverage: check على pull_request مع CS_PROJECT_URL، وupload على push فقط؛ مع تعليقٍ يروي الجذر وسجلّ تعديل وقرار D-316.",
     "affected_invariants": [
-      "لا بوّابة حمراء فوق تشغيلٍ أخضر (D-105).",
-      "لا اختبار يُتخطّى أو يُعطَّل للوصول إلى الأخضر.",
-      "سقف الخطوة دون سقف الوظيفة فيبقى السجلّ (ISS-212)."
+      "الأخضر لا يعني «لم يفعل شيئاً» (D-235).",
+      "خدمةٌ خارجية لا تحجب الدمج (D-234).",
+      "الرمز على مستوى الوظيفة بحارسين، والغياب يُعلَن (check_ci_workflow_hygiene)."
     ],
     "test_plan": [
-      "سلبي: check_engineering_governance يرفض أيّ رمز إضعاف (skip/xfail/deselect/ignore) مُضاف في ci.yml — لم يُضَف شيء.",
-      "إيجابي: test-monolith وrequired-ci أخضران على رأس الدفعة ثمّ على main بعد الدمج."
+      "سلبي: check_ci_workflow_hygiene أخضر بعد التعديل؛ والأداة تخرج بـ1 عند خطأ المصادقة فلا صمت.",
+      "إيجابي/حيّ: فحص CodeScene Code Coverage يكتمل على رأس الـPR الجديد بدل المهلة، وupload يبقى على main بعد الدمج."
     ],
-    "rollback_strategy": "git revert للدفعة؛ يعيد 45/42 حرفياً.",
+    "rollback_strategy": "git revert للدفعة؛ يعيد خطوة upload الوحيدة.",
     "verification_strategy": [
+      "python scripts/fitness/check_ci_workflow_hygiene.py",
       "python scripts/fitness/check_engineering_governance.py",
       "python scripts/run_fitness_gates.py",
-      "مراقبة test-monolith وrequired-ci على الدفعة وعلى main"
+      "مراقبة codescene-coverage وفحص CodeScene Code Coverage على رأس الـPR"
     ],
     "claim_statuses": {
       "current_state": "TESTED",
       "ci_change": "IMPLEMENTED",
-      "main_green_after_merge": "UNKNOWN",
-      "suite_speed_fix": "UNKNOWN",
+      "codescene_pr_check": "UNKNOWN",
       "branch_protection_live_state": "UNKNOWN"
     }
   }
