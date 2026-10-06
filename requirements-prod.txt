@@ -119,5 +119,5 @@ llama-index-vector-stores-supabase
 # re-drags sentence-transformers → torch transitively, which would have made the
 # line above a comment that changed nothing. app/services/chat/memory_engine.py
 # uses llama_index.core without ever setting Settings.embed_model.
-langgraph-sdk==0.3.15
+langgraph-sdk==0.4.4
 dspy
