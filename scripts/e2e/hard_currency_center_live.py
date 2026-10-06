@@ -10,6 +10,8 @@
   • الحجب: أصناف الاختراق بلا نصوص المسابير (L5)
   • ⛔ لا صفّ في جداول الرسائل من أيّ نداءٍ للمركز (§6.5)
   • محادثة المدير على ``/admin/api/chat/ws`` بلا 4401، ومحادثة الطالب بإطارٍ نهائيٍّ واحد
+  • D-314 — غرفة القرار: جملها كلّها تجتاز مُدقِّق الأدلّة، وسقفها وفعلها التالي = الاشتقاق نفسه في
+    العملية، والاستجواب بمجموعته المغلقة يرفض الضمان، والمعاينة لا تغيّر بايتاً في السجلّ
   • ISS-214: ``/api/security/user/me`` يُبقي المدير مديراً والطالب طالباً — هذا الجواب
     تكتبه الواجهة فوق جواب الدخول عند كلّ تحميل. و``E2E_EXPECT_USER_SERVICE=1`` يشترط أن
     تكون user-service (``USER_SERVICE_URL``) هي التي أجابت عن الرمز نفسه عبر عميل المونوليث،
@@ -28,12 +30,14 @@ from __future__ import annotations
 import argparse
 import asyncio
 import base64
+import hashlib
 import json
 import os
 import sys
 import tempfile
 import time
 from dataclasses import asdict, dataclass
+from datetime import date
 from pathlib import Path
 
 import asyncpg
@@ -44,6 +48,9 @@ sys.path.insert(0, str(REPO_ROOT))
 
 from scripts.e2e.live_student_journey import _run_turn
 from shared.research import cbam_pin
+from shared.research.contact_ledger import LEDGER_REL
+from shared.research.economic_decision import build_brief, sentence_problems
+from shared.research.economic_truth import build_snapshot, load_inputs
 from tools.hard_currency_engine.belgium_validator import audit_belgian_csv
 from tools.hard_currency_engine.france_validator import audit_french_csv
 
@@ -53,7 +60,13 @@ DEMOS = {
     "fr": ("DEMO_20_FICHES.csv", audit_french_csv),
     "be": ("DEMO_BELGIUM_PEPPOL_20_FICHES.csv", audit_belgian_csv),
 }
-GET_ENDPOINTS = ("/frontier", "/cbam/codes", "/cbam/codes/2523100090", "/redteam/classes")
+GET_ENDPOINTS = (
+    "/frontier",
+    "/cbam/codes",
+    "/cbam/codes/2523100090",
+    "/redteam/classes",
+    "/chamber",
+)
 CBAM_CODE = "2523100090"
 MESSAGE_TABLES = ("customer_messages", "admin_messages")
 
@@ -209,6 +222,13 @@ async def _check_boundaries(j: Journey, student_token: str) -> None:
             )
         ).status_code
     )
+    for path, payload in (
+        ("/chamber/cross-examination", {"question": "build"}),
+        ("/chamber/outcome-preview", _preview_row("CALL_MADE")),
+    ):
+        codes.append(
+            (await j.client.post(f"{BASE_PATH}{path}", headers=headers, json=payload)).status_code
+        )
     j.record(
         "رمز الطالب على كلّ نقاط المركز ⇒ 403",
         set(codes) == {403},
@@ -322,6 +342,106 @@ async def _check_redteam(j: Journey, headers: dict[str, str]) -> None:
     )
 
 
+def _preview_row(action: str, **extra: str) -> dict[str, str]:
+    row = {
+        "date": time.strftime("%Y-%m-%d"),
+        "target_ref": "FR_EINVOICING_TARGETS_2026-09-21.csv#id=7",
+        "entity": "Balagué Expertise",
+        "country": "FR",
+        "channel": "phone",
+        "action": action,
+        "amount_eur": "",
+        "evidence_ref": "",
+        "note": "",
+    }
+    row.update(extra)
+    return row
+
+
+async def _check_chamber(j: Journey, headers: dict[str, str]) -> None:
+    """D-314 — the chamber says no more than its evidence, and its preview writes nothing."""
+    ledger = REPO_ROOT / LEDGER_REL
+    sha_before = hashlib.sha256(ledger.read_bytes()).hexdigest()
+
+    started = time.perf_counter()
+    response = await j.client.get(f"{BASE_PATH}/chamber", headers=headers)
+    body = response.json() if response.status_code == 200 else {}
+    snapshot, brief = body.get("snapshot", {}), body.get("brief", {})
+    problems = sentence_problems(body.get("sentences", []), snapshot.get("evidence", []))
+    j.record(
+        "غرفة القرار: كلّ جملةٍ ضمن دليلها",
+        response.status_code == 200 and not problems and bool(body.get("sentences")),
+        f"HTTP {response.status_code} · {len(body.get('sentences', []))} جملة · مخالفات={len(problems)}",
+        started,
+    )
+
+    started = time.perf_counter()
+    direct = build_snapshot(
+        **load_inputs(REPO_ROOT),
+        root=REPO_ROOT,
+        today=date.fromisoformat(str(snapshot.get("today") or date.today().isoformat())),
+    )
+    direct_brief = build_brief(direct)
+    direct_action = (direct_brief.get("primary_action") or {}).get("action_id")
+    live_action = (brief.get("primary_action") or {}).get("action_id")
+    j.record(
+        "غرفة القرار = الاشتقاق في العملية (السقف · GATE_C · الفعل التالي)",
+        snapshot.get("ceiling", {}).get("link") == direct["ceiling"].get("link")
+        and snapshot.get("gate_c") == direct["gate_c"]
+        and live_action == direct_action,
+        f"الحلقة {snapshot.get('ceiling', {}).get('link')} · GATE_C={snapshot.get('gate_c')} · "
+        f"الفعل={live_action} · الاختناق={brief.get('bottleneck')}",
+        started,
+    )
+
+    started = time.perf_counter()
+    answers = {}
+    for question in ("ready", "build", "why_no_money"):
+        result = await j.client.post(
+            f"{BASE_PATH}/chamber/cross-examination", headers=headers, json={"question": question}
+        )
+        answers[question] = result.status_code
+    guarantee = await j.client.post(
+        f"{BASE_PATH}/chamber/cross-examination",
+        headers=headers,
+        json={"question": "say_to_buyer", "text": "Nous garantissons zéro rejet de routage."},
+    )
+    open_question = await j.client.post(
+        f"{BASE_PATH}/chamber/cross-examination", headers=headers, json={"question": "anything"}
+    )
+    verdict = guarantee.json().get("verdict") if guarantee.status_code == 200 else None
+    j.record(
+        "الاستجواب: مجموعةٌ مغلقة، والضمان مرفوض",
+        set(answers.values()) == {200}
+        and verdict == "FORBIDDEN"
+        and open_question.status_code == 422,
+        f"{answers} · say_to_buyer={verdict} · سؤالٌ مفتوح ⇒ HTTP {open_question.status_code}",
+        started,
+    )
+
+    started = time.perf_counter()
+    valid = await j.client.post(
+        f"{BASE_PATH}/chamber/outcome-preview", headers=headers, json=_preview_row("CALL_MADE")
+    )
+    money = await j.client.post(
+        f"{BASE_PATH}/chamber/outcome-preview",
+        headers=headers,
+        json=_preview_row(
+            "PAYMENT_SETTLED", channel="bank", amount_eur="290", evidence_ref="r.pdf"
+        ),
+    )
+    sha_after = hashlib.sha256(ledger.read_bytes()).hexdigest()
+    ok_valid = valid.status_code == 200 and valid.json().get("accepted") is True
+    ok_money = money.status_code == 200 and money.json().get("accepted") is False
+    j.record(
+        "معاينة النتيجة: مقبولٌ بلا كتابة · مالٌ بلا عرضٍ مرفوض · السجلّ لم يتغيّر",
+        ok_valid and ok_money and valid.json().get("written") is False and sha_before == sha_after,
+        f"CALL_MADE accepted={valid.json().get('accepted')} · PAYMENT_SETTLED accepted="
+        f"{money.json().get('accepted')} · sha {sha_before[:12]} ⇒ {sha_after[:12]}",
+        started,
+    )
+
+
 async def _check_graph(j: Journey, orchestrator: str) -> None:
     """هل LangGraph يعمل؟ — يُقرأ من الخدمة نفسها لا من سجلّها (سؤال المالك 2026-10-01)."""
     started = time.perf_counter()
@@ -389,6 +509,7 @@ async def main() -> int:
         await _check_audits(j, headers)
         await _check_cbam(j, headers)
         await _check_redteam(j, headers)
+        await _check_chamber(j, headers)
         after = await _message_rows(dsn)
         started = time.perf_counter()
         j.record(

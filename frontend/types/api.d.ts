@@ -74,6 +74,7 @@ export interface MonolithApiCbamCodesResponse { provenance: Record<string, unkno
 export interface MonolithApiCbamDecisionRequest { see_actual: number }
 export interface MonolithApiCbamDecisionResponse { cn: string; see_actual_t: number; first_sellable_year: number | null; never_within_horizon: boolean; trajectory: Record<string, unknown>[]; provenance: Record<string, unknown>; reading_ar: string }
 export interface MonolithApiCbamDetailResponse { cn: string; sector: string; description: string; default_see_t: Record<string, unknown>; computable: boolean; absent_reason: string | null; provenance: Record<string, unknown>; year?: number | null; certificates_default?: Record<string, unknown> | null; crossover?: Record<string, unknown> | null; path_toll?: Record<string, unknown> | null; trajectory?: Record<string, unknown>[] | null }
+export interface MonolithApiChamberResponse { snapshot: Record<string, unknown>; brief: Record<string, unknown>; sentences: Record<string, unknown>[]; questions: string[]; ledger_vocabulary: Record<string, unknown> }
 export interface MonolithApiChangePasswordRequest { current_password: string; new_password: string }
 export type MonolithApiCognitiveIntent = string;
 export type MonolithApiCognitiveState = string;
@@ -87,6 +88,8 @@ export interface MonolithApiContentItemResponse { id: string; type: string; titl
 export interface MonolithApiContentSearchResponse { items: MonolithApiContentItemResponse[]; ranking?: string }
 export interface MonolithApiConversationDetailsResponse { conversation_id: number | string; title?: string | null; messages: MonolithApiMessageResponse[]; metadata?: Record<string, unknown> | null }
 export interface MonolithApiConversationSummaryResponse { id: number | string; conversation_id?: number | string | null; title?: string | null; created_at?: string | null; updated_at?: string | null; message_count?: number }
+export interface MonolithApiCrossExaminationRequest { question: string; text?: string | null }
+export interface MonolithApiCrossExaminationResponse { question: string; verdict: string | null; findings: Record<string, unknown>[] | null; sentences: Record<string, unknown>[] }
 export interface MonolithApiCustomerConversationDetails { conversation_id: number; title: string; messages: MonolithApiCustomerMessageOut[] }
 export interface MonolithApiCustomerConversationSummary { id: number; conversation_id: number; title: string; created_at: string; updated_at?: string | null }
 export interface MonolithApiCustomerMessageOut { role: string; content: string; created_at: string; policy_flags?: Record<string, unknown> | null; ui_component?: Record<string, unknown> | null }
@@ -120,6 +123,8 @@ export interface MonolithApiMCPRequest { action?: string; tool_name?: string | n
 export interface MonolithApiMessageResponse { id?: number | null; role: string; content: string; timestamp?: string | null }
 export interface MonolithApiNotationRequest { question: string }
 export interface MonolithApiNotationResponse { found: boolean; symbol?: string | null; title?: string | null; definition?: string | null; example?: string | null; concept_id?: string | null }
+export interface MonolithApiOutcomePreviewRequest { date: string; target_ref: string; entity: string; country: string; channel: string; action: string; amount_eur?: string; evidence_ref?: string; note?: string }
+export interface MonolithApiOutcomePreviewResponse { accepted: boolean; problems: string[]; csv_line: string; written: boolean; ledger: string; commit_hint_ar: string; delta?: Record<string, unknown> | null }
 export interface MonolithApiPasswordResetConfirmRequest { token: string; new_password: string }
 export interface MonolithApiPasswordResetRequest { email: string }
 export interface MonolithApiPasswordResetResponse { status?: string; reset_token?: string | null; expires_in?: number | null }

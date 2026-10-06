@@ -2,6 +2,9 @@
 /**
  * «مركز العملة الصعبة» في متصفّحٍ حقيقي (D-305) — لقطاتٌ دليلٌ يُرى لا ادّعاء.
  *
+ * D-314: المركز يُفتح على «غرفة القرار» — تسعة أسطر، ثمّ الأبواب الأربعة: الأدلّة · الاستجواب
+ * (جملةٌ بضمانٍ تُرفَض) · تحضير الفعل · معاينة صفٍّ (مقبولٌ بلا كتابة، ومالٌ بلا عرضٍ مرفوض).
+ *
  * يدخل المدير من نموذج الدخول نفسه، ويفتح المركز من قائمته، ويمرّ على التبويبات الأربعة
  * (الجبهة · الفوترة برفع ملفّ العرض FR · قرار CBAM برقم منشأة · أصناف الاختراق) نهاراً
  * وليلاً وبعرض هاتف؛ ثمّ يدخل الطالب ويُثبت أنّ المدخل غائبٌ عن قائمته.
@@ -95,6 +98,65 @@ async function setTheme(page, theme) {
     }
 }
 
+/** D-314 — الغرفة أوّل ما يراه المدير، وأبوابها الأربعة لا تكتب شيئاً. */
+async function chamberJourney(page) {
+    const chamber = page.locator('section[aria-labelledby="chamber-title"]');
+    await page.getByRole('heading', { name: 'غرفة القرار' }).waitFor({ timeout: 30000 });
+    const lines = await chamber.locator(':scope > ol > li').count();
+    const action = (await chamber.locator(':scope > ol > li').nth(4).innerText()).replace(/\s+/g, ' ');
+    record('غرفة القرار تُفتح أوّلاً بتسعة أسطر', lines === 9, `${lines} سطراً · «${action.slice(0, 110)}…»`);
+    const chips = await chamber.locator('ul li span').allInnerTexts();
+    record(
+        'كلّ جملةٍ بصنفها نصّاً',
+        chips.includes('حقيقة') && chips.includes('رفض'),
+        `${chips.filter((c) => ['حقيقة', 'فرضية', 'مجهول', 'فعل', 'رفض'].includes(c)).length} شارة`,
+    );
+    await setTheme(page, 'light');
+    await shot(page, '00a-chamber-light');
+    await setTheme(page, 'dark');
+    await shot(page, '00b-chamber-dark');
+    await setTheme(page, 'light');
+
+    await page.getByRole('tab', { name: 'اطعن في الاستنتاج' }).click();
+    await page.getByLabel('هل يجوز قول هذه الجملة لمشترٍ؟').check();
+    await page.locator('textarea').fill('Nous garantissons zéro rejet de routage.');
+    await page.getByRole('button', { name: 'استجوب' }).click();
+    const verdict = page.getByText('الحكم:', { exact: false }).first();
+    await verdict.waitFor({ timeout: 30000 });
+    const verdictText = (await verdict.innerText()).replace(/\s+/g, ' ');
+    record('الاستجواب يرفض الضمان', verdictText.includes('FORBIDDEN'), `«${verdictText.slice(0, 90)}»`);
+    await shot(page, '00c-chamber-challenge');
+
+    await page.getByRole('tab', { name: 'حضّر الفعل البشري التالي' }).click();
+    const capsule = await page.getByText('أصغر اختبارٍ يُسقطها').count();
+    record('كبسولة الفرضية للفعل التالي', capsule === 1, `${capsule} كبسولة`);
+    await shot(page, '00d-chamber-prepare');
+
+    await page.getByRole('tab', { name: 'سجّل نتيجةً مؤكَّدة' }).click();
+    await page.getByRole('button', { name: 'عاين الصفّ' }).click();
+    const accepted = page.getByText('مقبول — لم يُكتب شيء', { exact: false });
+    await accepted.waitFor({ timeout: 30000 });
+    record('معاينة صفّ المتابعة: مقبولٌ بلا كتابة', (await accepted.count()) === 1, 'written = false');
+    await shot(page, '00e-chamber-record-accepted');
+    await page.getByLabel('الفعل', { exact: true }).selectOption('PAYMENT_SETTLED');
+    await page.getByLabel('القناة', { exact: true }).selectOption('bank');
+    await page.getByLabel('المبلغ € (للمال وعرض السعر فقط)').fill('290');
+    await page.getByLabel('مرجع الدليل (كشف بنكي · إيصال)').fill('releve.pdf');
+    await page.getByRole('button', { name: 'عاين الصفّ' }).click();
+    const refused = page.getByText('مرفوض: هذا الصفّ يُحمِّر البوّابة.', { exact: false });
+    await refused.waitFor({ timeout: 30000 });
+    const reason = (await page.locator('[role="alert"]').first().innerText()).replace(/\s+/g, ' ');
+    record('مالٌ بلا عرض سعرٍ يُرفَض بسببه', reason.includes('QUOTE_SENT'), `«${reason.slice(0, 120)}…»`);
+    await shot(page, '00f-chamber-record-refused');
+
+    await page.setViewportSize({ width: 375, height: 812 });
+    await page.getByRole('tab', { name: 'افحص الأدلّة' }).click();
+    const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
+    record('الغرفة بعرض هاتف 375px بلا تمريرٍ أفقي', overflow <= 1, `فائض ${overflow}px`);
+    await shot(page, '00g-chamber-mobile');
+    await page.setViewportSize({ width: 1280, height: 900 });
+}
+
 async function adminJourney(browser, consoleErrors) {
     const context = await browser.newContext({ viewport: { width: 1280, height: 900 }, locale: 'ar' });
     const page = await context.newPage();
@@ -121,6 +183,9 @@ async function adminJourney(browser, consoleErrors) {
     record('مدخل المركز في قائمة المدير', (await entry.count()) === 1, `${await entry.count()} مدخل`);
     await entry.click();
 
+    await chamberJourney(page);
+
+    await page.getByRole('tab', { name: 'خريطة الجبهة' }).click();
     await page.getByRole('heading', { name: 'خريطة الجبهة' }).waitFor({ timeout: 30000 });
     const cards = await page.getByRole('button', { name: 'عرض الأدلّة' }).count();
     const banner = (await page.locator('[role="note"]').first().innerText()).replace(/\s+/g, ' ');

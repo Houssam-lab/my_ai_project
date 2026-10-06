@@ -29,17 +29,25 @@ REPO_ROOT = Path(__file__).resolve().parents[3]
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
+# The rules live in one home since D-314; the Decision Chamber asks the same questions
+# of any sentence the owner types.
 from tools.hard_currency_engine.belgium_validator import (
     audit_belgian_csv,
     export_cleaned_belgian_csv,
     format_belgian_report,
+)
+from tools.hard_currency_engine.buyer_claims import (
+    EURO_RANGE,
+    PACKAGE_PRICE,
+    buyer_lines,
+    findings,
+    identifier_mismatches,
 )
 from tools.hard_currency_engine.crm_dispatcher import dispatch_campaign
 from tools.hard_currency_engine.france_validator import (
     audit_french_csv,
     export_cleaned_french_csv,
     format_french_report,
-    tva_fr_check,
 )
 
 OUTREACH = REPO_ROOT / "docs/commercial/outreach"
@@ -63,43 +71,17 @@ SEND_FILES = (
     KIT,
 )
 
-#: The one package price the owner chose (D-304).
-PACKAGE_PRICE = "290 €"
+#: Verdicts that block a line from being sent. HYPOTHESIS_ONLY is not here: the email
+#: already sent to Balagué on 2026-09-22 stays verbatim as the record (D-304), and the
+#: rewording of trends is a human review.
+_BLOCKING = frozenset({"FORBIDDEN", "UNSUPPORTED"})
 
-_TVA = re.compile(r"\bFR ?\d{2} ?\d{3} ?\d{3} ?\d{3}\b")
-_SIREN_AFTER_LABEL = re.compile(r"SIREN\W{0,6}(\d{3} ?\d{3} ?\d{3})\b")
-_GUARANTEE = re.compile(r"garanti", re.IGNORECASE)
-_EURO_RANGE = re.compile(r"\d[\d  ]*\s?[–-]\s?\d[\d  ]*\s?€")
+#: CRM drafts keep their own narrow rule: ``classify`` would call every unrecognised
+#: line UNSUPPORTED, and a draft greeting is not a claim.
 _CRM_UNMEASURED_CLAIM = re.compile(
     r"\b\d+\s?%|garanti|garantie|z[eé]ro\s+rejet",
     re.IGNORECASE,
 )
-
-
-def identifier_mismatches(line: str) -> list[str]:
-    """A TVA printed on the same line as a labelled SIREN must carry that SIREN."""
-    sirens = {match.replace(" ", "") for match in _SIREN_AFTER_LABEL.findall(line)}
-    problems = []
-    for raw in _TVA.findall(line):
-        tva = raw.replace(" ", "")
-        ok, _clean, message = tva_fr_check(tva)
-        if not ok:
-            problems.append(f"{tva}: {message}")
-        elif sirens and tva[4:] not in sirens:
-            problems.append(f"{tva} carries SIREN {tva[4:]}, the line names {sorted(sirens)}")
-    return problems
-
-
-def buyer_text(path: Path) -> list[tuple[int, str]]:
-    """Lines a buyer reads: inside code fences (emails, profile) and ``>`` quotes (scripts)."""
-    lines, inside = [], False
-    for number, line in enumerate(path.read_text(encoding="utf-8").splitlines(), start=1):
-        if line.lstrip().startswith("```"):
-            inside = not inside
-            continue
-        if inside or line.lstrip().startswith(">"):
-            lines.append((number, line))
-    return lines
 
 
 def test_the_c12_line_is_caught() -> None:
@@ -135,10 +117,11 @@ def test_every_outreach_vat_number_matches_its_siren() -> None:
 
 def test_buyer_text_states_no_rate_and_no_guarantee() -> None:
     problems = [
-        f"{path.relative_to(REPO_ROOT)}:{number}: {line.strip()[:90]}"
+        f"{path.relative_to(REPO_ROOT)}:{number}: {item.rule} {item.excerpt!r}"
         for path in SEND_FILES
-        for number, line in buyer_text(path)
-        if "%" in line or _GUARANTEE.search(line)
+        for number, line in buyer_lines(path.read_text(encoding="utf-8"))
+        for item in findings(line)
+        if item.verdict in _BLOCKING
     ]
     assert problems == []
 
@@ -226,7 +209,7 @@ def test_one_package_price_everywhere() -> None:
         ("malt", MALT.read_text(encoding="utf-8")),
     ):
         assert PACKAGE_PRICE in text, name
-        assert _EURO_RANGE.findall(text) == [], name
+        assert EURO_RANGE.findall(text) == [], name
     # The catalog route also cites market day rates as ranges (sources, not our price).
     assert PACKAGE_PRICE in route
     assert "290–390" not in route

@@ -1924,6 +1924,33 @@
       "finding_ar": "أصلٌ مُولَّدٌ داخل المشروع (لقطةُ شاشةٍ أو صورةُ دليل)، لا محتوى طرفٍ ثالث.",
       "remediation_ar": "",
       "reviewed_on": "2026-10-01"
+    },
+    {
+      "path": "docs/evidence/d314-decision-chamber-2026-10-02.png",
+      "kind": "own_work_image",
+      "size_bytes": 116317,
+      "distribution": "OWN_WORK_MIT",
+      "finding_ar": "أصلٌ مُولَّدٌ داخل المشروع (لقطةُ شاشةٍ أو صورةُ دليل)، لا محتوى طرفٍ ثالث.",
+      "remediation_ar": "",
+      "reviewed_on": "2026-10-02"
+    },
+    {
+      "path": "docs/evidence/d314-decision-chamber-dark-2026-10-02.png",
+      "kind": "own_work_image",
+      "size_bytes": 119147,
+      "distribution": "OWN_WORK_MIT",
+      "finding_ar": "أصلٌ مُولَّدٌ داخل المشروع (لقطةُ شاشةٍ أو صورةُ دليل)، لا محتوى طرفٍ ثالث.",
+      "remediation_ar": "",
+      "reviewed_on": "2026-10-02"
+    },
+    {
+      "path": "docs/evidence/d314-outcome-preview-refused-2026-10-02.png",
+      "kind": "own_work_image",
+      "size_bytes": 106225,
+      "distribution": "OWN_WORK_MIT",
+      "finding_ar": "أصلٌ مُولَّدٌ داخل المشروع (لقطةُ شاشةٍ أو صورةُ دليل)، لا محتوى طرفٍ ثالث.",
+      "remediation_ar": "",
+      "reviewed_on": "2026-10-02"
     }
   ],
   "offer_clearance": [

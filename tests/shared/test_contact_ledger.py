@@ -100,6 +100,72 @@ def test_scorecard_with_one_email_is_all_zero_or_null_with_reasons():
     assert card["as_of"] == "2026-09-22"
 
 
+@pytest.mark.parametrize(
+    ("rows", "fragment"),
+    [
+        # A reply answers something we sent to that same entity.
+        (["2026-09-22,FR#8,Y,FR,email,REPLY_RECEIVED,,,"], "REPLY_RECEIVED"),
+        # Money with no quote to that entity has no scope to link to.
+        (
+            [
+                "2026-09-23,FR#7,Balagué Expertise,FR,phone,REPLY_RECEIVED,,,",
+                "2026-09-24,FR#7,Balagué Expertise,FR,bank,PAYMENT_SETTLED,290,releve.pdf,",
+            ],
+            "QUOTE_SENT",
+        ),
+        (
+            [
+                "2026-09-23,FR#7,Balagué Expertise,FR,phone,REPLY_RECEIVED,,,",
+                "2026-09-24,FR#7,Balagué Expertise,FR,bank,DEPOSIT_RECEIVED,90,recu.pdf,",
+            ],
+            "QUOTE_SENT",
+        ),
+        # A sample or a quote goes to someone who answered.
+        (["2026-09-23,FR#7,Balagué Expertise,FR,email,SAMPLE_DELIVERED,,,"], "REPLY_RECEIVED"),
+        (["2026-09-23,FR#7,Balagué Expertise,FR,email,QUOTE_SENT,290,,"], "REPLY_RECEIVED"),
+        # Closing a file that was never opened.
+        (["2026-09-23,FR#9,Z,FR,email,CLOSED_NO_REPLY,,,"], "CLOSED_NO_REPLY"),
+        # Order is (date, line): a reply dated before the email does not count as after it.
+        (
+            [
+                "2026-09-21,FR#7,Balagué Expertise,FR,phone,REPLY_RECEIVED,,,",
+            ],
+            "REPLY_RECEIVED",
+        ),
+    ],
+)
+def test_impossible_transitions_are_rejected(rows: list[str], fragment: str):
+    with pytest.raises(LedgerError) as excinfo:
+        parse_ledger(_ledger(SEED, *rows), today=TODAY)
+    assert fragment in str(excinfo.value)
+
+
+def test_transitions_are_checked_per_entity():
+    """A quote sent to one firm does not license a payment from another."""
+    text = _ledger(
+        SEED,
+        "2026-09-23,FR#7,Balagué Expertise,FR,phone,REPLY_RECEIVED,,,",
+        "2026-09-24,FR#7,Balagué Expertise,FR,email,QUOTE_SENT,290,,",
+        "2026-09-25,FR#8,Autre Cabinet,FR,bank,PAYMENT_SETTLED,290,releve.pdf,",
+    )
+    with pytest.raises(LedgerError) as excinfo:
+        parse_ledger(text, today=TODAY)
+    assert "Autre Cabinet" in str(excinfo.value)
+
+
+def test_a_complete_sequence_on_one_day_is_accepted_in_line_order():
+    text = _ledger(
+        SEED,
+        "2026-09-23,FR#7,Balagué Expertise,FR,phone,CALL_MADE,,,",
+        "2026-09-23,FR#7,Balagué Expertise,FR,phone,REPLY_RECEIVED,,,",
+        "2026-09-23,FR#7,Balagué Expertise,FR,email,SAMPLE_DELIVERED,,,",
+        "2026-09-23,FR#7,Balagué Expertise,FR,email,QUOTE_SENT,290,,",
+        "2026-09-23,FR#7,Balagué Expertise,FR,bank,PAYMENT_SETTLED,290,releve.pdf,",
+        "2026-09-23,FR#7,Balagué Expertise,FR,email,CLOSED_DECLINED,,,",
+    )
+    assert len(parse_ledger(text, today=TODAY)) == 7
+
+
 def test_scorecard_with_a_settled_payment_derives_customer_metrics():
     text = _ledger(
         SEED,

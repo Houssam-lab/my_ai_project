@@ -34,6 +34,7 @@ from shared.research.contact_ledger import INBOUND, MONEY, OUTBOUND, PAYMENT_SET
 
 __all__ = [
     "CATALOG_REL",
+    "CATALOG_REQUIRES",
     "CLASSIFICATIONS",
     "FORBIDDEN_TERMS",
     "LINKS",
@@ -49,6 +50,7 @@ __all__ = [
     "map_decisions",
     "problems",
     "route_of",
+    "route_table",
 ]
 
 VALUE_CHAIN_REL = "docs/commercial/VALUE_CHAIN.json"
@@ -102,7 +104,7 @@ CLASSIFICATIONS: tuple[str, ...] = (
 
 #: حالةُ الكتالوج ⇐ الحلقات الخامّ التي يجب أن تُبلَغ (بلا شرط الاتّصال: السُّلَّم يقيس ما
 #: يقيسه، والسلسلة تمنعه فقط من تجاوز الدليل).
-_CATALOG_REQUIRES: dict[str, tuple[int, ...]] = {
+CATALOG_REQUIRES: dict[str, tuple[int, ...]] = {
     "DISCOVERY": (7,),
     "OFFER_READY": (6, 7),
     "PILOT": (8,),
@@ -157,7 +159,8 @@ def _paths(doc: Mapping[str, object]) -> list[Mapping[str, object]]:
     return [entry for entry in _items(doc.get("paths")) if isinstance(entry, Mapping)]
 
 
-def _route_table(paths: Sequence[Mapping[str, object]]) -> dict[str, list[str]]:
+def route_table(paths: Sequence[Mapping[str, object]]) -> dict[str, list[str]]:
+    """مفتاح التوجيه ⇒ المسارات التي تملكه — صفّ سجلٍّ يُحتسَب لمسارٍ واحدٍ فقط."""
     table: dict[str, list[str]] = {}
     for entry in paths:
         for route in _items(entry.get("ledger_routes")):
@@ -168,7 +171,7 @@ def _route_table(paths: Sequence[Mapping[str, object]]) -> dict[str, list[str]]:
 def _rows_by_path(
     paths: Sequence[Mapping[str, object]], ledger_rows: Iterable[LedgerRow]
 ) -> dict[str, list[LedgerRow]]:
-    table = _route_table(paths)
+    table = route_table(paths)
     grouped: dict[str, list[LedgerRow]] = {str(entry.get("id")): [] for entry in paths}
     for row in ledger_rows:
         owners = table.get(route_of(row.target_ref), [])
@@ -315,7 +318,7 @@ def _entry_problems(entry: Mapping[str, object], root: Path) -> list[str]:
 def _ledger_route_problems(
     paths: Sequence[Mapping[str, object]], ledger_rows: Sequence[LedgerRow]
 ) -> list[str]:
-    table = _route_table(paths)
+    table = route_table(paths)
     found = [
         f"مفتاح توجيهٍ لأكثر من مسار: {route!r} ⇒ {owners}"
         for route, owners in sorted(table.items())
@@ -354,7 +357,7 @@ def _catalog_problems(
             continue
         status = str(offer.get("status"))
         raw = set(_items(_mapping(by_id.get(str(entry.get("id")))).get("raw_links")))
-        if missing := [n for n in _CATALOG_REQUIRES.get(status, ()) if n not in raw]:
+        if missing := [n for n in CATALOG_REQUIRES.get(status, ()) if n not in raw]:
             found.append(
                 f"{entry.get('id')}: الكتالوج يقول {status} والحلقات {missing} غير مبلوغة — "
                 "حالةٌ تتجاوز دليلها"

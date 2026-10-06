@@ -32,17 +32,28 @@ from datetime import date
 __all__ = [
     "ACTIONS",
     "AMOUNT_REQUIRED",
+    "CALL_MADE",
     "CHANNELS",
+    "CLOSED_DECLINED",
+    "CLOSED_NO_REPLY",
     "CLOSURE",
     "COLUMNS",
     "CONTACT_ACTIONS",
     "DELIVERY",
+    "DEPOSIT_RECEIVED",
+    "EMAIL_SENT",
+    "FORM_SUBMITTED",
     "INBOUND",
     "LEDGER_REL",
+    "LINKEDIN_SENT",
     "MONEY",
     "OUTBOUND",
     "PAYMENT_SETTLED",
+    "QUOTE_SENT",
+    "REPLY_RECEIVED",
+    "SAMPLE_DELIVERED",
     "SCORECARD_REL",
+    "TRANSITION_PREREQUISITES",
     "LedgerError",
     "LedgerRow",
     "build_scorecard",
@@ -50,6 +61,7 @@ __all__ = [
     "ledger_sha256",
     "parse_ledger",
     "row_problems",
+    "transition_problems",
 ]
 
 LEDGER_REL = "docs/commercial/outreach/CONTACT_LEDGER.csv"
@@ -67,18 +79,30 @@ COLUMNS: tuple[str, ...] = (
     "note",
 )
 
-#: أفعالٌ نُصدِرها نحن نحو مشترٍ محدَّد.
-OUTBOUND = frozenset({"EMAIL_SENT", "CALL_MADE", "LINKEDIN_SENT", "FORM_SUBMITTED"})
-#: ردٌّ من الطرف الآخر — أوّل رقمٍ حقيقيّ لأيّ قناة (H12).
-INBOUND = frozenset({"REPLY_RECEIVED"})
-#: تسليمٌ نحن مصدره: عيّنةٌ مجّانية أو عرضُ سعر.
-DELIVERY = frozenset({"SAMPLE_DELIVERED", "QUOTE_SENT"})
-#: الدفعة المسوّاة — موطنها هنا وحده؛ كلّ مستهلكٍ يستوردها (D-270 L5).
+#: أسماء الأفعال — موطنها هنا وحده؛ كلّ مستهلكٍ يستوردها (D-270 L5).
+EMAIL_SENT = "EMAIL_SENT"
+CALL_MADE = "CALL_MADE"
+LINKEDIN_SENT = "LINKEDIN_SENT"
+FORM_SUBMITTED = "FORM_SUBMITTED"
+REPLY_RECEIVED = "REPLY_RECEIVED"
+SAMPLE_DELIVERED = "SAMPLE_DELIVERED"
+QUOTE_SENT = "QUOTE_SENT"
+DEPOSIT_RECEIVED = "DEPOSIT_RECEIVED"
+#: الدفعة المسوّاة — الوحيدة التي تحرّك `GATE_C`.
 PAYMENT_SETTLED = "PAYMENT_SETTLED"
-#: مالٌ تحرّك فعلاً — الوحيد الذي يحرّك `GATE_C`.
-MONEY = frozenset({"DEPOSIT_RECEIVED", PAYMENT_SETTLED})
+CLOSED_NO_REPLY = "CLOSED_NO_REPLY"
+CLOSED_DECLINED = "CLOSED_DECLINED"
+
+#: أفعالٌ نُصدِرها نحن نحو مشترٍ محدَّد.
+OUTBOUND = frozenset({EMAIL_SENT, CALL_MADE, LINKEDIN_SENT, FORM_SUBMITTED})
+#: ردٌّ من الطرف الآخر — أوّل رقمٍ حقيقيّ لأيّ قناة (H12).
+INBOUND = frozenset({REPLY_RECEIVED})
+#: تسليمٌ نحن مصدره: عيّنةٌ مجّانية أو عرضُ سعر.
+DELIVERY = frozenset({SAMPLE_DELIVERED, QUOTE_SENT})
+#: مالٌ تحرّك فعلاً.
+MONEY = frozenset({DEPOSIT_RECEIVED, PAYMENT_SETTLED})
 #: إغلاقٌ صريح — يُعدّ لكنّه ليس اتصالاً.
-CLOSURE = frozenset({"CLOSED_NO_REPLY", "CLOSED_DECLINED"})
+CLOSURE = frozenset({CLOSED_NO_REPLY, CLOSED_DECLINED})
 
 ACTIONS = OUTBOUND | INBOUND | DELIVERY | MONEY | CLOSURE
 #: ما تعدّه بوّابة تجميد البحث «كتابةً للسوق»: كلّ شيءٍ عدا الإغلاق.
@@ -89,6 +113,19 @@ AMOUNT_REQUIRED = MONEY | {"QUOTE_SENT"}
 CHANNELS = frozenset(
     {"email", "phone", "linkedin", "web_form", "malt", "platform", "bank", "in_person"}
 )
+
+#: الفعل ⇐ ما يجب أن يسبقه **للكيان نفسه** (D-314). بلا هذا يقفز صفٌّ إلى المال مباشرةً:
+#: دفعةٌ بلا عرض سعرٍ يُربَط به نطاقها، أو ردٌّ على رسالةٍ لم تُرسَل — واللوحة تعدّه.
+#: الترتيب (التاريخ ثمّ رقم السطر): السجلّ مُلحَقٌ فقط، فالسطر الأسبق في اليوم نفسه أسبق.
+TRANSITION_PREREQUISITES: dict[str, tuple[frozenset[str], str]] = {
+    REPLY_RECEIVED: (OUTBOUND, "الردّ جوابٌ على شيءٍ أرسلناه إلى الكيان نفسه"),
+    SAMPLE_DELIVERED: (INBOUND, "العيّنة تُسلَّم لكيانٍ ردّ"),
+    QUOTE_SENT: (INBOUND, "عرض السعر يُرسَل لكيانٍ ردّ"),
+    DEPOSIT_RECEIVED: (frozenset({QUOTE_SENT}), "المال يحتاج عرض سعرٍ يُربَط به نطاقه"),
+    PAYMENT_SETTLED: (frozenset({"QUOTE_SENT"}), "المال يحتاج عرض سعرٍ يُربَط به نطاقه"),
+    "CLOSED_NO_REPLY": (OUTBOUND, "لا يُغلَق ملفٌّ لم يُفتَح باتصال"),
+    "CLOSED_DECLINED": (CONTACT_ACTIONS, "لا يُغلَق ملفٌّ لم يُفتَح باتصال"),
+}
 
 _MAX_REASONABLE_AMOUNT_EUR = 1_000_000.0
 
@@ -217,9 +254,25 @@ def parse_ledger(text: str, *, today: date) -> list[LedgerRow]:
                 note=(raw["note"] or "").strip(),
             )
         )
+    problems.extend(transition_problems(rows))
     if problems:
         raise LedgerError("\n".join(problems))
     return rows
+
+
+def transition_problems(rows: list[LedgerRow]) -> list[str]:
+    """كلّ صفٍّ لم يسبقه للكيان نفسه ما يجعله ممكناً (``TRANSITION_PREREQUISITES``)."""
+    seen: dict[str, set[str]] = defaultdict(set)
+    problems: list[str] = []
+    for row in sorted(rows, key=lambda r: (r.date, r.line_no)):
+        rule = TRANSITION_PREREQUISITES.get(row.action)
+        if rule is not None and not (seen[row.entity] & rule[0]):
+            problems.append(
+                f"سطر {row.line_no}: {row.action} لـ{row.entity} بلا {sorted(rule[0])} "
+                f"قبله — {rule[1]}"
+            )
+        seen[row.entity].add(row.action)
+    return problems
 
 
 def ledger_sha256(text: str) -> str:

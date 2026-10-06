@@ -1,6 +1,19 @@
 # Runtime Truth Lock
-> Last updated: **2026-10-01** | Branch: ccr-0ff8dc1c-wm5oty (D-305 · ISS-210)
-> Previous: claude/naas-bareme-verifier-7wvyk8 (D-267)
+> Last updated: **2026-10-05** | Branch: ccr-26d6a543-rhd0a5 (D-314 · merged with main 05b72de)
+> Previous: ccr-0ff8dc1c-wm5oty (D-305 · ISS-210)
+
+## D-314 — غرفة القرار + قواعد انتقال السجلّ + مُدقِّق نصّ المشتري (2026-10-02)
+
+> **لا ترقية ولا ادّعاء إنتاج (§5.1):** الحالات هنا بمفردات الأدلّة لا بـ`ACTIVE`، لأنّ R1/R2/R3 الحرجة مفتوحة في `docs/governance/PROJECT_REMEDIATION_PLAN.json`. ما يُثبَت لهذا المسار وحده: الملفّات المتغيّرة تُترجَم وتنجح اختباراتها المركّزة تحت Python 3.12 (احتواء R1/R3 لهذا المسار لا إغلاقهما)، وسجلٌّ لا يُقرأ يجعل الغرفة ترفض بـ503 (فشلٌ مغلق). الحزمة الحيّة محلّية؛ النشر على الإنتاج `UNKNOWN`. رُقِّم D-314 لأنّ `main` يستعمل D-306 لدستور منع Vibe Coding. **أُعيد البرهان الحيّ على الكود المدموج مع `main` 05b72de (2026-10-05): 25/25 و22/22.**
+
+| المسار الحيّ | الحالة | الدليل (import + call chain + runtime) |
+|---------|--------|----------------------------------------|
+| **`GET /admin/api/hard-currency/chamber`** + `cross-examination` + `outcome-preview` (`app/api/routers/hard_currency.py` ⇐ `app/services/hard_currency/decision_chamber.py` ⇐ `shared/research/economic_truth.py` + `economic_decision.py`) (D-314 — جديد) | **IMPLEMENTED · TESTED · RUNTIME VERIFIED (حزمة محلية) — غير مُرقّى: R1–R3 مفتوحة (ENGINEERING_CONSTITUTION §5.1)** (للمدير وحده · قراءةٌ وحساب · صفر كتابة) | الموجِّه مُسجَّل قبلاً (D-305)؛ كلّ نقطةٍ خلف `require_roles(ADMIN_ROLE)`، والنقطتان POST بمحدِّد المعدّل. **برهانٌ حيّ** (2026-10-02 · Postgres 16 محلية + pgvector · orchestrator :8006 `graph_ready=true` بمُتفقِّد postgres · user-service :8001 · مونوليث :8000 · مفاتيح حقيقية من البيئة · `scripts/e2e/hard_currency_center_live.py` **25/25**): 16 جملة بصفر مخالفةٍ للمُدقِّق · السقف (الحلقة 4) وGATE_C والفعل التالي (`FOLLOW_UP_CALL`) = الاشتقاق في العملية · الاستجواب 200 لمجموعته و422 لسؤالٍ مفتوح و`FORBIDDEN` للضمان · المعاينة: `CALL_MADE` مقبولٌ `written=false` و`PAYMENT_SETTLED` بلا عرضٍ مرفوض، وبصمة `CONTACT_LEDGER.csv` لم تتغيّر · رمز الطالب على النقاط الثلاث 403 · صفر صفٍّ في جداول الرسائل |
+| **`frontend/app/components/hard-currency/DecisionChamber.jsx`** (D-314 — جديد) | **IMPLEMENTED · TESTED · RUNTIME VERIFIED (متصفّح على حزمة محلية) — غير مُرقّى: R1–R3 مفتوحة (ENGINEERING_CONSTITUTION §5.1)** (للمدير وحده · التبويب الافتراضي) | `HardCurrencyCenter.jsx` يفتح عليه. **برهانٌ في متصفّح** (`scripts/e2e/hard_currency_center_ui.cjs` **22/22** على الحزمة المبنيّة): تسعة أسطر · شاراتٌ بنصّها · الضمان مرفوض · كبسولة الفرضية · معاينةٌ مقبولة ومالٌ بلا عرضٍ مرفوضٌ بسببه · 375px بلا تمريرٍ أفقي. لقطات: `docs/evidence/d314-*.png` |
+| **`shared/research/contact_ledger.py:transition_problems`** (D-314 — جديد) | **IMPLEMENTED · TESTED · INTEGRATED — غير مُرقّى: R1–R3 مفتوحة (ENGINEERING_CONSTITUTION §5.1)** | يُنادى من `parse_ledger` ⇒ كلّ قارئٍ للسجلّ (الجبهة · اللوحة · `check_outbound_before_research` · الغرفة). السجلّ الحقيقي يمرّ؛ 8 حالاتٍ حمراء قبل الإصلاح في `tests/shared/test_contact_ledger.py` |
+| **`tools/hard_currency_engine/buyer_claims.py`** (D-314 — جديد) | **IMPLEMENTED · TESTED · INTEGRATED — غير مُرقّى: R1–R3 مفتوحة (ENGINEERING_CONSTITUTION §5.1)** | يُنادى من `decision_chamber` (حقناً — `shared` لا يستورد `tools`) ومن `tests/unit/tools/test_outreach_truth.py` (ملفّات الإرسال الخمسة). حيّاً: «Nous garantissons zéro rejet» ⇒ `FORBIDDEN` |
+| **مفسِّرٌ لغويٌّ (LLM) في الغرفة** | **ABSENT (مؤجَّلٌ لقرار مالك)** | لا كود. العقد الذي يجب أن يجتازه موجود: `economic_decision.sentence_problems` |
+| **حالات التسوية DISCOVERY · SAMPLE_REQUESTED · DELIVERY_ACCEPTED · INVOICE** | **غير قابلةٍ للملاحظة (بلا فعلٍ في السجلّ)** | تُعلَن نقاطاً عمياء في كلّ لقطة؛ إضافة أفعالها قرار مالك |
 
 ## D-305 — مركز العملة الصعبة + سلسلة القيمة + حارس تهيئة المدير (2026-10-01 · ISS-210)
 

@@ -1,7 +1,8 @@
 "use client";
 
 /**
- * «مركز العملة الصعبة» (D-305) — للمدير وحده.
+ * «مركز العملة الصعبة» (D-305) — للمدير وحده. يُفتح على «غرفة القرار» (D-314): أقصى ما يُقال
+ * وأوّل دليلٍ ناقص وفعلٌ بشريٌّ واحد — قبل أيّ خريطةٍ أو ورشة.
  *
  * كلّ رقمٍ هنا يُظهر مصدره، وكلّ مسارٍ يُظهر موقعه الحقيقي على سلسلة القيمة والحلقةَ
  * التالية ومن يسدّها. ⛔ لا يُوصَف شيءٌ «ثورياً» ما دام التصنيف دون الدليل التجاري.
@@ -14,9 +15,11 @@ import { FrontierMap } from './FrontierMap';
 import { EinvoicingWorkbench } from './EinvoicingWorkbench';
 import { CbamDecisionExplorer } from './CbamDecisionExplorer';
 import { RedTeamClasses } from './RedTeamClasses';
+import { DecisionChamber } from './DecisionChamber';
 import { useHardCurrencyResource } from '../../hooks/useHardCurrencyApi';
 
 const TABS = [
+    { id: 'chamber', label: 'غرفة القرار' },
     { id: 'frontier', label: 'خريطة الجبهة' },
     { id: 'einvoicing', label: 'ورشة الفوترة' },
     { id: 'cbam', label: 'قرار CBAM' },
@@ -31,6 +34,14 @@ function FrontierTab({ token, onOpenWorkbench }) {
     return <FrontierMap data={frontier.data} onOpenWorkbench={onOpenWorkbench} />;
 }
 
+function ChamberTab({ token }) {
+    const chamber = useHardCurrencyResource(token, '/chamber');
+    if (chamber.state !== 'success') {
+        return <StatusPanel state={chamber.state} message={chamber.message} slow={chamber.slow} onRetry={chamber.reload} />;
+    }
+    return <DecisionChamber token={token} data={chamber.data} />;
+}
+
 function RedTeamTab({ token }) {
     const classes = useHardCurrencyResource(token, '/redteam/classes');
     if (classes.state !== 'success') {
@@ -40,7 +51,7 @@ function RedTeamTab({ token }) {
 }
 
 export default function HardCurrencyCenter({ token, onBack }) {
-    const [tab, setTab] = useState('frontier');
+    const [tab, setTab] = useState('chamber');
     const tabRefs = useRef({});
 
     const onKeyDown = (event) => {
@@ -83,6 +94,7 @@ export default function HardCurrencyCenter({ token, onBack }) {
                 ))}
             </div>
             <div role="tabpanel" id={`hc-panel-${tab}`} aria-labelledby={`hc-tab-${tab}`} className={styles.panel}>
+                {tab === 'chamber' && <ChamberTab token={token} />}
                 {tab === 'frontier' && <FrontierTab token={token} onOpenWorkbench={setTab} />}
                 {tab === 'einvoicing' && <EinvoicingWorkbench token={token} />}
                 {tab === 'cbam' && <CbamDecisionExplorer token={token} />}

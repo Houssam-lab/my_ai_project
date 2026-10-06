@@ -1,0 +1,558 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Economic Truth Machine</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Literata:opsz,wght@7..72,500;7..72,650&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: an audit dossier. One reading column near 70ch; ledger tables run wider inside their own scroll frames. */
+:root {
+  --paper: #f3f5f2;
+  --sheet: #ffffff;
+  --ink: #17211c;
+  --muted: #56635c;
+  --rule: #cdd6cf;
+  --accent: #1f4e79;
+  --ok: #2c6a3d;
+  --warn: #8a5800;
+  --bad: #a3262a;
+  --unk: #5f6772;
+  --font-display: "Literata", "Iowan Old Style", Georgia, serif;
+  --font-body: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  --step-0: 1rem;
+  --step-1: 1.2rem;
+  --step-2: 1.5rem;
+  --step-3: 2.1rem;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #111714; --sheet: #18201c; --ink: #e2e9e4; --muted: #9caaa2; --rule: #2c3631;
+    --accent: #8fb6df; --ok: #7cc28e; --warn: #dca84d; --bad: #ef8b8e; --unk: #a5adb7;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #111714; --sheet: #18201c; --ink: #e2e9e4; --muted: #9caaa2; --rule: #2c3631;
+  --accent: #8fb6df; --ok: #7cc28e; --warn: #dca84d; --bad: #ef8b8e; --unk: #a5adb7;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: var(--step-0);
+  line-height: 1.6;
+  padding-inline: 16px;
+  padding-block: 2.5rem 4rem;
+}
+.wrap { max-width: 72rem; margin-inline: auto; display: grid; gap: 2.75rem; }
+.col { max-width: 70ch; }
+header.masthead { display: grid; gap: 0.9rem; border-bottom: 2px solid var(--ink); padding-bottom: 1.6rem; }
+.eyebrow { font-family: var(--font-mono); font-size: 0.78rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+h1, h2, h3 { font-family: var(--font-display); text-wrap: balance; margin: 0; line-height: 1.2; }
+h1 { font-size: var(--step-3); font-weight: 650; }
+h2 { font-size: var(--step-2); font-weight: 650; display: flex; gap: 0.6rem; align-items: baseline; flex-wrap: wrap; }
+h2 .sec { font-family: var(--font-mono); font-size: 0.85rem; color: var(--accent); font-weight: 500; }
+h3 { font-size: var(--step-1); font-weight: 500; }
+p { margin: 0; }
+section { display: grid; gap: 1rem; }
+.lede { font-size: 1.08rem; max-width: 70ch; }
+.meta { display: flex; flex-wrap: wrap; gap: 0.4rem 1.4rem; font-size: 0.86rem; color: var(--muted); }
+.meta b { color: var(--ink); font-weight: 600; }
+code, .mono { font-family: var(--font-mono); font-size: 0.86em; }
+code { background: color-mix(in srgb, var(--rule) 45%, transparent); padding: 0.05em 0.3em; border-radius: 3px; overflow-wrap: anywhere; }
+a { color: var(--accent); text-underline-offset: 2px; }
+a:focus-visible, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+ul, ol { margin: 0; padding-inline-start: 1.3rem; display: grid; gap: 0.35rem; }
+.frame { overflow-x: auto; border: 1px solid var(--rule); background: var(--sheet); border-radius: 4px; }
+table { border-collapse: collapse; width: 100%; font-size: 0.86rem; min-width: 46rem; }
+table.narrow { min-width: 34rem; }
+th, td { text-align: left; vertical-align: top; padding: 0.55rem 0.7rem; border-bottom: 1px solid var(--rule); }
+th { font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); font-weight: 500; background: color-mix(in srgb, var(--rule) 25%, var(--sheet)); position: sticky; top: 0; }
+tr:last-child td { border-bottom: 0; }
+td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+.tag { display: inline-block; font-family: var(--font-mono); font-size: 0.68rem; letter-spacing: 0.05em; text-transform: uppercase; padding: 0.1rem 0.4rem; border: 1px solid currentColor; border-radius: 2px; white-space: nowrap; }
+.t-law { color: var(--accent); }
+.t-fact { color: var(--ok); }
+.t-event { color: var(--ok); border-style: double; border-width: 3px; padding: 0 0.35rem; }
+.t-repo { color: var(--ink); }
+.t-hyp { color: var(--warn); }
+.t-unk { color: var(--unk); border-style: dashed; }
+.t-bad { color: var(--bad); }
+.callout { border-inline-start: 4px solid var(--accent); background: var(--sheet); padding: 1rem 1.2rem; display: grid; gap: 0.6rem; max-width: 70ch; }
+.callout.warn { border-color: var(--bad); }
+.kv { display: grid; grid-template-columns: minmax(9rem, 14rem) 1fr; gap: 0.4rem 1.2rem; font-size: 0.92rem; }
+.kv dt { color: var(--muted); font-family: var(--font-mono); font-size: 0.78rem; padding-top: 0.15rem; }
+.kv dd { margin: 0; min-width: 0; }
+.grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(19rem, 1fr)); gap: 1.2rem; }
+.grid2 > * { min-width: 0; }
+.panel { background: var(--sheet); border: 1px solid var(--rule); padding: 1rem 1.1rem; display: grid; gap: 0.6rem; align-content: start; }
+.figure { display: grid; gap: 0.5rem; }
+.figure img { border: 1px solid var(--rule); display: block; width: 100%; height: auto; }
+.figure figcaption { font-size: 0.82rem; color: var(--muted); }
+figure { margin: 0; }
+.stat { display: flex; flex-wrap: wrap; gap: 0.6rem 2rem; }
+.stat div { display: grid; }
+.stat .n { font-family: var(--font-display); font-size: 1.9rem; font-variant-numeric: tabular-nums; line-height: 1.1; }
+.stat .l { font-size: 0.78rem; color: var(--muted); max-width: 16ch; }
+pre.mermaid { background: var(--sheet); border: 1px solid var(--rule); padding: 1rem; overflow-x: auto; margin: 0; }
+.closing { font-family: var(--font-display); font-size: 1.3rem; line-height: 1.5; border-top: 2px solid var(--ink); border-bottom: 2px solid var(--ink); padding-block: 1.4rem; max-width: 62ch; }
+.small { font-size: 0.85rem; color: var(--muted); }
+@media (max-width: 30rem) { .kv { grid-template-columns: 1fr; } .kv dt { padding-top: 0.5rem; } }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+<header class="masthead">
+  <span class="eyebrow">NAAS-Agentic-Core · decision D-314 · 2026-10-02 · branch ccr-26d6a543-rhd0a5</span>
+  <h1>The Economic Truth Machine</h1>
+  <p class="lede">What the repository may truthfully say about the active hard-currency thesis today, the first proof it is missing, the one human act most likely to supply it, and what was built, tested and run live to keep those three answers honest.</p>
+  <div class="meta">
+    <span>Active thesis <b class="mono">fr-be-einvoicing-referential-cleansing</b> (D-300)</span>
+    <span>Ceiling <b>link 4 of 8</b> · engineering capability</span>
+    <span>Ledger <b>1 row</b> · 0 replies · 0 € settled</span>
+    <span>Live runs <b>25/25</b> API · <b>22/22</b> browser</span>
+  </div>
+</header>
+
+<aside class="panel col" aria-label="About this repository copy">
+  <h3>About this repository copy</h3>
+  <ul>
+    <li>This file is the report published privately on 2026-10-02, committed on the owner's instruction of 2026-10-05 so that any coding agent can continue from it. Every number below is as of 2026-10-02. The re-verification after merging <code>main</code> (05b72de) is recorded in <code>.memory/decisions.md</code> under D-314.</li>
+    <li>It is HTML. The research-freeze gate (<code>check_outbound_before_research</code>, D-297) counts only <code>.md</code>, <code>.json</code> and <code>.csv</code>, so it does not count this file. §13 is primary-source research of the kind D-297 freezes; it is declared here rather than hidden.</li>
+    <li>Nothing here is promoted. The critical remediations R1, R2 and R3 in <code>docs/governance/PROJECT_REMEDIATION_PLAN.json</code> are open (ENGINEERING_CONSTITUTION §5.1). This report makes no production-readiness claim.</li>
+    <li>To reproduce: <code>pytest tests/shared/test_economic_truth.py tests/shared/test_contact_ledger.py tests/unit/tools/test_buyer_claims.py tests/unit/tools/test_outreach_truth.py tests/api/test_hard_currency_center.py</code>. Then start a local stack and run <code>python scripts/e2e/hard_currency_center_live.py</code> followed by <code>node scripts/e2e/hard_currency_center_ui.cjs</code>. Keys come from the process environment only, never from a file in the repository.</li>
+  </ul>
+</aside>
+
+<section id="s1">
+  <h2><span class="sec">§1</span>Reality Ledger</h2>
+  <p class="col">Every statement the rest of this report relies on, typed before any design. "Expiry" names the event that would make the line false, not a clock.</p>
+  <div class="frame"><table>
+    <thead><tr><th>Statement</th><th>Type</th><th>Evidence</th><th>What it proves</th><th>What it cannot prove</th><th>Expiry</th><th>Owner</th></tr></thead>
+    <tbody>
+      <tr><td>One active thesis: FR/BE e-invoicing reference-data cleansing, delivered manually; everything else frozen</td><td><span class="tag t-law">Law</span></td><td><code>.memory/decisions.md</code> D-300</td><td>What work is permitted</td><td>That the thesis will sell</td><td>Owner amends D-300</td><td>Owner</td></tr>
+      <tr><td>The admin hard-currency surface is admin-only, no customer portal, no LLM in numbers, no persistence, no automatic ledger change</td><td><span class="tag t-law">Law</span></td><td>D-305; router <code>require_roles(ADMIN_ROLE)</code></td><td>The boundary the chamber was built inside</td><td>That the boundary is sufficient</td><td>Owner amends D-305/D-314</td><td>Owner</td></tr>
+      <tr><td>France: e-invoice reception mandatory for all VAT firms from 2026-09-01; issuance for SMEs from 2027-09-01</td><td><span class="tag t-fact">Fact</span></td><td><a href="https://entreprendre.service-public.gouv.fr/actualites/A18802?lang=fr">service-public A18802</a>; D-300</td><td>A dated legal pressure exists</td><td>That firms will pay a third party</td><td>Calendar change by law</td><td>Legislator</td></tr>
+      <tr><td>Fine of 50 € per invoice not issued electronically, capped at 15,000 €/year; not being able to receive costs 500 €, then 1,000 €, after formal notice (LF 2026 art. 123)</td><td><span class="tag t-fact">Fact</span></td><td>service-public A18802 (verified this session)</td><td>The size of the stick, per obligation</td><td>That fines are enforced in practice</td><td>New finance law</td><td>Legislator</td></tr>
+      <tr><td>Belgium: Peppol B2B mandatory since 2026-01-01; fines 1,500 / 3,000 / 5,000 €</td><td><span class="tag t-hyp">Hypothesis</span></td><td>Secondary sources only (vendor and advisory sites); D-304 already notes no primary source</td><td>That a deadline is widely reported</td><td>The exact fine schedule</td><td>A primary text is read</td><td>Owner</td></tr>
+      <tr><td>Contact ledger has one row: an email to Balagué Expertise on 2026-09-22; no reply; the planned 2026-09-24 phone follow-up was not made</td><td><span class="tag t-event">Measured event</span></td><td><code>CONTACT_LEDGER.csv:2</code></td><td>One outbound contact happened</td><td>That the email was read</td><td>A later row for this entity</td><td>Owner</td></tr>
+      <tr><td>GATE_C = ABSENT; settled revenue 0 €; reply rate 0/1; quote and payment rates have no denominator</td><td><span class="tag t-event">Measured event</span></td><td><code>HARD_CURRENCY_SCORECARD.json</code> (derived, sha-checked)</td><td>No money has moved</td><td>That money cannot move</td><td>A PAYMENT_SETTLED row</td><td>Owner</td></tr>
+      <tr><td>The FR/BE checker runs deterministically and reproducibly on fabricated samples</td><td><span class="tag t-fact">Fact</span></td><td><code>tools/hard_currency_engine/</code> + tests; value-chain link 4</td><td>Engineering capability</td><td>Usefulness on a real client file</td><td>A failing test</td><td>Code</td></tr>
+      <tr><td>Error rate in real third-party files</td><td><span class="tag t-unk">Unknown</span></td><td>Link 5 is NOT_REACHED with that reason</td><td>Nothing yet</td><td>Any rate claim</td><td>Three real files measured</td><td>Buyer</td></tr>
+      <tr><td>25 hard-currency paths: 0 commercial evidence, 1 validated, 7 engineering, 12 research assets, 5 unevidenced; next actor is human on 23</td><td><span class="tag t-repo">Repo-claim</span></td><td><code>VALUE_CHAIN.json</code>, derived and gated by <code>check_value_chain</code></td><td>Where each path stands on its own declared evidence</td><td>That declared evidence is sufficient (human review)</td><td>A ledger row or a link change</td><td>Owner</td></tr>
+      <tr><td>Price: 290 € HT up to 200 records, in EUR via Malt or SWIFT</td><td><span class="tag t-hyp">Hypothesis</span></td><td>D-304 (owner decision, PRICING HYPOTHESIS)</td><td>The one price to quote</td><td>That anyone will pay it</td><td>Five quotes with no deposit (K3)</td><td>Owner</td></tr>
+      <tr><td>EUR collection path works (bank, Malt, foreign-currency account)</td><td><span class="tag t-unk">Unknown</span></td><td>No record type exists in the repository</td><td>Nothing</td><td>Any readiness to invoice</td><td>A written bank answer is recorded</td><td>Owner + bank</td></tr>
+      <tr><td>ANAE registration done; DPA template legally reviewed</td><td><span class="tag t-unk">Unknown</span></td><td>No record type exists</td><td>Nothing</td><td>Legality of the first invoice</td><td>A recorded card / review</td><td>Owner</td></tr>
+      <tr><td>"A file ready to import with zero routing rejection" (catalog outcome wording)</td><td><span class="tag t-bad">Prohibited claim</span></td><td><code>OFFER_CATALOG.json</code> offer_outcome_ar, flagged by the chamber</td><td>That the catalog contradicts its own claims_forbidden_ar</td><td>Anything about results</td><td>Owner rewords it</td><td>Owner</td></tr>
+      <tr><td>"Our service cuts rejections by X%", "nos clients…", "garanti"</td><td><span class="tag t-bad">Prohibited claim</span></td><td>D-304 rules, now <code>buyer_claims.py</code></td><td>—</td><td>—</td><td>Measured real-file results and paid customers</td><td>Owner</td></tr>
+      <tr><td>The Decision Chamber works end to end: 25/25 API and 22/22 browser checks on a local full stack with real model keys</td><td><span class="tag t-event">Measured event</span></td><td><code>scripts/e2e/hard_currency_center_live.py</code>, <code>…_ui.cjs</code>; <code>docs/evidence/d306-*.png</code></td><td>The software behaves as specified</td><td>Production deployment; any demand</td><td>A later failing run</td><td>Code</td></tr>
+      <tr><td>The production admin password must be rotated (the reason was given to the owner privately and is not written in the repository); registration has no password-length rule</td><td><span class="tag t-fact">Fact</span></td><td>Owner's message; <code>app/api/schemas/security.py</code></td><td>A live security weakness</td><td>That it has been exploited</td><td>Password changed and policy added</td><td>Owner</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section id="s2">
+  <h2><span class="sec">§2</span>Constitutional Boundary Analysis</h2>
+  <div class="grid2">
+    <div class="panel">
+      <h3>Built inside the boundary</h3>
+      <ul>
+        <li>No new offer, no SaaS, no customer portal, no new ladder, no new fitness gate, no new constitution section.</li>
+        <li>Three admin-only routes; every one behind <code>require_roles(ADMIN_ROLE)</code>; the two POSTs rate-limited.</li>
+        <li>Zero writes: the outcome preview returns <code>written: false</code>; the owner commits ledger rows through git.</li>
+        <li>No LLM anywhere in the chamber. The two core modules import only the standard library and <code>shared</code>; a test forbids network and shell modules by name.</li>
+        <li>No student memory or chat touched: zero rows in <code>customer_messages</code>/<code>admin_messages</code>, live.</li>
+        <li>Recorded as D-314 (agent-proposed number; drafted as D-306 and renumbered on 2026-10-05 because <code>main</code> already uses D-306 for the vibe-coding constitution), an extension of D-305 at the owner's request.</li>
+      </ul>
+    </div>
+    <div class="panel">
+      <h3>Owner decisions this mandate needs and does not have</h3>
+      <ul>
+        <li>An LLM interpreter (Layer 4 as written in the mandate). The owner chose deterministic sentences now.</li>
+        <li>New ledger actions for settlement states the ledger cannot observe (discovery, sample requested, delivery accepted, invoice).</li>
+        <li>A structured record for the activation gate (bank answer, ANAE, Malt, DPA review). Until then "send a paid quote" stays unlawful in the chamber.</li>
+        <li>A ledger route for the Belgian path (OPP-02 has none, so a Belgian contact cannot be recorded).</li>
+        <li>Rewording the catalog's "zero routing rejection" outcome.</li>
+        <li>Any automated outreach. D-187 also forbids wiring a planner or model to tools before M1→M4.</li>
+      </ul>
+    </div>
+  </div>
+  <div class="callout warn">
+    <strong>Security, outside the build.</strong>
+    <p>The request carried live credentials: an OpenRouter key, a Honcho key, a Tavily key, the Supabase database URL with its password, and two account passwords. They were used only as process environment for the local run and appear in no file, commit, log or screenshot. Rotate all of them, since they now sit in a chat transcript. Rotate the production admin password as well. Registration accepts any password length; that is a finding, not changed here because the platform is frozen.</p>
+  </div>
+</section>
+
+<section id="s3">
+  <h2><span class="sec">§3</span>The Actual Economic Bottleneck</h2>
+  <div class="stat">
+    <div><span class="n">1</span><span class="l">buyer contact recorded since the ledger began</span></div>
+    <div><span class="n">0</span><span class="l">replies, samples, quotes, deposits, payments</span></div>
+    <div><span class="n">30</span><span class="l">qualified contacts before kill condition K1 can be judged</span></div>
+    <div><span class="n">≈3.5 y</span><span class="l">to reach 30 at one contact per six weeks</span></div>
+  </div>
+  <p class="col">The bottleneck is <strong>channel</strong>: contact volume. It is not technical. The chain to money is contact → reply → real file → useful result (link 5) → buyer decision → quote → deposit → settled payment, and it breaks first at the reply. One reply cannot happen without contacts, and the repository recorded one contact while it produced 17 different "first opportunities", 12 status appendices and 6 decision rounds (D-297's own count, 2026-08-16 to 2026-09-28).</p>
+  <p class="col">The sharpest finding is about falsifiability, not revenue. D-300 says the thesis dies if 30 qualified contacts yield fewer than 3 conversations. At the measured pace, that test cannot even be run for about three and a half years. The thesis is currently neither alive nor dead; it is untested. Code cannot change that. Twenty-nine more contacts can, in weeks.</p>
+  <p class="col">Two secondary bottlenecks wait behind the first: payment readiness (bank, ANAE, Malt) is unknown because nothing records it, and data access needs a DPA a firm will sign. Neither blocks the next contact, because the sample is free.</p>
+</section>
+
+<section id="s4">
+  <h2><span class="sec">§4</span>The Economic Truth Machine</h2>
+  <p class="col">Four layers, each mapped onto code that already existed. Nothing in it invents a ladder: the ceiling comes from the eight value-chain links, the settlement view from the ledger's closed action set, readiness from the catalog.</p>
+  <pre class="mermaid">
+flowchart LR
+  A[VALUE_CHAIN.json] --> S
+  B[CONTACT_LEDGER.csv] --> S
+  C[OFFER_CATALOG.json] --> S
+  D[Scorecard] --> S
+  S["build_snapshot<br/>reality layer"] --> R["build_brief<br/>one action or none"]
+  R --> T["render_sentences<br/>FACT HYPOTHESIS UNKNOWN ACTION REFUSAL"]
+  T --> V{"sentence_problems"}
+  V -- any problem --> X["503: the chamber refuses"]
+  V -- clean --> Y["Decision Chamber<br/>admin only"]
+  Y --> H(("Owner acts<br/>and commits a ledger row"))
+  H --> B
+  </pre>
+  <div class="frame"><table class="narrow">
+    <thead><tr><th>Layer</th><th>Code</th><th>What it may do</th><th>What it may never do</th></tr></thead>
+    <tbody>
+      <tr><td>1 · Deterministic reality</td><td><code>shared/research/economic_truth.py</code></td><td>Derive the ceiling, claims, kill-condition progress, contradictions, blind spots, evidence register</td><td>Call a model, read the clock, write, turn null into zero</td></tr>
+      <tr><td>2 · Causal decision</td><td><code>shared/research/economic_decision.py</code></td><td>Name the bottleneck; pick one action by a declared lexicographic rule; refuse when no lawful act exists</td><td>Invent scores; act; pick an unlawful action</td></tr>
+      <tr><td>3 · Human authority</td><td>git + <code>CONTACT_LEDGER.csv</code></td><td>Contact, record, commit, change readiness, kill or keep the thesis</td><td>Be bypassed: the API has no write path</td></tr>
+      <tr><td>4 · Language</td><td><code>render_sentences</code> + <code>sentence_problems</code></td><td>Speak templated sentences, each classified and tied to evidence ids</td><td>Emit a FACT without evidence; mention money or legal readiness without evidence of that kind</td></tr>
+    </tbody>
+  </table></div>
+  <p class="small">Plus two contract changes: <code>contact_ledger.parse_ledger</code> now rejects impossible transitions for every reader, and the D-304 buyer-text rules have one home in <code>tools/hard_currency_engine/buyer_claims.py</code>.</p>
+</section>
+
+<section id="s5">
+  <h2><span class="sec">§5</span>EconomicTruthSnapshot Contract</h2>
+  <div class="frame"><table class="narrow">
+    <thead><tr><th>Field</th><th>Meaning</th><th>Today</th></tr></thead>
+    <tbody>
+      <tr><td><code>thesis</code></td><td>Active thesis id, its decision, catalog status, its paths with derived reach</td><td>OPP-01, OPP-02 at link 4 · PROPOSED</td></tr>
+      <tr><td><code>ceiling</code></td><td>Highest claim backed by contiguous links, its classification and evidence ids</td><td>"The FR/BE checker runs deterministically on fabricated samples" · link 4</td></tr>
+      <tr><td><code>first_missing_proof</code></td><td>First unreached link, its reason from the chain, its actor, why code cannot produce it</td><td>Link 5 · human · real third-party file needed</td></tr>
+      <tr><td><code>claims[]</code></td><td>15 claims: requires, external actor, disconfirming evidence, forbidden shortcut, decision affected, expiry, status</td><td>4 supported · 8 not supported · 3 unknown</td></tr>
+      <tr><td><code>kill_conditions[]</code></td><td>D-300 conditions quoted verbatim (a test checks the quote), status FIRED / HOLDING / NOT_YET_EVALUABLE / NOT_RECORDABLE</td><td>K1 1/30 not yet evaluable · K4 not recordable</td></tr>
+      <tr><td><code>funnel</code>, <code>entities[]</code></td><td>Counts and per-entity history from thesis-routed ledger rows</td><td>1 contact · 1 entity</td></tr>
+      <tr><td><code>contradictions[]</code></td><td>Stale scorecard, value-chain problems, catalog wording that fails the buyer-claim rules</td><td>1: "zero routing rejection"</td></tr>
+      <tr><td><code>blind_spots[]</code></td><td>Unrouted paths, unobservable settlement states, unrecorded claims</td><td>8</td></tr>
+      <tr><td><code>missing_denominators[]</code></td><td>Scorecard metrics that are null, with their basis</td><td>Margin, retention, cycle time…</td></tr>
+      <tr><td><code>last_event</code>, <code>days_since_last_event</code></td><td>Delta since the last verified economic event</td><td>EMAIL_SENT · 10 days</td></tr>
+      <tr><td><code>evidence[]</code></td><td>Every id a sentence may cite: path, existence on disk, what it proves, what it cannot</td><td>19 items, all present</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section id="s6">
+  <h2><span class="sec">§6</span>EconomicDecisionBrief Contract</h2>
+  <dl class="kv col">
+    <dt>status</dt><dd><code>DECISION_AVAILABLE</code> or <code>NO_LAWFUL_DECISION_AVAILABLE</code> (unreadable ledger, or a kill condition fired: continuing is then the owner's written decision)</dd>
+    <dt>bottleneck</dt><dd>One of: technical, buyer_trust, legal, payment, data_access, delivery_cost, founder_capacity, evidence, channel, pricing, unknown. It is the first unmet stage of an ordered table.</dd>
+    <dt>primary_action</dt><dd>Exactly one, from a fixed table of ten owner-reviewable actions, with steps, owner, entity, and evidence ids.</dd>
+    <dt>selection rule</dt><dd>Lexicographic, declared: lawful now → reversible → produces the next missing evidence → least owner time (a rank, not a measurement). The mandate's multiplicative score was rejected: multiplying unmeasured factors is fake precision.</dd>
+    <dt>capsule</dt><dd>The action as a hypothesis: claim, mechanism, minimum falsification test, owner, time cap, cost cap, risk, expected decision change, success and failure observations, kill condition, expiry.</dd>
+    <dt>ledger_row_template</dt><dd>The exact row to record after acting.</dd>
+    <dt>candidates_considered</dt><dd>Every candidate with its lawfulness, reversibility and rank, so the choice can be challenged.</dd>
+    <dt>tempting_shortcut</dt><dd>The forbidden move this bottleneck invites.</dd>
+  </dl>
+  <p class="col"><strong>Today:</strong> bottleneck <code>channel</code>; action <code>FOLLOW_UP_CALL</code>: phone Balagué Expertise (one email on 2026-09-22, no reply, no follow-up recorded), after checking the target's marketing-opposition flag; may produce <code>CALL_MADE</code>, <code>REPLY_RECEIVED</code> or <code>CLOSED_DECLINED</code>. After a recorded call, the brief moves to <code>NEXT_CONTACT</code> (verified by the preview and by a test).</p>
+</section>
+
+<section id="s7">
+  <h2><span class="sec">§7</span>The Decision Chamber</h2>
+  <div class="grid2">
+    <div class="col" style="display:grid;gap:0.8rem">
+      <p>The admin's Hard-Currency Center now opens on the chamber, before any map or workbench. It does not ask how it can help. Its first screen holds nine lines:</p>
+      <ol>
+        <li>the one active thesis</li>
+        <li>the highest truthful claim permitted</li>
+        <li>the first missing proof</li>
+        <li>why code cannot generate it</li>
+        <li>the single next human action</li>
+        <li>the evidence that action may produce</li>
+        <li>the condition that kills the thesis</li>
+        <li>the most tempting forbidden shortcut</li>
+        <li>the days since the last verified economic event</li>
+      </ol>
+      <p>Then four doors and no free chat: <em>Inspect the evidence</em>, <em>Challenge the conclusion</em>, <em>Prepare the next human action</em>, <em>Record a confirmed outcome</em>. The last door validates a proposed row and shows the delta; it writes nothing.</p>
+    </div>
+    <figure class="figure">
+      <img src="d314-decision-chamber-2026-10-02.png" alt="The Decision Chamber in Arabic, light theme: nine cards, with the next human action, a follow-up call to Balagué Expertise, highlighted across the full width.">
+      <figcaption>Captured from the built bundle during the live run, 2026-10-02.</figcaption>
+    </figure>
+  </div>
+</section>
+
+<section id="s8">
+  <h2><span class="sec">§8</span>The Economic Cross-Examination Protocol</h2>
+  <p class="col">A closed set of four questions; an open question returns 422. These are the answers the live system gave today.</p>
+  <div class="frame"><table class="narrow">
+    <thead><tr><th>Question</th><th>Answer, from the repository's evidence</th></tr></thead>
+    <tbody>
+      <tr><td>Are we ready?</td><td>Ready for what: DISCOVERY needs link 7 (a reply), missing. OFFER_READY needs links 6 and 7, missing. PILOT, PAID_PROOF, REPEATABLE need link 8, missing. Catalog status is PROPOSED. Sayable now: the checker runs deterministically on fabricated samples. Not sayable: a real-file result, a buyer decision, interest, money, repeat customers, a known error rate, profitability.</td></tr>
+      <tr><td>What should we build?</td><td>No. Code is not the bottleneck; the next link on every thesis path belongs to a human. Building now adds capability above a human gap. Smallest no-code experiment: the follow-up call.</td></tr>
+      <tr><td>Why are we not making money?</td><td>Contact recorded: yes. Reply: no. Sample on a real file: no. Link 5: no. Collection path: unknown, no record. ANAE: unknown, no record. Quote: no. Money: no. The chain breaks first at the reply.</td></tr>
+      <tr><td>Can we say this to a buyer?</td><td>Five verdicts from lexical rules: FORBIDDEN, UNSUPPORTED, HYPOTHESIS ONLY, SAFE WITH QUALIFICATION, FACTUALLY SAFE. "Nous garantissons zéro rejet de routage" → FORBIDDEN, live. Unrecognised text is UNSUPPORTED: the linter's silence is not approval.</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section id="s9">
+  <h2><span class="sec">§9</span>The Falsifiable Knowledge Reactor</h2>
+  <p class="col">The reactor emits only capsules tied to an action in the fixed table, so it cannot generate free "insights". The first capsule is live in the chamber; the other two are what the same table produces at the next stages.</p>
+  <div class="grid2">
+    <div class="panel"><span class="tag t-hyp">Hypothesis · live</span>
+      <dl class="kv">
+        <dt>claim</dt><dd>Balagué did not reply because the email went unseen, not because the problem is absent.</dd>
+        <dt>test</dt><dd>One call attempt and one voicemail, then stop.</dd>
+        <dt>success</dt><dd>A recorded reply or a sample request.</dd>
+        <dt>failure</dt><dd>An explicit decline, or no answer.</dd>
+        <dt>decision change</dt><dd>Reply → request a real file (link 5). Decline or silence → next contact.</dd>
+        <dt>cost · risk</dt><dd>0 € · calling a firm that objects to prospecting, so the flag is checked first.</dd>
+        <dt>kill condition</dt><dd>K1</dd>
+      </dl></div>
+    <div class="panel"><span class="tag t-hyp">Hypothesis · next stage</span>
+      <dl class="kv">
+        <dt>claim</dt><dd>Accounting firms answer an offer of a free 20-record sample.</dd>
+        <dt>test</dt><dd>Contact the next named targets one by one, each recorded.</dd>
+        <dt>success</dt><dd>3 or more replies within 30 contacts.</dd>
+        <dt>failure</dt><dd>Fewer than 3: K1 fires and the thesis dies by D-300.</dd>
+        <dt>external actor</dt><dd>Firms in the 34-target file</dd>
+      </dl></div>
+    <div class="panel"><span class="tag t-hyp">Hypothesis · after a reply</span>
+      <dl class="kv">
+        <dt>claim</dt><dd>A real third-party file contains errors the firm's own software misses.</dd>
+        <dt>test</dt><dd>One file, up to 20 records, under the DPA, processed locally, never stored.</dd>
+        <dt>success</dt><dd>A report with real anomalies, declared as link 5 evidence.</dd>
+        <dt>failure</dt><dd>A clean file, or a refusal to share.</dd>
+        <dt>risk</dt><dd>DPA not legally reviewed (unknown).</dd>
+      </dl></div>
+  </div>
+</section>
+
+<section id="s10">
+  <h2><span class="sec">§10</span>The Adversarial Council</h2>
+  <p class="col">Run as a structured review of this build by one agent, not as a swarm of agents: the repository's own law puts a single-agent baseline first (D-272) and forbids wiring models to tools before M1→M4 (D-187). Dissent that was not resolved is kept as dissent.</p>
+  <div class="frame"><table>
+    <thead><tr><th>Member</th><th>Objection</th><th>Disposition</th><th>Open dissent</th></tr></thead>
+    <tbody>
+      <tr><td>Evidence Prosecutor</td><td>The ceiling rests on fabricated samples.</td><td>The ceiling says exactly that; link 5 is shown as missing.</td><td>—</td></tr>
+      <tr><td>Causal Skeptic</td><td>One unanswered email has many explanations: spam folder, wrong person, tax season.</td><td>The call is framed as a hypothesis with a falsification test; K1 stays not evaluable until 30.</td><td>A single call is weak evidence either way.</td></tr>
+      <tr><td>Margin Destroyer</td><td>290 € may lose money after platform fees, support and rework.</td><td>Margin is NOT_SUPPORTED; recording the first job's hours is a table action.</td><td>Even a paid job does not prove viability.</td></tr>
+      <tr><td>Buyer Adversary</td><td>Why would a French firm hand client identifiers to a supplier outside the EU?</td><td>DPA step before any file; DPA review shown as unknown.</td><td>International transfer rules (GDPR chapter V) are not addressed by the DPA template alone.</td></tr>
+      <tr><td>Privacy Sentinel</td><td>The preview and the buyer-text check receive entity names and free text.</td><td>Not stored; the log line carries only the action and the verdict; no model sees it.</td><td>—</td></tr>
+      <tr><td>Legal Boundary Keeper</td><td>The 50 € fine could be quoted against reception.</td><td>Verified at the primary source; a rule now flags 50 € next to reception.</td><td>Belgian figures remain secondary-sourced.</td></tr>
+      <tr><td>Delivery Scientist</td><td>The buyer sees a cleaned file and a report, not a chamber.</td><td>The D-305 workbench produces those; the chamber points at the act that gets a file.</td><td>—</td></tr>
+      <tr><td>Falsification Officer</td><td>At the current pace K1 cannot be judged for years.</td><td>Made the headline finding (§3).</td><td>—</td></tr>
+      <tr><td>Historical Archivist</td><td>Do the new transition rules rewrite history?</td><td>No row was changed; the one real row passes; the sent Balagué email stays verbatim (D-304).</td><td>—</td></tr>
+      <tr><td>Decision Chair</td><td>One reversible act, given all dissent.</td><td>The follow-up call, recorded as a ledger row.</td><td>—</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section id="s11">
+  <h2><span class="sec">§11</span>The Settlement Ontology</h2>
+  <p class="col">A view over the ledger's closed action set, not a new ladder. States without a ledger action are declared unobservable. Every state's authority is the owner, who records the row; the system validates and never records.</p>
+  <div class="frame"><table>
+    <thead><tr><th>State</th><th>Observed by</th><th>Required proof</th><th>Reversible</th><th>Permitted claim</th><th>Forbidden claim</th></tr></thead>
+    <tbody>
+      <tr><td>Target</td><td>named-targets file</td><td>a named row</td><td>yes</td><td>a named firm is targeted</td><td>that it is interested</td></tr>
+      <tr><td>Contacted</td><td>EMAIL_SENT · CALL_MADE · LINKEDIN_SENT · FORM_SUBMITTED</td><td>ledger row</td><td>no</td><td>we reached out</td><td>that it was read</td></tr>
+      <tr><td>Replied</td><td>REPLY_RECEIVED (needs an earlier contact)</td><td>ledger row</td><td>no</td><td>they answered</td><td>that they will pay</td></tr>
+      <tr><td>Discovery</td><td><span class="tag t-unk">unobservable</span></td><td>—</td><td>—</td><td>—</td><td>any claim</td></tr>
+      <tr><td>Sample requested</td><td><span class="tag t-unk">unobservable</span></td><td>—</td><td>—</td><td>—</td><td>any claim</td></tr>
+      <tr><td>Sample delivered</td><td>SAMPLE_DELIVERED (needs a reply)</td><td>ledger row</td><td>no</td><td>we delivered a sample</td><td>that it was useful</td></tr>
+      <tr><td>Buyer decision</td><td>value-chain link 6</td><td>declared link with evidence</td><td>yes</td><td>a decision tied to a result</td><td>a decision without an independent result</td></tr>
+      <tr><td>Proposal</td><td>QUOTE_SENT (needs a reply; amount required)</td><td>ledger row</td><td>no</td><td>we proposed a price</td><td>that it was accepted</td></tr>
+      <tr><td>Deposit</td><td>DEPOSIT_RECEIVED (needs a quote; amount and evidence required)</td><td>ledger row + receipt</td><td>no</td><td>money moved</td><td>that delivery was accepted</td></tr>
+      <tr><td>Delivery accepted</td><td><span class="tag t-unk">unobservable</span></td><td>—</td><td>—</td><td>—</td><td>any claim</td></tr>
+      <tr><td>Invoice</td><td><span class="tag t-unk">unobservable</span></td><td>—</td><td>—</td><td>—</td><td>counting an invoice as money</td></tr>
+      <tr><td>Payment settled</td><td>PAYMENT_SETTLED (needs a quote; bank statement required)</td><td>ledger row + statement</td><td>no</td><td>a settled payment (GATE_C)</td><td>repeatability or margin</td></tr>
+      <tr><td>Repeat payment</td><td>derived: two settled payments, same entity</td><td>two rows</td><td>no</td><td>a customer paid twice</td><td>retention</td></tr>
+      <tr><td>Retained customer</td><td>derived: two billing periods</td><td>scorecard</td><td>no</td><td>retained</td><td>before two periods</td></tr>
+    </tbody>
+  </table></div>
+  <p class="small">Enforced in <code>parse_ledger</code>, ordered by date then line, per entity: a reply needs an earlier outbound contact; a sample or a quote needs a reply; a deposit or a payment needs a quote; a closure needs a contact. Eight cases were red before the change.</p>
+</section>
+
+<section id="s12">
+  <h2><span class="sec">§12</span>The Capability Budget</h2>
+  <p class="col">Qualitative levels, not a product of unmeasured numbers. The threshold is a rule: anything with external reach or write authority over money, law, readiness or the ledger is outside the machine.</p>
+  <div class="frame"><table>
+    <thead><tr><th>Capability</th><th>Data sensitivity</th><th>Authority</th><th>External reach</th><th>Irreversible</th><th>Audit</th><th>Verdict</th></tr></thead>
+    <tbody>
+      <tr><td>Read value chain, ledger, catalog, scorecard</td><td>low</td><td>read</td><td>none</td><td>no</td><td>git</td><td><span class="tag t-fact">allowed</span></td></tr>
+      <tr><td>Compute snapshot, brief, sentences</td><td>low</td><td>compute</td><td>none</td><td>no</td><td>tests + live runs</td><td><span class="tag t-fact">allowed</span></td></tr>
+      <tr><td>Classify a buyer sentence typed by the owner</td><td>medium (prospect names)</td><td>compute, not stored</td><td>none</td><td>no</td><td>verdict only in log</td><td><span class="tag t-fact">allowed</span></td></tr>
+      <tr><td>Validate a proposed ledger row</td><td>medium</td><td>compute, no write</td><td>none</td><td>no</td><td>git commit by owner</td><td><span class="tag t-fact">allowed</span></td></tr>
+      <tr><td>Audit a client file (D-305 workbench)</td><td>high</td><td>in memory, not stored</td><td>none</td><td>no</td><td>request log</td><td><span class="tag t-fact">allowed (existing)</span></td></tr>
+      <tr><td>Write a ledger row</td><td>medium</td><td>write commercial truth</td><td>none</td><td>yes</td><td>—</td><td><span class="tag t-bad">human only</span></td></tr>
+      <tr><td>Change catalog readiness or GATE_C</td><td>low</td><td>write</td><td>none</td><td>yes</td><td>—</td><td><span class="tag t-bad">human only</span></td></tr>
+      <tr><td>Send an email, place a call, submit a form</td><td>medium</td><td>act</td><td>external</td><td>yes</td><td>—</td><td><span class="tag t-bad">forbidden</span></td></tr>
+      <tr><td>Send the snapshot to a hosted LLM for narration</td><td>medium</td><td>compute</td><td>third party</td><td>no</td><td>would need logging</td><td><span class="tag t-hyp">owner decision</span></td></tr>
+      <tr><td>Read the production database</td><td>high</td><td>read</td><td>production</td><td>no</td><td>connector log</td><td><span class="tag t-bad">not in the machine</span> (the agent did one read-only check)</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section id="s13">
+  <h2><span class="sec">§13</span>Independent Research Findings</h2>
+  <p class="col">Primary or official sources, each checked this session. They shape mechanisms and controls; none is used as a commercial claim.</p>
+  <div class="frame"><table>
+    <thead><tr><th>Source</th><th>Primary claim</th><th>Mechanism borrowed</th><th>Does not prove</th><th>Application risk</th><th>Layer</th></tr></thead>
+    <tbody>
+      <tr><td><a href="https://projecteuclid.org/euclid.ssu/1255440554">Pearl, Causal inference in statistics: an overview, Statistics Surveys 3 (2009)</a></td><td>Causal claims rest on stated assumptions; associations do not answer intervention questions</td><td>The brief names its assumptions; the ordered stage table is an explicit causal model of the chain</td><td>That the stage order is the true causal order for this market</td><td>A wrong stage order picks the wrong action</td><td>2</td></tr>
+      <tr><td><a href="https://exp-platform.com/hippo_long.aspx">Kohavi et al., Controlled experiments on the web, DMKD 18 (2009)</a></td><td>Randomised controlled experiments establish causal effects of changes</td><td>Each action is a falsification test with success and failure observed in the ledger</td><td>That n = 1 calls give a causal effect</td><td>Tiny samples; the capsule says so</td><td>2</td></tr>
+      <tr><td><a href="https://proceedings.mlr.press/v235/greenblatt24a.html">Greenblatt et al., AI Control, ICML 2024</a></td><td>Safety protocols should hold even if the model is adversarial</td><td>Validator outside the generator; the chamber refuses on any failed sentence</td><td>That a lexical validator stops a capable adversary</td><td>Paraphrase evades lexical rules</td><td>4</td></tr>
+      <tr><td><a href="https://www.nist.gov/itl/ai-risk-management-framework">NIST AI RMF 1.0 (AI 100-1, 2023)</a></td><td>Govern, Map, Measure, Manage; human oversight across the lifecycle</td><td>Human authority layer; unknowns reported as unknown</td><td>Compliance with any law</td><td>Voluntary framework, read as guidance</td><td>3</td></tr>
+      <tr><td><a href="https://eur-lex.europa.eu/eli/reg/2024/1689/oj">EU AI Act, Art. 14, Reg. 2024/1689</a></td><td>High-risk systems need human oversight able to monitor, override and halt</td><td>Design reference: no autonomous action; the owner can ignore every recommendation</td><td>That this admin tool is high-risk (it is not in Annex III)</td><td>Over-claiming conformity</td><td>3</td></tr>
+      <tr><td><a href="https://genai.owasp.org/llm-top-10/">OWASP Top 10 for LLM Apps 2025, LLM06 Excessive Agency</a></td><td>Least privilege; human approval for writes and transactions</td><td>No write path; capability budget</td><td>That a future LLM layer is safe</td><td>Scope creep when an LLM is added</td><td>3, 4</td></tr>
+      <tr><td><a href="https://www.w3.org/TR/prov-dm/">W3C PROV-DM (Recommendation, 2013)</a></td><td>Provenance as entities, activities and agents</td><td>Every sentence cites evidence ids with paths and existence</td><td>That the cited evidence is true</td><td>Ids can cite stale files; existence is checked, truth is reviewed</td><td>1</td></tr>
+      <tr><td><a href="https://www.usenix.org/conference/usenixsecurity19/presentation/torres-arias">Torres-Arias et al., in-toto, USENIX Security 2019</a></td><td>Verify each step of a supply chain end to end</td><td>Ledger transitions: each step must be preceded by its prerequisite</td><td>Cryptographic integrity (the ledger is plain git)</td><td>A forged row still parses</td><td>1</td></tr>
+      <tr><td><a href="https://www.proquest.com/docview/216444294">Parasuraman &amp; Riley, Humans and automation, Human Factors 39 (1997)</a></td><td>Misuse: over-reliance on automation; disuse after false alarms</td><td>One action, its rationale and its rejected alternatives are shown, to invite challenge</td><td>That the owner will not over-trust the chamber</td><td>Automation bias toward the suggested call</td><td>3</td></tr>
+      <tr><td><a href="https://eur-lex.europa.eu/eli/reg/2016/679/oj">GDPR Art. 28, Reg. 2016/679</a></td><td>Processing on behalf of a controller needs a written processor contract</td><td>DPA before any real file; nothing stored</td><td>Lawful international transfer</td><td>Chapter V transfer rules for a non-EU processor</td><td>1, 3</td></tr>
+      <tr><td><a href="https://entreprendre.service-public.gouv.fr/actualites/A18802?lang=fr">French administration notice A18802 (LF 2026 art. 123)</a></td><td>50 €/invoice (cap 15,000 €) for non-issuance; 500 € then 1,000 € for not being able to receive</td><td>A sourced rule flags the 50 € fine next to reception</td><td>Enforcement intensity</td><td>Figures change with each finance law</td><td>4</td></tr>
+      <tr><td><span class="tag t-hyp">Secondary</span> Belgian Peppol mandate (vendor and advisory summaries)</td><td>Mandatory since 2026-01-01; 1,500 / 3,000 / 5,000 € fines</td><td>None; kept as hypothesis</td><td>The legal text</td><td>Quoting unverified fines to a buyer</td><td>—</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section id="s14">
+  <h2><span class="sec">§14</span>Thirty Adversarial Failure Cases</h2>
+  <p class="col">Each case names its enforcer. Where none exists, the row says so.</p>
+  <div class="frame"><table>
+    <thead><tr><th class="num">#</th><th>Failure</th><th>What happens now</th><th>Enforcer</th></tr></thead>
+    <tbody>
+      <tr><td class="num">1</td><td>A payment row with no quote to that entity</td><td>Ledger rejected</td><td><code>test_contact_ledger::test_impossible_transitions_are_rejected</code></td></tr>
+      <tr><td class="num">2</td><td>A reply with no earlier contact</td><td>Rejected</td><td>same</td></tr>
+      <tr><td class="num">3</td><td>A quote to firm A licenses a payment from firm B</td><td>Rejected</td><td><code>test_transitions_are_checked_per_entity</code></td></tr>
+      <tr><td class="num">4</td><td>A reply dated before the email</td><td>Rejected (date, then line order)</td><td><code>test_impossible_transitions_are_rejected</code></td></tr>
+      <tr><td class="num">5</td><td>Closing a file never opened</td><td>Rejected</td><td>same</td></tr>
+      <tr><td class="num">6</td><td>A future-dated row recorded as an event</td><td>Rejected</td><td>existing <code>row_problems</code> test</td></tr>
+      <tr><td class="num">7</td><td>Money with no bank evidence reference</td><td>Rejected</td><td>existing ledger test</td></tr>
+      <tr><td class="num">8</td><td>A FACT sentence with no evidence id</td><td>Validator rejects</td><td><code>test_sentences_that_outrun_their_evidence_are_rejected</code></td></tr>
+      <tr><td class="num">9</td><td>A FACT citing an id that does not exist</td><td>Rejected</td><td>same</td></tr>
+      <tr><td class="num">10</td><td>Money or customer wording backed only by chain evidence</td><td>Rejected</td><td>same</td></tr>
+      <tr><td class="num">11</td><td>"Legal" or "ready" wording backed only by ledger evidence</td><td>Rejected</td><td>same</td></tr>
+      <tr><td class="num">12</td><td>"مالك" (owner) mistaken for "مال" (money)</td><td>Passes correctly</td><td><code>test_owner_is_not_money</code></td></tr>
+      <tr><td class="num">13</td><td>A forbidden superlative inside a hypothesis</td><td>Rejected</td><td>validator test</td></tr>
+      <tr><td class="num">14</td><td>The chamber renders a sentence that fails validation</td><td>503 refusal with the reason</td><td>Code path in <code>decision_chamber._guard</code>; no dedicated test of the refusal branch</td></tr>
+      <tr><td class="num">15</td><td>A kill condition judged before its denominator</td><td>NOT_YET_EVALUABLE</td><td><code>test_kill_conditions_below_their_denominator_say_so</code></td></tr>
+      <tr><td class="num">16</td><td>K1 fires and the machine still suggests an action</td><td>NO_LAWFUL_DECISION_AVAILABLE</td><td><code>test_a_fired_kill_condition_refuses_to_decide</code></td></tr>
+      <tr><td class="num">17</td><td>A quote unpaid after 14 days</td><td>K5 fires</td><td><code>test_a_quote_unpaid_after_14_days_fires_k5</code></td></tr>
+      <tr><td class="num">18</td><td>An unreadable ledger</td><td>No decision, problems listed</td><td><code>test_an_unreadable_ledger_refuses_to_decide</code></td></tr>
+      <tr><td class="num">19</td><td>A paid quote while the collection path is unknown</td><td>SEND_QUOTE not lawful</td><td><code>test_no_paid_quote_while_the_collection_path_is_unknown</code></td></tr>
+      <tr><td class="num">20</td><td>Kill thresholds drift from D-300's text</td><td>Test fails</td><td><code>test_active_thesis_and_kill_conditions_are_quoted_from_d300</code></td></tr>
+      <tr><td class="num">21</td><td>The snapshot depends on the clock or call order</td><td>Equal on repeat</td><td><code>test_snapshot_is_deterministic_and_reads_no_clock</code></td></tr>
+      <tr><td class="num">22</td><td>The core imports a network, shell or model client</td><td>Test fails</td><td><code>test_the_machine_imports_nothing_but_stdlib_and_shared</code></td></tr>
+      <tr><td class="num">23</td><td>A student calls a chamber route</td><td>403</td><td>API test + live run</td></tr>
+      <tr><td class="num">24</td><td>The preview writes to the ledger or the message tables</td><td>Bytes and counts unchanged</td><td>API test + live run</td></tr>
+      <tr><td class="num">25</td><td>An open question to the chamber</td><td>422</td><td>API test + live run</td></tr>
+      <tr><td class="num">26</td><td>A guarantee or "zero rejection" in buyer text</td><td>FORBIDDEN</td><td><code>test_d304_shapes_are_caught</code>; catalog test</td></tr>
+      <tr><td class="num">27</td><td>The 50 € fine quoted against reception</td><td>UNSUPPORTED (found and fixed this session)</td><td><code>test_the_50_euro_fine_is_not_tied_to_reception</code></td></tr>
+      <tr><td class="num">28</td><td>A promise wrapped in "Si …" read as a possibility</td><td>FORBIDDEN (found and fixed this session)</td><td><code>test_an_absolute_outcome_is_forbidden_even_behind_an_if</code></td></tr>
+      <tr><td class="num">29</td><td>A promise phrased with none of the trigger words, or a conditional that is still misleading</td><td>Possibly SAFE WITH QUALIFICATION</td><td>No automated enforcer: lexical limit, human review</td></tr>
+      <tr><td class="num">30</td><td>The owner acts but never commits the row, or the bank answers but nothing records it</td><td>The chamber keeps recommending the old act</td><td>No automated enforcer: the ledger is only as current as the owner keeps it</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section id="s15">
+  <h2><span class="sec">§15</span>Minimum Constitutionally Permitted Build</h2>
+  <div class="grid2">
+    <div class="panel">
+      <h3>What exists now</h3>
+      <ul>
+        <li>Ledger transition rules in <code>shared/research/contact_ledger.py</code>.</li>
+        <li><code>tools/hard_currency_engine/buyer_claims.py</code>: the D-304 rules plus absolute outcomes and penalty scope.</li>
+        <li><code>shared/research/economic_truth.py</code> and <code>economic_decision.py</code>.</li>
+        <li>Service <code>app/services/hard_currency/decision_chamber.py</code>; routes <code>/chamber</code>, <code>/chamber/cross-examination</code>, <code>/chamber/outcome-preview</code>.</li>
+        <li><code>DecisionChamber.jsx</code>, the center's first tab.</li>
+        <li>Both OpenAPI contracts and the generated frontend types regenerated; parity 15/15.</li>
+        <li>D-314 in the decision log, runtime-truth rows and lock, acceptance packet.</li>
+      </ul>
+    </div>
+    <div class="panel">
+      <h3>How it was proven</h3>
+      <ul>
+        <li>15 commits on <code>ccr-26d6a543-rhd0a5</code>, pushed; 33 files; no pull request opened.</li>
+        <li>85 cases in the three core test files and 52 in the center API suite; the full <code>tests/shared</code> and <code>tests/unit/tools</code> suites green.</li>
+        <li>All 86 CI fitness gates green locally, including code acceptance, magic strings and design tokens.</li>
+        <li>Live: local Postgres 16 with pgvector, orchestrator with a Postgres checkpointer, user-service, monolith, built Next.js bundle, real model keys. API 25/25 and browser 22/22, on the first build and again on the final code.</li>
+        <li>Production: one read-only check, with no table or account touched.</li>
+        <li>Bundle +16 KB, all in the admin-only lazy chunk; 6 KB of the 1,100 KB budget left.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section id="s16">
+  <h2><span class="sec">§16</span>Deferred Capabilities Requiring Owner Decision</h2>
+  <div class="frame"><table class="narrow">
+    <thead><tr><th>Capability</th><th>Decision needed</th><th>Proof before switching on</th></tr></thead>
+    <tbody>
+      <tr><td>LLM interpreter for the chamber</td><td>Amend D-305/D-314; choose model and data policy</td><td>Every output passes <code>sentence_problems</code>; output discarded on any failure; adversarial paraphrase set</td></tr>
+      <tr><td>Ledger actions for discovery, sample request, delivery acceptance, invoice</td><td>Change the closed action set</td><td>Transition rules extended with red tests; scorecard derivation unchanged for old rows</td></tr>
+      <tr><td>Activation-gate record (bank, ANAE, Malt, DPA review)</td><td>Choose where the record lives and who signs it</td><td>Evidence path required per item; then SEND_QUOTE can become lawful</td></tr>
+      <tr><td>Belgian ledger route (OPP-02)</td><td>Declare a targets file for Belgium</td><td>Value-chain gate green with the route</td></tr>
+      <tr><td>Catalog outcome wording</td><td>Owner rewords "zero routing rejection"</td><td>The chamber's contradiction disappears</td></tr>
+      <tr><td>Password policy and admin rotation</td><td>A security change on the frozen platform</td><td>Registration rejects short passwords; rotation done outside the repo</td></tr>
+      <tr><td>Any automated outreach</td><td>Not recommended; D-187 lock</td><td>M1→M4 complete first</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section id="s17">
+  <h2><span class="sec">§17</span>Fifteen Falsifiable Economic Laws</h2>
+  <p class="col">Each law names the observation that would refute it. "Economic" laws are about this market and are refuted by ledger rows. "Invariant" laws are about the machine and are refuted by a counterexample run.</p>
+  <div class="frame"><table class="narrow">
+    <thead><tr><th class="num">#</th><th>Law</th><th>Refuted if</th></tr></thead>
+    <tbody>
+      <tr><td class="num">1</td><td><span class="tag t-hyp">Economic</span> Contact volume, not code, bounds time to first payment for this thesis.</td><td>A reply arrives after a code change with no new outbound row.</td></tr>
+      <tr><td class="num">2</td><td><span class="tag t-hyp">Economic</span> A follow-up call to an emailed firm yields more replies per contact than a new cold email.</td><td>Over at least 10 of each, follow-up calls reply at or below first emails.</td></tr>
+      <tr><td class="num">3</td><td><span class="tag t-hyp">Economic</span> At least 3 of 30 qualified contacts reply (D-300 K1).</td><td>30 contacts recorded with fewer than 3 replies. The thesis then dies.</td></tr>
+      <tr><td class="num">4</td><td><span class="tag t-hyp">Economic</span> At least 1 of 10 replying firms requests a quote (K2).</td><td>10 replies, zero quotes.</td></tr>
+      <tr><td class="num">5</td><td><span class="tag t-hyp">Economic</span> At least 1 of 5 quotes at 290 € produces money (K3).</td><td>5 quotes, zero deposits or payments.</td></tr>
+      <tr><td class="num">6</td><td><span class="tag t-hyp">Economic</span> A firm that replies will share a real file under a DPA.</td><td>Fewer than 1 in 3 replying firms sends a file.</td></tr>
+      <tr><td class="num">7</td><td><span class="tag t-hyp">Economic</span> Real third-party files contain errors the firm's own software misses.</td><td>The first three real files show no anomaly beyond those already flagged by the firm.</td></tr>
+      <tr><td class="num">8</td><td><span class="tag t-hyp">Economic</span> EUR can be received for this exported service.</td><td>The bank declines in writing with no alternative (K4).</td></tr>
+      <tr><td class="num">9</td><td><span class="tag t-hyp">Economic</span> A first quote is paid within 14 days (K5).</td><td>Fifteen days pass after the first quote with no settled payment.</td></tr>
+      <tr><td class="num">10</td><td><span class="tag t-hyp">Economic</span> One job at 290 € covers its delivery hours.</td><td>The first job's recorded hours exceed what 290 € buys at the catalog's own published day-rate anchors.</td></tr>
+      <tr><td class="num">11</td><td><span class="tag t-hyp">Economic</span> The issuance deadline (2027-09-01) raises the reply rate.</td><td>The 60 days before it show no higher reply rate than 60 comparable days in 2026.</td></tr>
+      <tr><td class="num">12</td><td><span class="tag t-repo">Invariant</span> No claim rises above a gap in the chain.</td><td>A path classifies above its first missing link.</td></tr>
+      <tr><td class="num">13</td><td><span class="tag t-repo">Invariant</span> GATE_C moves only with a settled payment row.</td><td>GATE_C changes while the ledger has no PAYMENT_SETTLED.</td></tr>
+      <tr><td class="num">14</td><td><span class="tag t-repo">Invariant</span> The same ledger and date give the same next action.</td><td>Two snapshots of identical inputs differ.</td></tr>
+      <tr><td class="num">15</td><td><span class="tag t-repo">Invariant</span> The chamber never speaks a FACT it cannot cite.</td><td>Any rendered FACT without evidence reaches the screen.</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section id="s18">
+  <h2><span class="sec">§18</span>Final Red-Team Verdict</h2>
+  <dl class="kv col">
+    <dt>Impressive, proves nothing economically</dt><dd>The 86 fitness gates CI runs, the 25 constitutional sections in CLAUDE.md, the 25-path value chain, the CBAM explorer, the 190-probe canary range, and this chamber with its 25/25 and 22/22 runs. All of it sits at link 4 or below. It proves the software tells the truth about itself; it says nothing about whether anyone will pay.</dd>
+    <dt>Boring, the true gateway</dt><dd>One phone call to Balagué Expertise, then 29 more qualified contacts, each one a ledger row. Then a written answer from the bank, and a DPA a firm is willing to sign.</dd>
+    <dt>Beyond AI's authority</dt><dd>Contacting a buyer, signing, invoicing, collecting, registering with ANAE, changing readiness, and deciding to kill or keep the thesis.</dd>
+    <dt>Only a buyer can prove</dt><dd>That the problem is felt (a reply), that real files hold errors worth paying to fix (links 5 and 6), and that 290 € is acceptable (a deposit).</dd>
+    <dt>Only a bank or settlement proof can establish</dt><dd>That money moved (PAYMENT_SETTLED with a statement), that EUR can be received for this service, and that repatriation rules are met.</dd>
+    <dt>Killed if the next test fails</dt><dd>If 30 qualified contacts produce fewer than 3 replies, the FR/BE thesis ends under D-300. The checker stays as an engineering capability and is no longer described as a product.</dd>
+    <dt>Survives the thesis</dt><dd>The evidence discipline: ledger transitions, the derived claim ceiling, the sentence validator, the buyer-claim rules with their sources, the deterministic FR/BE validators, and the measured lesson that outreach volume, not code, was the constraint.</dd>
+  </dl>
+  <p class="closing">The system is not intelligent because it speaks fluently.
+It is intelligent when it refuses to claim more than reality supports,
+identifies the next question reality must answer,
+and makes the cost of self-deception visible.</p>
+</section>
+</div>
+</body>
+</html>

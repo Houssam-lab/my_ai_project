@@ -1281,6 +1281,104 @@ paths:
         '200':
           description: Exploit classes with publication status; probe texts are never returned
       description: AR/FR Exploit Classes
+  /admin/api/hard-currency/chamber:
+    get:
+      tags:
+      - Admin
+      summary: Decision Chamber
+      operationId: adminHardCurrencyChamber
+      security:
+      - BearerAuth: []
+      responses:
+        '200':
+          description: Highest truthful claim, first missing proof and one human action, each
+            sentence classified with its evidence ids (D-314)
+        '503':
+          description: A source is absent, or a sentence outran its evidence and the chamber
+            refused to speak
+      description: Decision Chamber
+  /admin/api/hard-currency/chamber/cross-examination:
+    post:
+      tags:
+      - Admin
+      summary: Decision Chamber Cross-Examination
+      operationId: adminHardCurrencyChamberCrossExamination
+      security:
+      - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - question
+              properties:
+                question:
+                  type: string
+                  enum:
+                  - ready
+                  - build
+                  - why_no_money
+                  - say_to_buyer
+                text:
+                  type: string
+                  maxLength: 2000
+      responses:
+        '200':
+          description: Classified sentences; for say_to_buyer, the verdict of the D-304 rules
+        '422':
+          description: A question outside the closed set, or say_to_buyer without text
+        '429':
+          description: Rate limited
+      description: Decision Chamber Cross-Examination
+  /admin/api/hard-currency/chamber/outcome-preview:
+    post:
+      tags:
+      - Admin
+      summary: Decision Chamber Outcome Preview
+      operationId: adminHardCurrencyChamberOutcomePreview
+      security:
+      - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - date
+              - target_ref
+              - entity
+              - country
+              - channel
+              - action
+              properties:
+                date:
+                  type: string
+                target_ref:
+                  type: string
+                entity:
+                  type: string
+                country:
+                  type: string
+                channel:
+                  type: string
+                action:
+                  type: string
+                amount_eur:
+                  type: string
+                evidence_ref:
+                  type: string
+                note:
+                  type: string
+      responses:
+        '200':
+          description: The proposed ledger row accepted or rejected with its reasons, the CSV
+            line and the delta; nothing is written (written=false)
+        '429':
+          description: Rate limited
+      description: Decision Chamber Outcome Preview
   /api/v1/admin/ai-config:
     get:
       tags:

@@ -579,3 +579,160 @@
     color: var(--ink);
     pointer-events: none;
 }
+
+/* ── غرفة القرار (D-314) ─────────────────────────────────────────────────
+   الشاشة الأولى تسعة أسطر، والفعل البشري يأخذ عرض الصفّ كلّه. والصنف نصٌّ في الشارة دائماً. */
+.chamberList {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 var(--space-sm);
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+    gap: var(--space-2xs);
+}
+
+.chamberItem {
+    padding: var(--space-xs) var(--space-sm);
+    background: var(--paper-raised);
+    border: 1px solid var(--rule);
+    border-radius: var(--radius-md);
+    min-width: 0;
+}
+
+.chamberItemPrimary {
+    grid-column: 1 / -1;
+    background: var(--accent-wash);
+    border-color: var(--accent);
+}
+
+.chamberLabel {
+    display: block;
+    color: var(--ink-muted);
+    font-size: var(--text-xs);
+    margin-bottom: var(--space-3xs);
+}
+
+.chamberValue {
+    font-size: var(--text-sm);
+    overflow-wrap: anywhere;
+}
+
+.sentenceList {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2xs);
+    font-size: var(--text-sm);
+}
+
+.sentence {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: var(--space-3xs) var(--space-2xs);
+}
+
+.chip_FACT {
+    color: var(--success);
+    border-color: var(--success);
+}
+
+.chip_HYPOTHESIS {
+    color: var(--peach-ink);
+    background: var(--peach-wash);
+}
+
+.chip_UNKNOWN {
+    color: var(--ink-muted);
+    border-style: dashed;
+}
+
+.chip_ACTION {
+    color: var(--accent);
+    background: var(--accent-wash);
+    border-color: var(--accent);
+}
+
+.chip_REFUSAL {
+    color: var(--danger);
+    border-color: var(--danger);
+}
+
+.fieldsetStacked {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3xs);
+    border: 1px solid var(--rule);
+    border-radius: var(--radius-md);
+    padding: var(--space-2xs) var(--space-sm);
+    margin: 0;
+    font-size: var(--text-sm);
+}
+
+.formGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+    gap: var(--space-2xs) var(--space-sm);
+    width: 100%;
+}
+
+.field {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3xs);
+    font-size: var(--text-sm);
+    width: 100%;
+    min-width: 0;
+}
+
+.field input,
+.field select,
+.field textarea {
+    font: inherit;
+    font-size: var(--text-sm);
+    padding: var(--space-3xs) var(--space-2xs);
+    background: var(--paper-raised);
+    color: var(--ink);
+    border: 1px solid var(--rule);
+    border-radius: var(--radius-sm);
+    max-width: 100%;
+}
+
+.field input:focus-visible,
+.field select:focus-visible,
+.field textarea:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+}
+
+.capsule {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+    gap: var(--space-2xs) var(--space-sm);
+    margin: var(--space-xs) 0;
+    font-size: var(--text-sm);
+}
+
+.capsule dt {
+    color: var(--ink-muted);
+    font-size: var(--text-xs);
+}
+
+.capsule dd {
+    margin: var(--space-3xs) 0 0;
+}
+
+.csvLine {
+    display: block;
+    direction: ltr;
+    text-align: start;
+    white-space: pre-wrap;
+    word-break: break-all;
+    padding: var(--space-2xs);
+    margin: var(--space-2xs) 0;
+    background: var(--paper-sunken);
+    border-radius: var(--radius-sm);
+    font-size: var(--text-xs);
+}
