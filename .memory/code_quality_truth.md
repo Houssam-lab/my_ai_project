@@ -198,6 +198,9 @@ _check_coderabbit_law  Bumpy Road Ahead    2 blocks with nested conditional logi
 
 **التغطية:** `codescene-coverage` ترفع **691 ملفّاً** من `main` (`62ce4c2`)، وباسم الفرع
 الصحيح بعد إصلاح HEAD المنفصل. ⚠️ لم تُرفَع بايتاً واحداً قبل 2026-08-09.
+⚠️ **D-316 (2026-10-06):** هذا الرفع يغذّي `main` وحده. على فروع الـPR كانت CodeScene تقبل البيانات ولا تستعملها
+(«only analyse the following branches: ("main")»)، فبوّابة تغطية الـPR تنتهي `timed_out` بعد 6 ساعات. منذ D-316 يُشغِّل
+الـPR الأمر `cs-coverage check` — والبرهان الحيّ (اكتمال الفحص على رأس PR #2597) **مُعلَّقٌ ولا يُدَّعى**.
 
 **النقطة الساخنة الأولى (`admin.py`، تقرير X-Ray 2026-08-13):** `chat_stream_ws`
 (تعقيد **440** · 32 تغييراً · 51 churn) + `_emit_terminal_frames` (**71** · 9 وسائط)

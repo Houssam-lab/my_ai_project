@@ -977,6 +977,17 @@ jobs:
   # A check that can only ever time out is the CI form of a zombie metric (D-016):
   # worse than absent, because it reads as a real signal.
   #
+  # D-316 (2026-10-06): D-234's delivery reached `main` but never reached a pull request.
+  # On a PR branch, `cs-coverage upload` prints "Usage error: ... CodeScene only analyse
+  # the following branches: ("main")" and then "Uploaded code coverage data done." The
+  # step exits 0 and the job goes green, but CodeScene keeps that data out of every
+  # analysis. So the PR's coverage check still timed out after 6 h (PR #2595: check run
+  # 112247837361, `timed_out`, "No valid coverage report found in the build pipeline").
+  # CodeScene's pull-request gate is fed by a different command, `cs-coverage check
+  # --coverage-files`, with CS_PROJECT_URL set:
+  # https://codescene.io/docs/guides/code-coverage-gates/check-code-coverage-in-pull-and-merge-requests.html
+  # So a pull request runs `check`, and a push to main keeps `upload` for the baseline.
+  #
   # Why a separate job instead of a step in `test-monolith`: on `pull_request`,
   # actions/checkout gives you the MERGE commit, but the CodeScene check is registered
   # against the PR HEAD (visible in its own details URL: `...&commit-sha=<head>`).
@@ -1040,9 +1051,9 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          echo "::warning title=CodeScene upload skipped::CS_ACCESS_TOKEN is empty — nothing uploaded."
+          echo "::warning title=CodeScene coverage skipped::CS_ACCESS_TOKEN is empty — nothing uploaded or checked."
           {
-            echo "### CodeScene coverage — skipped, not uploaded"
+            echo "### CodeScene coverage — skipped, nothing uploaded or checked"
             echo
             echo "\`secrets.CS_ACCESS_TOKEN\` resolved to an empty value."
             echo "Expected on pull requests from forks, which receive no secrets."
@@ -1064,8 +1075,36 @@ jobs:
             echo "or collection error, not a test failure). Fix that job first."
           } >> "$GITHUB_STEP_SUMMARY"
 
+      # D-316: the gate CodeScene opens on a pull request reads `check`, not `upload`.
+      - name: Check the pull request's coverage gate in CodeScene
+        if: env.CS_ACCESS_TOKEN != '' && steps.coverage.outcome == 'success' && github.event_name == 'pull_request'
+        env:
+          # The project id is public; it is already in the check's own details URL
+          # (codescene.io/projects/83387/code-coverage-check). This is not a secret.
+          CS_PROJECT_URL: https://api.codescene.io/v2/projects/83387
+        shell: bash
+        run: |
+          set -euo pipefail
+          # Same install as the upload step below: download to a file, then run it.
+          curl -fsSL -o install-cs-coverage-tool.sh \
+            https://downloads.codescene.io/enterprise/cli/install-cs-coverage-tool.sh
+          sh install-cs-coverage-tool.sh -y
+          # A failed check (an auth error, or a gate CodeScene says failed) exits non-zero,
+          # and `set -e` makes that a red step. The job is still kept out of `required-ci`
+          # (D-234), so a red step is a visible signal, not a merge block.
+          "$HOME/.local/bin/cs-coverage" check --verbose --coverage-files coverage.xml
+          {
+            echo "### CodeScene coverage — PR gate checked"
+            echo
+            echo "Ran \`cs-coverage check\` on \`coverage.xml\` for PR head"
+            echo "\`${{ github.event.pull_request.head.sha }}\`. The gate's verdict is the"
+            echo "\`CodeScene Code Coverage\` check on this PR."
+          } >> "$GITHUB_STEP_SUMMARY"
+
       - name: Upload coverage to CodeScene
-        if: env.CS_ACCESS_TOKEN != '' && steps.coverage.outcome == 'success'
+        # D-316: main only. CodeScene keeps uploads from any other branch out of its
+        # analyses, so on a PR this step used to look green and do nothing.
+        if: env.CS_ACCESS_TOKEN != '' && steps.coverage.outcome == 'success' && github.event_name == 'push'
         shell: bash
         run: |
           set -euo pipefail

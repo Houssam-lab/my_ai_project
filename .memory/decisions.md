@@ -4,6 +4,38 @@
 > The chat interface is merely an assistive channel. The true core consists of the Interactive Canvas (Object UI), Cognitive Modeling, Error Memory, Adaptive Generation, and Simulation Engine.
 > See `cognitive_lab_philosophy.md` for the foundational doctrine.# Architectural Decisions
 
+## D-316 (2026-10-06) — بوّابة تغطية CodeScene على الـPR تُغذّى بـ`cs-coverage check` لا بـ`upload`، كي تظهر علامة الصحّ الخضراء
+
+**السياق (قرار المالك 2026-10-06):** «يجب أن تظهر علامة الصحّ الخضراء في الفروع الحالية أوّلاً». القياس على PR #2597
+(`673e1a1`): كلّ فحوص GitHub Actions خضراء، وكلّ مسارات العمل الـ13 على `main` (`9cfa5cd`) خضراء — لكنّ فحص
+التطبيق الخارجي `CodeScene Code Coverage (main)` بقي `queued`. وعلى PR #2595 انتهى الفحص نفسه **`timed_out` بعد ستّ ساعاتٍ
+بالضبط** (check run 112247837361: «❌ Code Coverage Gate Timed Out — No valid coverage report found in the build pipeline»)،
+أي علامة **X حمراء** على كلّ PR.
+
+**الجذر (من سجلّ وظيفتنا نفسها، job 112454859769):** `Usage error: It seems you upload for repo '…' and branch:
+'ccr-26d6a543-rhd0a5' but CodeScene only analyse the following branches: ("main")` ثمّ `Uploaded code coverage data done.`
+— فالخطوة تنتهي بـ0 والوظيفة خضراء، ووثائق CodeScene تقول إنّ هذه البيانات «تُقبَل ولا تُستعمَل في أيّ تحليل». بوّابة الـPR
+تُغذّى بأمرٍ آخر: `cs-coverage check --coverage-files` مع `CS_PROJECT_URL`
+([الوثائق](https://codescene.io/docs/guides/code-coverage-gates/check-code-coverage-in-pull-and-merge-requests.html) ·
+[الإجراء الرسمي](https://github.com/codescene-oss/code-coverage-examples-single-component/blob/master/.github/actions/check-coverage/action.yml) ·
+[التحقّق الجديد في الأداة](https://helpcenter.codescene.com/articles/8127498-new-validation-for-code-coverage-uploads-in-codescenes-cli)).
+فإصلاح D-234/D-235 أوصل التغطية إلى `main` **ولم يوصلها إلى أيّ PR قطّ** — والوظيفة الخضراء كانت تخفي ذلك، وهو الصنف نفسه
+الذي وُلدت D-235 لمنعه («الأخضر لا يعني لم يفعل شيئاً»).
+
+**القرار:** في وظيفة `codescene-coverage` (`ci.yml`): على `pull_request` تُشغَّل `cs-coverage check --verbose --coverage-files
+coverage.xml` مع `CS_PROJECT_URL=https://api.codescene.io/v2/projects/83387` (مُعرِّفٌ عامّ ظاهرٌ في رابط الفحص نفسه، ليس سرّاً)،
+وعلى `push` إلى `main` يبقى `upload` كما هو لخطّ الأساس. قِيس محلياً بالأداة نفسها (sha256 مطابق): `check` يقبل
+`--coverage-files` وحده، ويخرج بـ**1** عند خطأ مصادقة — فالفشل خطوةٌ حمراء لا صمت. وتبقى الوظيفة خارج `required-ci` (D-234)
+وكلّ حرّاس `check_ci_workflow_hygiene` قائمة. سجلّ التعديل: `docs/governance/amendments/D-316-CODESCENE-PR-COVERAGE-CHECK.md`.
+
+**البرهان الحيّ مُعلَّق ولا يُدَّعى:** الرمز الحقيقي سرٌّ في المستودع فلا يُجرَّب إلّا في CI؛ الشرط أن يكتمل فحص
+`CodeScene Code Coverage` على رأس PR #2597 الجديد بدل أن ينتهي بالمهلة. وإن رسبت البوّابة على عتبةٍ فذلك حكمٌ حقيقي، والعتبة
+إعدادٌ في CodeScene يملكه المالك لا هذا المستودع.
+
+**الترقيم D-316 اقتراحُ الوكيل.**
+
+---
+
 ## D-315 (2026-10-06) — هامش مهلة اختبارات المونوليث: 42 ⇒ 52 للخطوة و45 ⇒ 55 للوظيفة، والإصلاح الحقيقي سرعة الحزمة لا السقف
 
 **السياق (قرار المالك 2026-10-06):** `main` صار أحمر عند دمج PR #2595 (`9cfa5cd` · CI run 37462983764) **بلا أيّ اختبارٍ فاشل**:
