@@ -38,7 +38,7 @@ aiosqlite==0.17.0
 psycopg2-binary==2.9.12
 pydantic>=2.13.4,<3.0.0
 pydantic-settings>=2.15.0,<3.0.0
-PyJWT==2.13.0
+PyJWT==2.15.0
 passlib==1.7.4
 # ⛔ NOT 5.0.0 (#2297 proposed it): passlib 1.7.4 pins its bcrypt backend to a
 # `detect_wrap_bug` probe that hashes a >72-byte password. bcrypt 4.x truncated
