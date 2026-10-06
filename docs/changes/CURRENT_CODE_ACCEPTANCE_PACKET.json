@@ -1,9 +1,9 @@
 {
   "$schema_version": 1,
-  "packet_id": "CAP-2026-10-05-d314-decision-chamber",
+  "packet_id": "CAP-2026-10-06-d315-monolith-test-timeout-headroom",
   "status": "READY_FOR_GATE",
   "decision": "D-277",
-  "decision_of_change": "D-314 (توجيه المالك 2026-10-02 · Economic Truth Machine): غرفة القرار للمدير وحده تشتقّ أقصى ادّعاءٍ صادق وأوّل دليلٍ ناقص وفعلاً بشرياً واحداً من السلالم القائمة (سلسلة القيمة · السجلّ · الكتالوج) بلا سُلَّمٍ ثالث ولا بوّابةٍ جديدة؛ وعقد السجلّ يرفض الانتقالات المستحيلة (مالٌ بلا عرض · ردٌّ بلا اتصال)؛ وقواعد نصّ المشتري (D-304) صارت موطناً واحداً. حتميٌّ بلا نموذج لغوي، وبلا كتابة: معاينة النتيجة تُرجع السطر وwritten=false والمالك يلتزمه عبر git. الدمج مع main 05b72de (2026-10-05): أُعيد ترقيمه D-314 لأنّ main يستعمل D-306، ويهبط احتواءً لا إصلاحاً تحت ENGINEERING_CONSTITUTION §5.1 (R1–R3 مفتوحة، لا ترقية ولا ادّعاء إنتاج)، وصفوف لقطاته الثلاث تحملها سجلّ تعديلٍ دستوري بانتظار مراجعةٍ مستقلّة.",
+  "decision_of_change": "D-315 (قرار المالك 2026-10-06): main أحمر عند دمج PR #2595 لأنّ خطوة اختبارات المونوليث قُتلت عند حدّها 42 دقيقة والحزمة عند 96٪ بلا اختبارٍ فاشل (38.2 · 40.0 · قتلٌ عند 42.2 على شجرةٍ واحدة). يُرفَع سقف الوظيفة 45⇒55 والخطوة 42⇒52 بتعليقٍ مُقاس وسجلّ تعديلٍ دستوري؛ والجذر — إعادة ضبط المخطّط قبل كلّ اختبار في db_lifecycle — مُسجَّلٌ متابعةً مستحقّة لا مُخفى.",
   "standards": [
     "clean-code-book"
   ],
@@ -16,69 +16,52 @@
     {
       "standard": "clean-code-book",
       "paths": [
-        "shared/research/economic_truth.py",
-        "shared/research/economic_decision.py",
-        "shared/research/contact_ledger.py",
-        "tools/hard_currency_engine/buyer_claims.py",
-        "app/services/hard_currency/decision_chamber.py",
-        "app/api/routers/hard_currency.py",
-        "frontend/app/components/hard-currency/DecisionChamber.jsx"
+        ".github/workflows/ci.yml",
+        "docs/governance/amendments/D-315-MONOLITH-TEST-TIMEOUT-HEADROOM.md",
+        ".memory/decisions.md"
       ],
-      "gate": "python -m pytest tests/shared/test_economic_truth.py tests/shared/test_contact_ledger.py tests/unit/tools/test_buyer_claims.py tests/unit/tools/test_outreach_truth.py tests/api/test_hard_currency_center.py && python scripts/fitness/check_value_chain.py && python scripts/fitness/check_outbound_before_research.py && mypy --config-file mypy.ini --follow-imports=silent shared/ app/integration/",
-      "application_ar": "دالّةٌ تفعل شيئاً واحداً وتسمّيه: الاشتقاق في economic_truth، والقرار واللغة في economic_decision، والقراءة والامتناع في الخدمة الرقيقة، والعرض في المكوّن. ولا نسخة ثانية: الحلقات والسقف من value_chain، والأفعال والقنوات من contact_ledger (والواجهة تقرؤها من الاستجابة)، وقواعد نصّ المشتري من موطنها الواحد. والقرار جدولٌ مرتَّب وقاعدةٌ معجمية مُعلَنة لا شجرة شروط."
+      "gate": "python scripts/fitness/check_engineering_governance.py && python scripts/run_fitness_gates.py && git diff --check",
+      "application_ar": "تغييرٌ أصغر ما يمكن: رقمان وتعليقهما بالقياس، والقاعدة القائمة (الخطوة = الوظيفة − ~2.5) محفوظة؛ لا اختبار ولا deselect ولا أرضية تغطية تغيّرت."
     }
   ],
   "production": {
-    "owner": "commercial-wedge",
-    "status": "ADMIN_ONLY_DECISION_CHAMBER_NO_WRITES",
+    "owner": "ci-maintainers",
+    "status": "CI_TIMEOUT_HEADROOM_ONLY",
     "interfaces": [
-      "GET /admin/api/hard-currency/chamber",
-      "POST /admin/api/hard-currency/chamber/cross-examination (مجموعةٌ مغلقة: ready · build · why_no_money · say_to_buyer)",
-      "POST /admin/api/hard-currency/chamber/outcome-preview (تحقّقٌ بلا كتابة · written=false)",
-      "shared/research/contact_ledger.parse_ledger — يرفض الانتقالات المستحيلة لكلّ قارئ"
+      "CI job test-monolith: timeout-minutes 45 ⇒ 55",
+      "CI step Run monolith tests: timeout-minutes 42 ⇒ 52"
     ],
     "runtime_evidence_paths": [
-      "docs/evidence/d314-decision-chamber-2026-10-02.png",
-      "docs/evidence/d314-outcome-preview-refused-2026-10-02.png",
-      "scripts/e2e/hard_currency_center_live.py",
-      "scripts/e2e/hard_currency_center_ui.cjs"
+      ".github/workflows/ci.yml",
+      "docs/governance/amendments/D-315-MONOLITH-TEST-TIMEOUT-HEADROOM.md"
     ],
-    "failure_behavior_ar": "مصدرٌ غائب ⇒ 503 بسببه؛ جملةٌ تتجاوز دليلها ⇒ الغرفة تمتنع بـ503 بالسبب لا تعرض؛ سجلٌّ لا يُقرأ أو شرط قتلٍ أُطلق ⇒ NO_LAWFUL_DECISION_AVAILABLE بالتفاصيل؛ سؤالٌ خارج المجموعة أو نصٌّ أطول من 2000 ⇒ 422؛ صفٌّ مستحيل ⇒ accepted=false بأسبابه.",
-    "observability_ar": "سجلّ hard_currency_outcome_previewed بالفعل والقبول فقط (لا الكيان ولا الملاحظة)؛ وكلّ تغييرٍ حقيقي يمرّ بصفٍّ ملتزَمٍ في CONTACT_LEDGER.csv فيظهر في الـdiff وفي الاشتقاق التالي. لا مقياس Prometheus جديد: لا سلوك تشغيليّ مستمرّ يُقاس.",
-    "security_boundary_ar": "دور ADMIN على النقاط الثلاث (401/403 مُختبَران حيّاً ومحلياً)؛ صفر كتابة في المستودع أو القاعدة (بصمة السجلّ وعدّ جداول الرسائل ثابتان حيّاً)؛ لا نموذج لغوي ولا شبكة ولا صدفة في الوحدتين (اختبار نقاءٍ بنيوي)؛ نصّ الاستجواب لا يُخزَّن ولا يُسجَّل؛ حدّ معدّلٍ على POST؛ والأسرار من بيئة العملية وحدها.",
-    "rollback_ar": "git revert للدفعات يحذف الغرفة والقواعد معاً؛ لا هجرة ولا بيانات ولا حالة خارج المستودع."
+    "failure_behavior_ar": "تشغيلٌ معلّق فعلاً يُوقَف بعد 52 دقيقة بدل 42 مع بقاء السجلّ؛ و--timeout=300 للاختبار الواحد يبقى كما هو فيُسمّي الاختبار المعلّق.",
+    "observability_ar": "مدّة الخطوة تُقرأ من سجلّ CI؛ والقياسات الثلاثة مكتوبةٌ في التعليق نفسه كي يُرى أيّ زحفٍ لاحق.",
+    "security_boundary_ar": "لا أثر أمني: لا سرّ ولا صلاحية ولا تبعية تتغيّر.",
+    "rollback_ar": "git revert للدفعة يعيد 45 و42 حرفياً؛ لا شيء آخر يعتمد عليهما."
   },
   "commercial_trace": {
     "offer_ids": [
       "fr-be-einvoicing-referential-cleansing"
     ],
-    "customer_problem_ar": "المالك لا يرى في شاشةٍ واحدة أقصى ما يحقّ قوله للمشتري ولا الفعل البشري التالي؛ فرسالةٌ واحدة في ستة أسابيع بلا متابعة، ونصّ الكتالوج يعد بـ«صفر رفض توجيه» وهو ما لم يُقَس.",
-    "value_hypothesis_ar": "غرفةٌ تقول «الكود ليس الاختناق» وتسمّي المكالمة التالية تحوّل الجهد من البناء إلى الاتصال. فرضيةٌ تُقاس بصفوف السجلّ بعدها.",
-    "foreign_currency_path_ar": "لا إيراد هنا ولا يُدّعى؛ الغرفة تمنع ادّعاءه قبل PAYMENT_SETTLED وتجعل كلّ ارتفاعٍ مرئياً حين يتحرّك السجلّ.",
-    "foundation_exception_ar": "امتدادٌ محدود لاستثناء D-305 بتوجيه المالك 2026-10-02: سطحٌ للمدير وحده، حتمي، بلا كتابة ولا بوّابة عملاء."
+    "customer_problem_ar": "main أحمر يوقف كلّ دمجٍ لاحق، ومنها عمل الأطروحة النشطة؛ والأحمر هنا ليس عطباً في الكود بل سقفٌ بلا هامش.",
+    "value_hypothesis_ar": "استعادة main أخضر صادقاً تعيد قابلية الدمج دون إضعاف أيّ اختبار.",
+    "foreign_currency_path_ar": "لا إيراد ولا يُدّعى؛ تغييرٌ في البنية التحتية للتكامل المستمرّ فقط.",
+    "foundation_exception_ar": "إصلاح أساس (CI) مسموحٌ تحت ENGINEERING_CONSTITUTION §5.1؛ لا ميزة ولا ترقية قدرة."
   },
   "deletions": {
     "count": 0,
     "paths": [],
-    "policy_ar": "صفر حذف: إضافاتٌ وتعديلات وإعادة تسمية اللقطات الثلاث d306→d314 (إعادة تسمية لا حذف)؛ قواعد D-304 نُقلت من الاختبار إلى موطنها والاختبار يستوردها، واختبارات main الجديدة في test_outreach_truth.py محفوظة كلّها."
+    "policy_ar": "صفر حذف: رقمان وتعليقاتٌ في ci.yml، وسجلّ تعديلٍ جديد، وقرارٌ مُلحَق."
   },
   "verification": {
     "result": "PASS",
     "commands": [
-      "Python 3.12: pytest tests/shared tests/unit/tools tests/api/test_hard_currency_center.py tests/contract — 1219 passed",
-      "Python 3.11: py_compile على 13 ملف Python متغيّر — نجح؛ pytest --noconftest للوحدات النقية الأربع — 95 passed (الحزمة الكاملة لا تُجمَع تحت 3.11 لأنّ conftest وapp يستعملان صياغة 3.12 — R1 القائم)",
-      "ruff==0.14.0 check . — All checks passed · ruff format --check . — 2278 files already formatted",
-      "mypy==1.8.0 --config-file mypy.ini --follow-imports=silent shared/ app/integration/ — no issues in 75 source files (ذاكرة مؤقّتة نظيفة)",
-      "check_openapi_parity 15/15 · generate_frontend_types --check — current",
-      "HCE job (pytest==8.3.5 + pytest-cov==6.0.0 فقط · -c pytest-hce.ini) — 42 passed · coverage 76.32% (≥70)",
-      "frontend: npm run lint (3 تحذيرات قائمة خارج ملفّات هذا التغيير) · typecheck · build · check_bundle_budget — 1094KB/1100KB",
-      "live (2026-10-05, merged code): hard_currency_center_live.py 25/25 · hard_currency_center_ui.cjs 22/22 · CONTACT_LEDGER.csv sha 1bb6974d07f8 unchanged",
-      "check_engineering_governance (GOVERNANCE_BASE_SHA=origin/main) — PASS",
-      "production (Supabase MCP, read-only): 43 public tables · 0 chamber tables · accounts 1/7 unchanged",
-      "run_fitness_gates.py (ci.yml, CODE_ACCEPTANCE_BASE_SHA=GOVERNANCE_BASE_SHA=origin/main) — 90/90",
-      "doc_integrity: check_authority_links · check_constitution_reality · check_documentation_contract · check_memory_coherence — PASS (الأخيرة كانت حمراء: عنوان D-314 بتاريخ أقدم من D-310 فوقه؛ صار مؤرَّخاً بيوم تسجيله)",
-      "pytest tests/fitness tests/guardrails (3.12) — 634 passed · runtime_truth.py --check · ci_guardrails.py · git diff --check — PASS",
-      "CI image: monolith (2026-10-06) فشل استيراد app.main داخل صورة Dockerfile.prod (No module named 'tools') — أُعيد إنتاجه محلياً بنسخ app/ shared/ knowledge_base/ docs/contracts/ حرفياً، ثمّ أُصلح بالتحميل عند الطلب؛ import app.main ينجح من نفس النسخة، وtests/api/test_hard_currency_center.py + test_economic_truth.py — 92 passed"
+      "check_engineering_governance (GOVERNANCE_BASE_SHA=origin/main) — PASS (سجلّ التعديل موجود، ولا رمز إضعاف اختبار مُضاف في ci.yml)",
+      "run_fitness_gates.py (CODE_ACCEPTANCE_BASE_SHA=GOVERNANCE_BASE_SHA=origin/main) — كلّ البوّابات خضراء",
+      "doc_integrity: check_memory_coherence · check_constitution_reality · check_authority_links · check_documentation_contract — PASS",
+      "runtime_truth.py --check · git diff --check — PASS",
+      "الدليل على العطب: CI run 37462983764 / job test-monolith — 'The action Run monolith tests has timed out after 42 minutes' عند 96٪ بلا فشل"
     ]
   },
   "curriculum": {
@@ -160,90 +143,38 @@
     "owner": "curriculum-governance"
   },
   "changed_paths": [
+    ".github/workflows/ci.yml",
     ".memory/README.md",
     ".memory/decisions.md",
-    ".memory/runtime_truth.md",
     ".runtime/truth_table.lock.json",
     "README.ar.md",
     "README.md",
-    "app/api/routers/hard_currency.py",
-    "app/services/hard_currency/decision_chamber.py",
     "docs/DOCUMENTATION_INDEX.md",
     "docs/changes/CURRENT_CODE_ACCEPTANCE_PACKET.json",
-    "docs/contracts/openapi/core-api-v1.yaml",
-    "docs/contracts/openapi/monolith_api-openapi.json",
-    "docs/evidence/README.md",
-    "docs/evidence/d314-decision-chamber-2026-10-02.png",
-    "docs/evidence/d314-decision-chamber-dark-2026-10-02.png",
-    "docs/evidence/d314-economic-truth-report-2026-10-02.html",
-    "docs/evidence/d314-outcome-preview-refused-2026-10-02.png",
-    "docs/governance/ASSET_LICENSE_CLEARANCE.json",
-    "docs/governance/amendments/D-314-DECISION-CHAMBER-EVIDENCE-ASSETS.md",
-    "frontend/app/components/hard-currency/DecisionChamber.jsx",
-    "frontend/app/components/hard-currency/HardCurrencyCenter.jsx",
-    "frontend/app/components/hard-currency/HardCurrencyCenter.module.css",
-    "frontend/types/api.d.ts",
-    "scripts/e2e/hard_currency_center_live.py",
-    "scripts/e2e/hard_currency_center_ui.cjs",
-    "shared/research/contact_ledger.py",
-    "shared/research/economic_decision.py",
-    "shared/research/economic_truth.py",
-    "shared/research/value_chain.py",
-    "tests/api/test_hard_currency_center.py",
-    "tests/shared/test_contact_ledger.py",
-    "tests/shared/test_economic_truth.py",
-    "tests/unit/tools/test_buyer_claims.py",
-    "tests/unit/tools/test_outreach_truth.py",
-    "tools/hard_currency_engine/buyer_claims.py"
+    "docs/governance/amendments/D-315-MONOLITH-TEST-TIMEOUT-HEADROOM.md"
   ],
   "git_change_snapshot": {
     "base_ref": "origin/main",
     "changed_paths_excluding_packet": [
+      ".github/workflows/ci.yml",
       ".memory/README.md",
       ".memory/decisions.md",
-      ".memory/runtime_truth.md",
       ".runtime/truth_table.lock.json",
       "README.ar.md",
       "README.md",
-      "app/api/routers/hard_currency.py",
-      "app/services/hard_currency/decision_chamber.py",
       "docs/DOCUMENTATION_INDEX.md",
-      "docs/contracts/openapi/core-api-v1.yaml",
-      "docs/contracts/openapi/monolith_api-openapi.json",
-      "docs/evidence/README.md",
-      "docs/evidence/d314-decision-chamber-2026-10-02.png",
-      "docs/evidence/d314-decision-chamber-dark-2026-10-02.png",
-      "docs/evidence/d314-economic-truth-report-2026-10-02.html",
-      "docs/evidence/d314-outcome-preview-refused-2026-10-02.png",
-      "docs/governance/ASSET_LICENSE_CLEARANCE.json",
-      "docs/governance/amendments/D-314-DECISION-CHAMBER-EVIDENCE-ASSETS.md",
-      "frontend/app/components/hard-currency/DecisionChamber.jsx",
-      "frontend/app/components/hard-currency/HardCurrencyCenter.jsx",
-      "frontend/app/components/hard-currency/HardCurrencyCenter.module.css",
-      "frontend/types/api.d.ts",
-      "scripts/e2e/hard_currency_center_live.py",
-      "scripts/e2e/hard_currency_center_ui.cjs",
-      "shared/research/contact_ledger.py",
-      "shared/research/economic_decision.py",
-      "shared/research/economic_truth.py",
-      "shared/research/value_chain.py",
-      "tests/api/test_hard_currency_center.py",
-      "tests/shared/test_contact_ledger.py",
-      "tests/shared/test_economic_truth.py",
-      "tests/unit/tools/test_buyer_claims.py",
-      "tests/unit/tools/test_outreach_truth.py",
-      "tools/hard_currency_engine/buyer_claims.py"
+      "docs/governance/amendments/D-315-MONOLITH-TEST-TIMEOUT-HEADROOM.md"
     ],
-    "content_sha256_excluding_packet": "2e7790da8136b689451ea6e13bf241e78eb25745a8a61377c8ed3e230dab247b",
+    "content_sha256_excluding_packet": "25c08dd370ba5f7e75bae35d21f717e34db59b1af49f0c7a0758eb02790cc169",
     "refreshed_on": "2026-10-06",
     "refresh_command": "python3 scripts/research/refresh_acceptance_diff_snapshot.py"
   },
   "repository_microscope": {
     "mode": "FULL_REPOSITORY_BYTE_CENSUS_EXCLUDING_PACKET",
-    "file_count_excluding_packet": 3473,
-    "total_bytes_excluding_packet": 50766070,
-    "total_newlines_excluding_packet": 888151,
-    "sha256_excluding_packet": "a81a6dc88259893653bd3b361fcbae5a7364ce3909d52fe269fdeba7e7ad676d",
+    "file_count_excluding_packet": 3474,
+    "total_bytes_excluding_packet": 50772167,
+    "total_newlines_excluding_packet": 888206,
+    "sha256_excluding_packet": "579b73086bbd2cd4a829854841068933972720415c6d259016adbd60e8e25980",
     "largest_file_excluding_packet": {
       "path": "Introduction to Agents.pdf",
       "bytes": 9473606
@@ -259,69 +190,50 @@
     "operator_attestation_ar": "هذا ليس ادعاء فهم شامل بذاته؛ إنه شرط مجهر آلي يسبق التحليل البشري والمصفوفة، ويجعل تجاهل القديم مرئياً."
   },
   "pre_modification": {
-    "current_state": "TESTED: main عند 05b72de دُمج في الفرع بثمانية تعارضاتٍ محلولة؛ مسار الغرفة (ثلاث نقاطٍ للمدير وحده) وقواعد انتقال السجلّ ومُدقِّق نصّ المشتري تعمل على الكود المدموج: 1219 اختباراً تحت 3.12 وحيّاً 25/25 و22/22. السجلّ التجاري صفٌّ واحد وGATE_C = ABSENT.",
+    "current_state": "TESTED: main عند 9cfa5cd أحمر في CI بسبب مهلة خطوة test-monolith (42 دقيقة) لا بسبب اختبارٍ فاشل؛ guardrails وكلّ ما عداها أخضر.",
     "architecture_and_boundaries": [
-      "shared/research/economic_truth.py + economic_decision.py: مكتبة قياسية + shared فقط؛ لا app ولا شبكة ولا صدفة (اختبار نقاءٍ بنيوي).",
-      "tools/hard_currency_engine/buyer_claims.py: موطن قواعد D-304؛ تُحقَن في الغرفة لأنّ shared لا يستورد tools.",
-      "app/services/hard_currency/decision_chamber.py ← app/api/routers/hard_currency.py: خلف require_roles(ADMIN_ROLE)، والنقطتان POST بمحدِّد المعدّل؛ لا كتابة في قاعدة البيانات ولا في السجلّ.",
-      "frontend DecisionChamber.jsx: قطعة كسولة في مركز المدير؛ لا مدخل للطالب.",
-      "حماية فرع GitHub وCODEOWNERS سلطةٌ خارجية لا يدّعيها هذا المستودع."
+      ".github/workflows/ci.yml — وظيفة test-monolith وحدها؛ لا وظيفة أخرى تُمسّ.",
+      "مسارٌ محميّ تحت ENGINEERING_GOVERNANCE_POLICY ⇒ سجلّ تعديلٍ دستوري جديد بانتظار مراجعةٍ مستقلّة.",
+      "حماية الفرع وCODEOWNERS سلطةٌ خارجية لا يدّعيها هذا المستودع."
     ],
     "existing_failures_and_old_debt": [
-      "OPEN R1: الحزمة تتطلّب Python 3.12 (conftest_support/helpers.py وapp/ بصياغة PEP 695)؛ لا تُجمَع تحت 3.11.",
-      "OPEN R2/R3: فشل التحليل المغلق والتشغيل القابل للإعادة على كامل الحزمة لم يُغلقا؛ لم يُشغَّل هنا تشغيلٌ كامل لكلّ الاختبارات.",
-      "FOUND: orchestrator_service-openapi.json على main لا يطابق وصف /health في الكود (D-298)؛ البوّابة دلالية فتمرّ؛ تُرك خارج النطاق ومُعلَن في D-314.",
-      "FOUND: في مهمّة HCE يُحتسَب buyer_claims.py بـ0٪ لأنّ اختباراته خارج قائمتها؛ المجموع 76٪ ≥ 70؛ إدراجه (84٪) متابعةٌ في ملفٍّ محميّ.",
-      "FOUND: صفوف DOCUMENTATION_INDEX و.memory/README في main كانت تنسب وصف D-305 إلى D-310؛ صُحّحت عند حلّ التعارض."
+      "FOUND: db_lifecycle التلقائي يُسقط المخطّط ويعيد إنشاءه قبل كلّ اختبار (~0.3 ث × 6217) — هو أغلب زمن الحزمة؛ متابعةٌ مستحقّة في D-315.",
+      "FOUND: السقف رُفع سابقاً من 30 إلى 45 للسبب نفسه (تعليق ci.yml)؛ الزحف مستمرّ ما دامت الحزمة بطيئة.",
+      "REMAINS OPEN: R1–R3 في PROJECT_REMEDIATION_PLAN.json؛ هذا التغيير لا يغلق شيئاً منها."
     ],
     "dependency_path": [
-      "CONTACT_LEDGER.csv → contact_ledger.parse_ledger (+transition_problems) → value_chain → economic_truth.build_snapshot → economic_decision.build_brief/render_sentences/sentence_problems → decision_chamber → /admin/api/hard-currency/chamber* → DecisionChamber.jsx",
-      "buyer_claims.classify → decision_chamber (حقناً) و test_outreach_truth (ملفّات الإرسال)",
-      "parse_ledger → check_outbound_before_research و HARD_CURRENCY_SCORECARD (كلّ قارئٍ للسجلّ يرفض الانتقال المستحيل)"
+      "ci.yml:test-monolith → required-ci → علامة main الخضراء"
     ],
     "foundational_frontier": {
       "status": "REPAIRED_OR_CONTAINED_BEFORE_EXTENSION",
       "relevant_defects": [
-        "R1 (Python 3.12) OPEN — مُحتوى لهذا المسار: الملفّات المتغيّرة تُترجَم تحت 3.11 و3.12 واختباراتها تنجح تحت 3.12؛ لا يُغلَق R1.",
-        "R2 (parser fail-closed) OPEN — مُحتوى لهذا المسار: سجلٌّ لا يُقرأ أو انتقالٌ مستحيل ⇒ الغرفة 503 والبوّابة حمراء؛ لا يُغلَق R2.",
-        "R3 (reproducible tests) OPEN — لم يُشغَّل تشغيلٌ كامل تحت 3.12؛ اختباراتٌ مركّزة فقط."
+        "R3 (reproducible tests) OPEN — احتواء: سقفٌ بهامشٍ يمنع بوّابةً حمراء فوق تشغيلٍ أخضر؛ لا يُغلَق R3.",
+        "بطء الحزمة البنيوي (db_lifecycle) — غير مُصلَح هنا، مُعلَنٌ متابعةً."
       ],
-      "decision": "احتواءٌ لا إصلاح: سطحٌ للمدير وحده بلا كتابة، لا يرقّي قدرةً ولا يدّعي جاهزية إنتاج، وصفوف runtime_truth بمفردات الأدلّة لا ACTIVE. لا يُغلَق شيءٌ من R1–R3 ولا يُصدَّق ذاتياً؛ والمالك وافق على هذا المسار في الخطة المعتمدة 2026-10-05 وله رفضه في المراجعة."
+      "decision": "احتواءٌ لا إصلاح: يعيد هامشاً قدره ~12 دقيقة دون إضعاف أيّ اختبار؛ ولا يُرفَع السقف مرّةً ثالثة قبل محاولة تسريع الحزمة."
     },
-    "root_cause": "المالك لا يرى في مكانٍ واحد أقصى ما يحقّ قوله للمشتري ولا الفعل البشري التالي، والسجلّ كان يقبل القفز إلى المال (PAYMENT_SETTLED بلا QUOTE_SENT)، وقواعد نصّ المشتري كانت تعيش داخل اختبار.",
-    "intended_change": "دمج main ثمّ إعادة الترقيم D-314، وإضافة سجلّ التعديل الدستوري للقطات، والتقرير HTML في docs/evidence، وتحديث D-314 وruntime_truth بحالةٍ غير مُرقّاة؛ بلا تغيير في سلوك الغرفة عن نسخة 2026-10-02.",
+    "root_cause": "زمن الحزمة (38–42+ دقيقة) بلغ سقف الخطوة (42) فصار تباين المشغِّلات (>2 دقيقة) يقرّر الأحمر والأخضر؛ والسبب الأعمق إعادة ضبط المخطّط قبل كلّ اختبار.",
+    "intended_change": "timeout-minutes لوظيفة test-monolith 45⇒55 وللخطوة 42⇒52، مع تعليقٍ مُقاس وسجلّ تعديل وقرار D-315.",
     "affected_invariants": [
-      "لا كتابة من الغرفة: written=false دائماً وبصمة السجلّ ثابتة.",
-      "السجلّ يرفض الانتقالات المستحيلة لكلّ قارئ.",
-      "لا جملة FACT بلا دليل؛ جملةٌ تخفق ⇒ 503.",
-      "المدير وحده؛ الطالب 403.",
-      "لا ترقية ولا ادّعاء إنتاج ما دامت R1–R3 مفتوحة."
+      "لا بوّابة حمراء فوق تشغيلٍ أخضر (D-105).",
+      "لا اختبار يُتخطّى أو يُعطَّل للوصول إلى الأخضر.",
+      "سقف الخطوة دون سقف الوظيفة فيبقى السجلّ (ISS-212)."
     ],
     "test_plan": [
-      "سلبي: PAYMENT_SETTLED بلا QUOTE_SENT ⇒ مشكلة انتقال (8 حالات حمراء قبل الإصلاح).",
-      "سلبي: «Nous garantissons zéro rejet» ⇒ FORBIDDEN؛ «Si … plus jamais de rejet» ⇒ FORBIDDEN.",
-      "سلبي: رمز الطالب على نقاط المركز ⇒ 403؛ سؤال استجوابٍ خارج المجموعة ⇒ 422.",
-      "إيجابي: المعاينة تقبل CALL_MADE بـwritten=false وبصمة السجلّ لا تتغيّر.",
-      "حيّ: المسار الكامل API 25 فحصاً ومتصفّح 22 فحصاً على الكود المدموج."
+      "سلبي: check_engineering_governance يرفض أيّ رمز إضعاف (skip/xfail/deselect/ignore) مُضاف في ci.yml — لم يُضَف شيء.",
+      "إيجابي: test-monolith وrequired-ci أخضران على رأس الدفعة ثمّ على main بعد الدمج."
     ],
-    "rollback_strategy": "git revert للدفعة كاملة (الغرفة + قواعد الانتقال + المُدقِّق + سجلّ التعديل + اللقطات + التقرير) بعد مراجعة؛ لا هجرة ولا بيانات ولا حالة تشغيل تعتمد عليها.",
+    "rollback_strategy": "git revert للدفعة؛ يعيد 45/42 حرفياً.",
     "verification_strategy": [
-      "python scripts/run_fitness_gates.py مع CODE_ACCEPTANCE_BASE_SHA=GOVERNANCE_BASE_SHA=origin/main",
       "python scripts/fitness/check_engineering_governance.py",
-      "python scripts/fitness/check_code_acceptance.py",
-      "python scripts/fitness/check_repository_microscope.py",
-      "pytest tests/shared tests/unit/tools tests/api/test_hard_currency_center.py tests/contract (3.12)",
-      "scripts/e2e/hard_currency_center_live.py + hard_currency_center_ui.cjs على حزمة محلية",
-      "git diff --check"
+      "python scripts/run_fitness_gates.py",
+      "مراقبة test-monolith وrequired-ci على الدفعة وعلى main"
     ],
     "claim_statuses": {
       "current_state": "TESTED",
-      "decision_chamber_local_runtime": "RUNTIME VERIFIED",
-      "ledger_transition_rules": "TESTED",
-      "buyer_claims_linter": "TESTED",
-      "negative_proofs": "FAILURE TESTED",
-      "production_deployment": "UNKNOWN",
-      "full_python312_test_run": "UNKNOWN",
+      "ci_change": "IMPLEMENTED",
+      "main_green_after_merge": "UNKNOWN",
+      "suite_speed_fix": "UNKNOWN",
       "branch_protection_live_state": "UNKNOWN"
     }
   }
