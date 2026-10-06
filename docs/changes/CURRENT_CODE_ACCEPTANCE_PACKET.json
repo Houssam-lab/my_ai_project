@@ -3,7 +3,7 @@
   "packet_id": "CAP-2026-10-06-d315-monolith-test-timeout-headroom",
   "status": "READY_FOR_GATE",
   "decision": "D-277",
-  "decision_of_change": "D-315 (قرار المالك 2026-10-06): main أحمر عند دمج PR #2595 لأنّ خطوة اختبارات المونوليث قُتلت عند حدّها 42 دقيقة والحزمة عند 96٪ بلا اختبارٍ فاشل (38.2 · 40.0 · قتلٌ عند 42.2 على شجرةٍ واحدة). يُرفَع سقف الوظيفة 45⇒55 والخطوة 42⇒52 بتعليقٍ مُقاس وسجلّ تعديلٍ دستوري؛ والجذر — إعادة ضبط المخطّط قبل كلّ اختبار في db_lifecycle — مُسجَّلٌ متابعةً مستحقّة لا مُخفى.",
+  "decision_of_change": "D-315 (قرار المالك 2026-10-06): main أحمر عند دمج PR #2595 لأنّ خطوة اختبارات المونوليث قُتلت عند حدّها 42 دقيقة والحزمة عند 96٪ بلا اختبارٍ فاشل (38.2 · 40.0 · قتلٌ عند 42.2 · ثمّ 40.0 في إعادة التشغيل الوحيدة، على شجرةٍ واحدة). يُرفَع سقف الوظيفة 45⇒55 والخطوة 42⇒52 بتعليقٍ مُقاس وسجلّ تعديلٍ دستوري؛ والجذر — إعادة ضبط المخطّط قبل كلّ اختبار في db_lifecycle — مُسجَّلٌ متابعةً مستحقّة لا مُخفى.",
   "standards": [
     "clean-code-book"
   ],
@@ -165,16 +165,16 @@
       "docs/DOCUMENTATION_INDEX.md",
       "docs/governance/amendments/D-315-MONOLITH-TEST-TIMEOUT-HEADROOM.md"
     ],
-    "content_sha256_excluding_packet": "25c08dd370ba5f7e75bae35d21f717e34db59b1af49f0c7a0758eb02790cc169",
+    "content_sha256_excluding_packet": "718639baf0ace5b658cf0692e7c31f6764f608805f5f2cf7d7b00610d926cbea",
     "refreshed_on": "2026-10-06",
     "refresh_command": "python3 scripts/research/refresh_acceptance_diff_snapshot.py"
   },
   "repository_microscope": {
     "mode": "FULL_REPOSITORY_BYTE_CENSUS_EXCLUDING_PACKET",
     "file_count_excluding_packet": 3474,
-    "total_bytes_excluding_packet": 50772167,
-    "total_newlines_excluding_packet": 888206,
-    "sha256_excluding_packet": "579b73086bbd2cd4a829854841068933972720415c6d259016adbd60e8e25980",
+    "total_bytes_excluding_packet": 50772717,
+    "total_newlines_excluding_packet": 888208,
+    "sha256_excluding_packet": "3ab135421097fe798efc5250416732e63d723b5aa33e3b18c27de1721cb19f6f",
     "largest_file_excluding_packet": {
       "path": "Introduction to Agents.pdf",
       "bytes": 9473606
