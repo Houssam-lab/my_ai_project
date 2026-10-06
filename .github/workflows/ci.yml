@@ -845,7 +845,12 @@ jobs:
     # tests had already passed (73.6% coverage) -- a red gate over a green run is
     # exactly what D-105 forbids. 45 leaves real headroom; the way to bring it
     # back down is to make the suite faster, not to shave the cap.
-    timeout-minutes: 45
+    # D-315 (2026-10-06): the headroom ran out again. 6217 tests: the test step took
+    # 38.2m on b80c44d, 40.0m on PR #2595, and was killed at 42.2m on its identical
+    # tree on main (9cfa5cd) at 96% with no failing test. Most of that time is the
+    # per-test schema reset in the autouse db_lifecycle fixture (about 0.3s per test),
+    # so speeding the suite up is the real fix and is still owed.
+    timeout-minutes: 55
     env:
       DATABASE_URL: "sqlite+aiosqlite:///:memory:"
       SECRET_KEY: test-secret-key-for-ci-pipeline-secure-length
@@ -875,10 +880,11 @@ jobs:
       # The fix is the bound on test names in tests/conftest_support/policy.py, enforced
       # at collection. The two limits here stay: a step limit below the job limit keeps
       # the log when the suite is merely slow, and --timeout names a hung test.
-      # 42 = the job's 45 minus ~2.5 for install: it cuts no earlier than the job would,
-      # but early enough to keep the log. Measured on the fix's head: this step took 38.5.
+      # 52 = the job's 55 minus ~2.5 for install: it cuts no earlier than the job would,
+      # but early enough to keep the log. Measured at ISS-212: 38.5. Measured at D-315:
+      # 38.2, 40.0 and then killed at 42.2 on one tree, so the old 42 left no headroom.
       - name: Run monolith tests (tests/ minus microservices + scripts/ci)
-        timeout-minutes: 42
+        timeout-minutes: 52
         shell: bash
         run: |
           set -euo pipefail
