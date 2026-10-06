@@ -2,7 +2,7 @@
 
 - **Change ID:** D-315-MONOLITH-TEST-TIMEOUT-HEADROOM
 - **Status:** PROPOSED_PENDING_INDEPENDENT_REVIEW
-- **Reason:** The `test-monolith` job in `.github/workflows/ci.yml` went red on `main` at the merge of PR #2595 (commit 9cfa5cd, CI run 37462983764). No test failed. The step `Run monolith tests` was killed at its 42-minute limit with the suite 96% done, and `required-ci` then failed with it. The same tree ran in 40.0 minutes on the PR (6217 passed), and the commit before it, b80c44d, took 38.2 minutes. A 42-minute cap left about 2 minutes of headroom against more than 2 minutes of runner-to-runner variance. The owner chose this fix on 2026-10-06.
+- **Reason:** The `test-monolith` job in `.github/workflows/ci.yml` went red on `main` at the merge of PR #2595 (commit 9cfa5cd, CI run 37462983764). No test failed. The step `Run monolith tests` was killed at its 42-minute limit with the suite 96% done, and `required-ci` then failed with it. The same tree ran in 40.0 minutes on the PR (6217 passed), and the commit before it, b80c44d, took 38.2 minutes. One re-run of the failed job on `main` (attempt 2) then passed in 40.0 minutes, with all 29 jobs green. So the cap, not the code, caused the red, and the green on `main` now depends on runner luck. A 42-minute cap left about 2 minutes of headroom against more than 2 minutes of runner-to-runner variance. The owner chose this fix on 2026-10-06.
 - **Scope:** Two numbers in `.github/workflows/ci.yml` for the `test-monolith` job, plus their comments:
   - job `timeout-minutes` goes from 45 to 55;
   - step `timeout-minutes` goes from 42 to 52, keeping the existing rule that the step cap is the job cap minus about 2.5 minutes for install.

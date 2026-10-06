@@ -847,7 +847,8 @@ jobs:
     # back down is to make the suite faster, not to shave the cap.
     # D-315 (2026-10-06): the headroom ran out again. 6217 tests: the test step took
     # 38.2m on b80c44d, 40.0m on PR #2595, and was killed at 42.2m on its identical
-    # tree on main (9cfa5cd) at 96% with no failing test. Most of that time is the
+    # tree on main (9cfa5cd) at 96% with no failing test; one re-run of that same tree
+    # then passed in 40.0m. So the cap, not the code, was the cause. Most of that time is the
     # per-test schema reset in the autouse db_lifecycle fixture (about 0.3s per test),
     # so speeding the suite up is the real fix and is still owed.
     timeout-minutes: 55
