@@ -48,7 +48,7 @@ with suppress(ImportError):
 # fixtureٍ يبقى **تعريفًا هنا** — القشرة تفوض لمنطق الشرائح النقي. الشرائح هنا
 # تحمل المنطق والدوال النقية فقط. ⚠️ والـhooks كالـfixtures: pytest لا يسجّل hook
 # معرَّفاً في وحدةٍ مستورَدة (مقيس 2026-10-02 — ISS-213)، فكلّ hook يعمل يُعرَّف قشرةً هنا.
-from tests.conftest_support import policy
+from tests.conftest_support import policy, reset_guard
 from tests.conftest_support.auth_shards import _register_user_and_mint_token
 from tests.conftest_support.helpers import _run_async
 from tests.conftest_support.lifecycle import (
@@ -90,6 +90,11 @@ async def managed_test_session():
 def pytest_collection_finish(session: pytest.Session) -> None:
     """ISS-212 — refuse a test name long enough to flood the CI log."""
     policy.enforce_node_id_bound(session.items)
+
+
+def pytest_terminal_summary(terminalreporter) -> None:
+    """D-317 — say how many schema resets ran and how many were skipped, so it is never silent."""
+    reset_guard.LEDGER.report_once(terminalreporter.write_line)
 
 
 # ── fixtures العامة (قشور تفويض نصّية — التوقيعات كما كانت) ────────────────

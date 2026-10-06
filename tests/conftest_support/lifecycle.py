@@ -5,6 +5,10 @@
 أعلى تعقيدٍ في `tests/conftest.py` (CodeScene: churn=12 · LOC=63 · Bumpy Road).
 فُكِّكت المنطقية كلها إلى خطواتٍ نقيةٍ في `schema.py`، وبقي هنا fixture القشرة الذي
 يُركِّبها عبر قفلٍ متزامنٍ على المحرك — **صفر تغيير سلوكي** (القشرة تفوض حرفيًا).
+
+**D-317:** الإعادة نفسها تُتخطّى حين تبقى القاعدة كما تركتها آخر إعادة، بعدّادات SQLite لا
+بالنيّة — القاعدة والدليل في `reset_guard.py`. كلّ اختبارٍ ما زال يبدأ على قاعدةٍ مطابقة
+لما تتركه إعادةٌ جديدة؛ المتغيّر وحده أنّ الإعادة لا تُكرَّر بلا سبب.
 """
 
 from __future__ import annotations
@@ -13,7 +17,8 @@ import pytest
 
 from .helpers import _db_dependencies_available, _run_async, _should_skip_db_fixtures
 from .registry import _get_engine_locked
-from .schema import _reset_db_steps
+from .reset_guard import reset_unless_unchanged
+from .schema import _dedupe_table_indexes, _load_context_models, _reset_db_steps
 
 
 def run_db_lifecycle(event_loop, request: pytest.FixtureRequest):
@@ -35,7 +40,12 @@ def run_db_lifecycle(event_loop, request: pytest.FixtureRequest):
         # قفلٌ متزامن على المحرك يضمن أن تداخل اختباراتٍ متوازية لا يعيد بناء
         # المخطط فوق بعضه (ISS-113 class: «يمرّ منفردًا ويفشل بترتيب الحزمة الكاملة»).
         locked_engine = await _get_engine_locked()
-        await _reset_db_steps(locked_engine, is_microservice_test)
+        # D-317: النماذج تُحمَّل والفهارس تُنظَّف قبل البصمة — فشكل `metadata` الذي يُقارَن
+        # هو شكل هذا الاختبار، لا شكل ما قبله (سياق خدمةٍ مصغّرة يُحمِّل نماذجه هنا).
+        _load_context_models(is_microservice_test)
+        _dedupe_table_indexes()
+        # تُعاد الخطوات نفسها بالترتيب نفسه — إلا إن بقيت القاعدة كما تركتها آخر إعادة.
+        await reset_unless_unchanged(locked_engine, is_microservice_test, reset=_reset_db_steps)
 
     _run_async(event_loop, _reset_db())
 
