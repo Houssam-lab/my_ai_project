@@ -1,9 +1,9 @@
 {
   "$schema_version": 1,
-  "packet_id": "CAP-2026-10-07-ledger-balague-t2f-and-real-calendar-tests",
+  "packet_id": "CAP-2026-10-07-ledger-balague-t2f-bounce-and-real-calendar-tests",
   "status": "READY_FOR_GATE",
   "decision": "D-277",
-  "decision_of_change": "D-300 (السجلّ هو الحقيقة التجارية الوحيدة) · D-297 · D-305 · D-314: المالك صرّح في 2026-10-07 بمكالمةٍ بلا ردّ لـBalagué Expertise في 2026-09-22، وبإرسال بريد الإغلاق إليها، وبإرسال البريد الأوّل إلى Groupe T2F. تُلحَق أربعة صفوف (CALL_MADE · EMAIL_SENT · CLOSED_NO_REPLY · EMAIL_SENT)، ويُعلَن ملفّ الأهداف V2 مساراً للسجلّ تحت OPP-01، وتُعاد اشتقاق اللوحة وسلسلة القيمة. وإصلاح عيبٍ كشفه التسجيل: اختبارات السجلّ الحقيقي في tests/shared/test_economic_truth.py كانت تقرؤه بتاريخٍ مثبَّت (2026-10-02) فيُرفض كلّ صفٍّ لاحق، ويقرأ build_snapshot سجلّاً فارغاً بصمت.",
+  "decision_of_change": "D-300 (السجلّ هو الحقيقة التجارية الوحيدة) · D-297 · D-305 · D-314: المالك صرّح في 2026-10-07 بمكالمةٍ بلا ردّ لـBalagué Expertise في 2026-09-22 وبإرسال بريد الإغلاق إليها، فتُلحَق ثلاثة صفوف (CALL_MADE · EMAIL_SENT · CLOSED_NO_REPLY). وبريده الأوّل إلى Groupe T2F ارتدّ (550 5.7.64 TenantAttribution): لا يُسجَّل اتصالاً، ويُصحَّح العنوان إلى info@groupe-t2f.fr المنشور في موقع المكتب. ويُعلَن ملفّ الأهداف V2 مساراً للسجلّ تحت OPP-01. وإصلاح عيبٍ كشفه التسجيل: اختبارات السجلّ الحقيقي في tests/shared/test_economic_truth.py كانت تقرؤه بتاريخٍ مثبَّت (2026-10-02) فيُرفض كلّ صفٍّ لاحق، ويقرأ build_snapshot سجلّاً فارغاً بصمت.",
   "standards": [
     "clean-code-book"
   ],
@@ -19,6 +19,8 @@
         "docs/commercial/outreach/CONTACT_LEDGER.csv",
         "docs/commercial/HARD_CURRENCY_SCORECARD.json",
         "docs/commercial/VALUE_CHAIN.json",
+        "docs/commercial/FR_EINVOICING_TARGETS_V2_2026-10-04.csv",
+        "docs/commercial/outreach/ready_to_send/01_MAILS_CABINETS_PRETS.md",
         "tests/shared/test_economic_truth.py"
       ],
       "gate": "python scripts/fitness/check_outbound_before_research.py && python scripts/research/hard_currency_scorecard.py --check && python scripts/fitness/check_value_chain.py && pytest tests/shared/test_economic_truth.py && git diff --check",
@@ -29,16 +31,17 @@
     "owner": "repository-owner",
     "status": "LEDGER_ROW_ONLY",
     "interfaces": [
-      "docs/commercial/outreach/CONTACT_LEDGER.csv: Balagué Expertise — CALL_MADE (2026-09-22) · EMAIL_SENT و CLOSED_NO_REPLY (2026-10-07)؛ GROUPE T2F — EMAIL_SENT (2026-10-07)",
+      "docs/commercial/outreach/CONTACT_LEDGER.csv: Balagué Expertise — CALL_MADE (2026-09-22) · EMAIL_SENT و CLOSED_NO_REPLY (2026-10-07)",
+      "docs/commercial/FR_EINVOICING_TARGETS_V2_2026-10-04.csv id=1: email=info@groupe-t2f.fr · statut=MAIL_REJETE · prochaine_action=tel 2026-10-09",
       "docs/commercial/VALUE_CHAIN.json: OPP-01.ledger_routes يضيف FR_EINVOICING_TARGETS_V2_2026-10-04.csv",
-      "غرفة القرار /admin/api/hard-currency/chamber: الفعل الأساسي FOLLOW_UP_CALL لـGROUPE T2F"
+      "غرفة القرار /admin/api/hard-currency/chamber: الفعل الأساسي NEXT_CONTACT"
     ],
     "runtime_evidence_paths": [
       "docs/commercial/outreach/CONTACT_LEDGER.csv",
       "docs/commercial/HARD_CURRENCY_SCORECARD.json"
     ],
     "failure_behavior_ar": "صفٌّ مخالف لعقد shared/research/contact_ledger.py يُرفض عند القراءة فتحمرّ check_outbound_before_research؛ واللوحة المنحرفة تحمرّ --check.",
-    "observability_ar": "اللوحة المشتقّة: صفوف=5 · اتصالات=4 · كيانات=2 · ردود=0 · دفعات=0 · GATE_C=ABSENT.",
+    "observability_ar": "اللوحة المشتقّة: صفوف=4 · اتصالات=3 · كيانات=1 · ردود=0 · دفعات=0 · GATE_C=ABSENT.",
     "security_boundary_ar": "بيانات مهنية عامة لمكتبٍ سبق تسجيله (رقم المكتب الثابت المنشور)؛ لا بيانات شخصية جديدة ولا سرّ.",
     "rollback_ar": "git revert للدفعة؛ السجلّ مُلحَق-فقط فالتراجع إزالةٌ للصفّ الأخير وإعادة اشتقاق."
   },
@@ -46,7 +49,7 @@
     "offer_ids": [
       "fr-be-einvoicing-referential-cleansing"
     ],
-    "customer_problem_ar": "السجلّ لم يكن يعكس المكالمة ولا الإغلاق، واختبارٌ مثبَّت التاريخ كان سيُحمِّر CI عند تسجيل أيّ فعلٍ تجاري بعد 2026-10-02.",
+    "customer_problem_ar": "السجلّ لم يكن يعكس المكالمة ولا الإغلاق؛ وعنوان T2F في ملفّ الأهداف يرتدّ؛ واختبارٌ مثبَّت التاريخ كان سيُحمِّر CI عند تسجيل أيّ فعلٍ تجاري بعد 2026-10-02.",
     "value_hypothesis_ar": "سجلٌّ صادق يجعل الفعل التالي صحيحاً: الهدف المسمّى التالي بدل تكرار الاتصال.",
     "foreign_currency_path_ar": "لا إيراد ولا يُدّعى؛ GATE_C = ABSENT.",
     "foundation_exception_ar": "تسجيل فعلٍ تجاري في مصدر الحقيقة الوحيد (D-300)؛ لا ميزة ولا ترقية قدرة."
@@ -59,13 +62,14 @@
   "verification": {
     "result": "PASS",
     "commands": [
-      "python3 scripts/research/hard_currency_scorecard.py && --check — PASS (صفوف=5 · اتصالات=4 · دفعات=0 · GATE_C=ABSENT)",
+      "python3 scripts/research/hard_currency_scorecard.py && --check — PASS (صفوف=4 · اتصالات=3 · دفعات=0 · GATE_C=ABSENT)",
       "python3 scripts/fitness/check_outbound_before_research.py — PASS",
       "python3 scripts/research/value_chain.py && python3 scripts/fitness/check_value_chain.py — PASS (قبل إعلان مسار V2: «صفّ السجلّ 6 بلا مسار … الإسقاط الصامت ممنوع»)",
       "pytest --noconftest tests/fitness/test_check_outbound_before_research.py tests/fitness/test_check_value_chain.py tests/shared/test_economic_truth.py — 66 passed (بلا conftest الجذر: بيئة الجلسة بلا fastapi/jwt)",
       "سلبي: REAL_TODAY = date(2026, 10, 2) ⇒ 5 errors من تأكيد ledger_problems == [] — الفارض يحجب",
       "قبل الإصلاح: test_real_ceiling_is_the_value_chain_derivation أحمر بـ«سطر 4: تاريخٌ في المستقبل (2026-10-07 > 2026-10-02)»",
-      "ruff check · ruff format --check على الاختبار — PASS"
+      "DNS: MX groupe-t2f.eu ⇒ groupet2f-fr01e.mail.protection.outlook.com (مستأجر groupe-t2f.fr)؛ groupe-t2f.eu/contact ينشر info@groupe-t2f.fr",
+      "ruff check · ruff format --check على الاختبار — PASS؛ git diff --check نظيف عدا CR في ملفّ CSV المحفوظ بـCRLF أصلاً (RFC 4180)"
     ]
   },
   "curriculum": {
@@ -161,21 +165,23 @@
   "git_change_snapshot": {
     "base_ref": "origin/main",
     "changed_paths_excluding_packet": [
+      "docs/commercial/FR_EINVOICING_TARGETS_V2_2026-10-04.csv",
       "docs/commercial/HARD_CURRENCY_SCORECARD.json",
       "docs/commercial/VALUE_CHAIN.json",
       "docs/commercial/outreach/CONTACT_LEDGER.csv",
+      "docs/commercial/outreach/ready_to_send/01_MAILS_CABINETS_PRETS.md",
       "tests/shared/test_economic_truth.py"
     ],
-    "content_sha256_excluding_packet": "f18eff3fcf9c5c7548f92d5cf25114bfd8848705318f6b3c2bf727e10fd0f9fd",
+    "content_sha256_excluding_packet": "06bd1f40c288b97ad399c5647fb2197a0831bc315384406a5df1ceb2509aba90",
     "refreshed_on": "2026-10-07",
     "refresh_command": "python3 scripts/research/refresh_acceptance_diff_snapshot.py"
   },
   "repository_microscope": {
     "mode": "FULL_REPOSITORY_BYTE_CENSUS_EXCLUDING_PACKET",
     "file_count_excluding_packet": 3475,
-    "total_bytes_excluding_packet": 50785205,
+    "total_bytes_excluding_packet": 50785129,
     "total_newlines_excluding_packet": 888329,
-    "sha256_excluding_packet": "6789a2af0dc89962d782ec707623bf03e8f30b1293b6228cdc56bf52b11928e5",
+    "sha256_excluding_packet": "44dc70c852be1ac407e771f8b8369875c1e00fe527cdcc3837c430cee8992156",
     "largest_file_excluding_packet": {
       "path": "Introduction to Agents.pdf",
       "bytes": 9473606
@@ -199,6 +205,8 @@
     ],
     "existing_failures_and_old_debt": [
       "FOUND: tests/shared/test_economic_truth.py يقرأ السجلّ الحقيقي بتاريخٍ مثبَّت؛ كلّ صفٍّ بعده خطأ تحليل، وbuild_snapshot يبتلعه فيقرأ سجلّاً فارغاً — أُصلح هنا.",
+      "FOUND: contact@groupe-t2f.eu في ملفّات الأهداف يرتدّ (550 5.7.64) — صُحّح في V2 وفي ready_to_send/01؛ الملفّ V1 والدراسات تبقى أرشيفاً.",
+      "FOUND: cerfrance-dordogne.fr (V2 id=20) بلا سجلّ MX — مُبلَّغ للمالك، لم يُعدَّل.",
       "FOUND: البريد المرسل في 2026-09-22 (نصّه في BALAGUE_FIRST_CLIENT_KIT §3) يذكر مكالمةً سابقة؛ لا يُعدَّل الأرشيف هنا.",
       "REMAINS OPEN: R1–R3 في PROJECT_REMEDIATION_PLAN.json؛ هذا التغيير لا يغلق شيئاً منها."
     ],
@@ -213,7 +221,7 @@
       "decision": "تسجيلٌ تجاري مسموح تحت D-300؛ لا ميزة ولا ترقية قدرة."
     },
     "root_cause": "أفعالٌ حدثت خارج المستودع ولم تُسجَّل؛ واختبارٌ يقرأ بيانات حيّة بتاريخٍ ثابت فيصير كلّ تسجيلٍ لاحق إمّا أحمر أو قراءةً فارغة صامتة.",
-    "intended_change": "إلحاق أربعة صفوف، وإعلان FR_EINVOICING_TARGETS_V2_2026-10-04.csv مساراً لـOPP-01، وإعادة الاشتقاق؛ واختبارات السجلّ الحقيقي على date.today() مع تأكيد ledger_problems == [].",
+    "intended_change": "إلحاق ثلاثة صفوف لـBalagué؛ عدم تسجيل بريد T2F المرتدّ وتصحيح عنوانه؛ إعلان V2 مساراً لـOPP-01؛ إعادة الاشتقاق؛ واختبارات السجلّ الحقيقي على date.today() مع تأكيد ledger_problems == [].",
     "affected_invariants": [
       "السجلّ مُلحَق-فقط ومجموعة الأفعال مغلقة (D-297).",
       "اللوحة مشتقّة بالبايت من السجلّ (D-192).",
@@ -238,8 +246,8 @@
       "call_happened": "ASSUMED",
       "closing_mail_sent": "ASSUMED",
       "voicemail_left": "UNKNOWN",
-      "t2f_mail_sent": "ASSUMED",
-      "t2f_signature_filled": "UNKNOWN"
+      "t2f_mail_bounced": "TESTED",
+      "t2f_info_address_accepts_mail": "UNKNOWN"
     }
   }
 }
