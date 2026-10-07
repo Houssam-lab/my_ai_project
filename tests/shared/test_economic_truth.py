@@ -51,6 +51,10 @@ from shared.research.value_chain import compute_derived
 from tools.hard_currency_engine.buyer_claims import classify, findings
 
 TODAY = date(2026, 10, 2)
+# The real ledger rejects rows dated after "today", and the gate and the scorecard read it
+# with the real calendar. A pinned date here turns every row logged after it into a
+# parse error, and build_snapshot then reads an empty ledger without failing.
+REAL_TODAY = date.today()
 ROUTE = "TARGETS.csv"
 HEADER = ",".join(COLUMNS)
 CATALOG = {
@@ -127,7 +131,8 @@ ONE_EMAIL = _ledger(_row("2026-09-22", "Cabinet A", "EMAIL_SENT"))
 @pytest.fixture(scope="module")
 def real() -> dict[str, object]:
     inputs = load_inputs(REPO_ROOT)
-    snapshot = build_snapshot(**inputs, root=REPO_ROOT, today=TODAY, wording=_lint)
+    snapshot = build_snapshot(**inputs, root=REPO_ROOT, today=REAL_TODAY, wording=_lint)
+    assert snapshot["ledger_problems"] == []
     return {"inputs": inputs, "snapshot": snapshot, "brief": build_brief(snapshot)}
 
 
@@ -147,7 +152,7 @@ def test_real_every_cited_evidence_exists_on_disk(real) -> None:
 
 def test_real_ceiling_is_the_value_chain_derivation(real) -> None:
     inputs, snapshot = real["inputs"], real["snapshot"]
-    rows = parse_ledger(inputs["ledger_text"], today=TODAY)
+    rows = parse_ledger(inputs["ledger_text"], today=REAL_TODAY)
     derived = compute_derived(inputs["chain_doc"], rows)
     thesis_ids = {p["id"] for p in snapshot["thesis"]["paths"]}
     reached = max(p["reached"] for p in derived["paths"] if p["id"] in thesis_ids)
