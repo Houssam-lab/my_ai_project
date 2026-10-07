@@ -1,9 +1,9 @@
 {
   "$schema_version": 1,
-  "packet_id": "CAP-2026-10-07-ledger-balague-closure-and-real-calendar-tests",
+  "packet_id": "CAP-2026-10-07-ledger-balague-t2f-and-real-calendar-tests",
   "status": "READY_FOR_GATE",
   "decision": "D-277",
-  "decision_of_change": "D-300 (السجلّ هو الحقيقة التجارية الوحيدة) · D-297 · D-314: المالك صرّح في 2026-10-07 بمكالمةٍ بلا ردّ لـBalagué Expertise في 2026-09-22 وبإرسال بريد الإغلاق في 2026-10-07. تُلحَق ثلاثة صفوف (CALL_MADE · EMAIL_SENT · CLOSED_NO_REPLY) وتُعاد اشتقاق اللوحة وسلسلة القيمة. وإصلاح عيبٍ كشفه التسجيل: اختبارات السجلّ الحقيقي في tests/shared/test_economic_truth.py كانت تقرؤه بتاريخٍ مثبَّت (2026-10-02) فيُرفض كلّ صفٍّ لاحق، ويقرأ build_snapshot سجلّاً فارغاً بصمت.",
+  "decision_of_change": "D-300 (السجلّ هو الحقيقة التجارية الوحيدة) · D-297 · D-305 · D-314: المالك صرّح في 2026-10-07 بمكالمةٍ بلا ردّ لـBalagué Expertise في 2026-09-22، وبإرسال بريد الإغلاق إليها، وبإرسال البريد الأوّل إلى Groupe T2F. تُلحَق أربعة صفوف (CALL_MADE · EMAIL_SENT · CLOSED_NO_REPLY · EMAIL_SENT)، ويُعلَن ملفّ الأهداف V2 مساراً للسجلّ تحت OPP-01، وتُعاد اشتقاق اللوحة وسلسلة القيمة. وإصلاح عيبٍ كشفه التسجيل: اختبارات السجلّ الحقيقي في tests/shared/test_economic_truth.py كانت تقرؤه بتاريخٍ مثبَّت (2026-10-02) فيُرفض كلّ صفٍّ لاحق، ويقرأ build_snapshot سجلّاً فارغاً بصمت.",
   "standards": [
     "clean-code-book"
   ],
@@ -22,22 +22,23 @@
         "tests/shared/test_economic_truth.py"
       ],
       "gate": "python scripts/fitness/check_outbound_before_research.py && python scripts/research/hard_currency_scorecard.py --check && python scripts/fitness/check_value_chain.py && pytest tests/shared/test_economic_truth.py && git diff --check",
-      "application_ar": "أصغر تغييرٍ ممكن: صفوفٌ مُلحَقة بأفعالٍ من القائمة المغلقة، والمشتقّات تُولَّد بسكربتيها؛ وفي الاختبار سطرٌ يجعل التقويم حقيقياً لاختبارات السجلّ الحقيقي وحدها، وتأكيدٌ يمنع القراءة الفارغة الصامتة."
+      "application_ar": "أصغر تغييرٍ ممكن: صفوفٌ مُلحَقة بأفعالٍ من القائمة المغلقة، ومسارُ توجيهٍ واحد مُعلَن لملفّ الأهداف V2 تحت المسار نفسه، والمشتقّات تُولَّد بسكربتيها؛ وفي الاختبار سطرٌ يجعل التقويم حقيقياً لاختبارات السجلّ الحقيقي وحدها، وتأكيدٌ يمنع القراءة الفارغة الصامتة."
     }
   ],
   "production": {
     "owner": "repository-owner",
     "status": "LEDGER_ROW_ONLY",
     "interfaces": [
-      "docs/commercial/outreach/CONTACT_LEDGER.csv: CALL_MADE (2026-09-22) · EMAIL_SENT و CLOSED_NO_REPLY (2026-10-07) لـFR_EINVOICING_TARGETS_2026-09-21.csv#id=7",
-      "غرفة القرار /admin/api/hard-currency/chamber: الفعل الأساسي NEXT_CONTACT (الهدف المسمّى التالي)"
+      "docs/commercial/outreach/CONTACT_LEDGER.csv: Balagué Expertise — CALL_MADE (2026-09-22) · EMAIL_SENT و CLOSED_NO_REPLY (2026-10-07)؛ GROUPE T2F — EMAIL_SENT (2026-10-07)",
+      "docs/commercial/VALUE_CHAIN.json: OPP-01.ledger_routes يضيف FR_EINVOICING_TARGETS_V2_2026-10-04.csv",
+      "غرفة القرار /admin/api/hard-currency/chamber: الفعل الأساسي FOLLOW_UP_CALL لـGROUPE T2F"
     ],
     "runtime_evidence_paths": [
       "docs/commercial/outreach/CONTACT_LEDGER.csv",
       "docs/commercial/HARD_CURRENCY_SCORECARD.json"
     ],
     "failure_behavior_ar": "صفٌّ مخالف لعقد shared/research/contact_ledger.py يُرفض عند القراءة فتحمرّ check_outbound_before_research؛ واللوحة المنحرفة تحمرّ --check.",
-    "observability_ar": "اللوحة المشتقّة: صفوف=4 · اتصالات=3 · ردود=0 · دفعات=0 · GATE_C=ABSENT.",
+    "observability_ar": "اللوحة المشتقّة: صفوف=5 · اتصالات=4 · كيانات=2 · ردود=0 · دفعات=0 · GATE_C=ABSENT.",
     "security_boundary_ar": "بيانات مهنية عامة لمكتبٍ سبق تسجيله (رقم المكتب الثابت المنشور)؛ لا بيانات شخصية جديدة ولا سرّ.",
     "rollback_ar": "git revert للدفعة؛ السجلّ مُلحَق-فقط فالتراجع إزالةٌ للصفّ الأخير وإعادة اشتقاق."
   },
@@ -58,9 +59,9 @@
   "verification": {
     "result": "PASS",
     "commands": [
-      "python3 scripts/research/hard_currency_scorecard.py && --check — PASS (صفوف=4 · اتصالات=3 · دفعات=0 · GATE_C=ABSENT)",
+      "python3 scripts/research/hard_currency_scorecard.py && --check — PASS (صفوف=5 · اتصالات=4 · دفعات=0 · GATE_C=ABSENT)",
       "python3 scripts/fitness/check_outbound_before_research.py — PASS",
-      "python3 scripts/research/value_chain.py && python3 scripts/fitness/check_value_chain.py — PASS",
+      "python3 scripts/research/value_chain.py && python3 scripts/fitness/check_value_chain.py — PASS (قبل إعلان مسار V2: «صفّ السجلّ 6 بلا مسار … الإسقاط الصامت ممنوع»)",
       "pytest --noconftest tests/fitness/test_check_outbound_before_research.py tests/fitness/test_check_value_chain.py tests/shared/test_economic_truth.py — 66 passed (بلا conftest الجذر: بيئة الجلسة بلا fastapi/jwt)",
       "سلبي: REAL_TODAY = date(2026, 10, 2) ⇒ 5 errors من تأكيد ledger_problems == [] — الفارض يحجب",
       "قبل الإصلاح: test_real_ceiling_is_the_value_chain_derivation أحمر بـ«سطر 4: تاريخٌ في المستقبل (2026-10-07 > 2026-10-02)»",
@@ -165,16 +166,16 @@
       "docs/commercial/outreach/CONTACT_LEDGER.csv",
       "tests/shared/test_economic_truth.py"
     ],
-    "content_sha256_excluding_packet": "fe6be8a27bbb09f9edc3a17730594d2865305239eba0e94209c08cd20a012e17",
+    "content_sha256_excluding_packet": "f18eff3fcf9c5c7548f92d5cf25114bfd8848705318f6b3c2bf727e10fd0f9fd",
     "refreshed_on": "2026-10-07",
     "refresh_command": "python3 scripts/research/refresh_acceptance_diff_snapshot.py"
   },
   "repository_microscope": {
     "mode": "FULL_REPOSITORY_BYTE_CENSUS_EXCLUDING_PACKET",
     "file_count_excluding_packet": 3475,
-    "total_bytes_excluding_packet": 50784689,
-    "total_newlines_excluding_packet": 888327,
-    "sha256_excluding_packet": "04d731018fc4d9d31f4d3d738de9fc8de0b0265799322042f37ffab8510a4cf4",
+    "total_bytes_excluding_packet": 50785205,
+    "total_newlines_excluding_packet": 888329,
+    "sha256_excluding_packet": "6789a2af0dc89962d782ec707623bf03e8f30b1293b6228cdc56bf52b11928e5",
     "largest_file_excluding_packet": {
       "path": "Introduction to Agents.pdf",
       "bytes": 9473606
@@ -212,7 +213,7 @@
       "decision": "تسجيلٌ تجاري مسموح تحت D-300؛ لا ميزة ولا ترقية قدرة."
     },
     "root_cause": "أفعالٌ حدثت خارج المستودع ولم تُسجَّل؛ واختبارٌ يقرأ بيانات حيّة بتاريخٍ ثابت فيصير كلّ تسجيلٍ لاحق إمّا أحمر أو قراءةً فارغة صامتة.",
-    "intended_change": "إلحاق ثلاثة صفوف وإعادة الاشتقاق؛ واختبارات السجلّ الحقيقي على date.today() مع تأكيد ledger_problems == [].",
+    "intended_change": "إلحاق أربعة صفوف، وإعلان FR_EINVOICING_TARGETS_V2_2026-10-04.csv مساراً لـOPP-01، وإعادة الاشتقاق؛ واختبارات السجلّ الحقيقي على date.today() مع تأكيد ledger_problems == [].",
     "affected_invariants": [
       "السجلّ مُلحَق-فقط ومجموعة الأفعال مغلقة (D-297).",
       "اللوحة مشتقّة بالبايت من السجلّ (D-192).",
@@ -236,7 +237,9 @@
       "test_fix": "TESTED",
       "call_happened": "ASSUMED",
       "closing_mail_sent": "ASSUMED",
-      "voicemail_left": "UNKNOWN"
+      "voicemail_left": "UNKNOWN",
+      "t2f_mail_sent": "ASSUMED",
+      "t2f_signature_filled": "UNKNOWN"
     }
   }
 }
