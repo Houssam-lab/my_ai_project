@@ -1,9 +1,9 @@
 {
   "$schema_version": 1,
-  "packet_id": "CAP-2026-10-06-d316-codescene-pr-coverage-check",
+  "packet_id": "CAP-2026-10-07-ledger-balague-call-2026-09-22",
   "status": "READY_FOR_GATE",
   "decision": "D-277",
-  "decision_of_change": "D-316 (قرار المالك 2026-10-06: «يجب أن تظهر علامة الصحّ الخضراء في الفروع الحالية أوّلاً»): فحص CodeScene Code Coverage الخارجي ينتهي timed_out بعد 6 ساعات على كلّ PR لأنّ وظيفة codescene-coverage تشغّل upload، وCodeScene تقبل بيانات الفروع غير main ولا تستعملها؛ بوّابة الـPR تُغذّى بـcs-coverage check. على pull_request يُشغَّل check مع CS_PROJECT_URL، ويبقى upload على push إلى main؛ والوظيفة خارج required-ci كما كانت.",
+  "decision_of_change": "D-300 (السجلّ هو الحقيقة التجارية الوحيدة) · D-297 · D-314: المالك صرّح في 2026-10-07 أنه اتّصل هاتفياً بـBalagué Expertise في 2026-09-22 ولم يُجِب أحد. يُلحَق صفٌّ واحد CALL_MADE بالسجلّ المُلحَق-فقط، وتُعاد اشتقاق اللوحة وكتلة derived في سلسلة القيمة. لا كود ولا وثيقة بحث.",
   "standards": [
     "clean-code-book"
   ],
@@ -16,39 +16,38 @@
     {
       "standard": "clean-code-book",
       "paths": [
-        ".github/workflows/ci.yml",
-        "docs/governance/amendments/D-316-CODESCENE-PR-COVERAGE-CHECK.md",
-        ".memory/decisions.md",
-        ".memory/code_quality_truth.md"
+        "docs/commercial/outreach/CONTACT_LEDGER.csv",
+        "docs/commercial/HARD_CURRENCY_SCORECARD.json",
+        "docs/commercial/VALUE_CHAIN.json"
       ],
-      "gate": "python scripts/fitness/check_engineering_governance.py && python scripts/fitness/check_ci_workflow_hygiene.py && python scripts/run_fitness_gates.py && git diff --check",
-      "application_ar": "تغييرٌ أصغر ما يمكن: خطوةٌ جديدة واحدة مشروطة بالحدث (check على pull_request) وتقييد خطوة upload بـpush؛ لا وظيفة أخرى ولا required-ci ولا اختبار يتغيّر."
+      "gate": "python scripts/fitness/check_outbound_before_research.py && python scripts/research/hard_currency_scorecard.py --check && python scripts/fitness/check_value_chain.py && git diff --check",
+      "application_ar": "أصغر تغييرٍ ممكن: صفٌّ مُلحَق واحد بفعلٍ من القائمة المغلقة، والملفّان المشتقّان يُولَّدان بسكربتيهما لا باليد."
     }
   ],
   "production": {
-    "owner": "ci-maintainers",
-    "status": "CI_PR_COVERAGE_CHECK_ONLY",
+    "owner": "repository-owner",
+    "status": "LEDGER_ROW_ONLY",
     "interfaces": [
-      "CI job codescene-coverage: pull_request ⇒ cs-coverage check --verbose --coverage-files coverage.xml (CS_PROJECT_URL=https://api.codescene.io/v2/projects/83387)",
-      "CI job codescene-coverage: push ⇒ cs-coverage upload كما كان حرفياً"
+      "docs/commercial/outreach/CONTACT_LEDGER.csv: صفّ CALL_MADE (phone) لـFR_EINVOICING_TARGETS_2026-09-21.csv#id=7 بتاريخ 2026-09-22",
+      "غرفة القرار /admin/api/hard-currency/chamber: الفعل الأساسي ينتقل من FOLLOW_UP_CALL إلى NEXT_CONTACT"
     ],
     "runtime_evidence_paths": [
-      ".github/workflows/ci.yml",
-      "docs/governance/amendments/D-316-CODESCENE-PR-COVERAGE-CHECK.md"
+      "docs/commercial/outreach/CONTACT_LEDGER.csv",
+      "docs/commercial/HARD_CURRENCY_SCORECARD.json"
     ],
-    "failure_behavior_ar": "فشل check (مصادقة أو بوّابة راسبة) يخرج بـ1 فتصير الخطوة حمراء ظاهرة؛ والوظيفة خارج required-ci فلا تحجب الدمج (D-234).",
-    "observability_ar": "ملخّص الخطوة يقول أيّ المسارين جرى (PR gate checked أو uploaded)، وحكم البوّابة نفسه هو فحص CodeScene Code Coverage على الـPR.",
-    "security_boundary_ar": "الرمز CS_ACCESS_TOKEN باقٍ على مستوى الوظيفة بحارسَي != '' و== ''؛ CS_PROJECT_URL مُعرِّفٌ عامّ لا سرّ؛ المُثبِّت يُنزَّل إلى ملفّ لا curl|sh؛ لا صلاحية ولا تبعية جديدة.",
-    "rollback_ar": "git revert للدفعة يعيد خطوة upload الوحيدة لكلّ حدث (ومعها المهلة على الـPR)."
+    "failure_behavior_ar": "صفٌّ مخالف لعقد shared/research/contact_ledger.py يُرفض عند القراءة فتحمرّ check_outbound_before_research؛ واللوحة المنحرفة تحمرّ --check.",
+    "observability_ar": "اللوحة المشتقّة: صفوف=2 · اتصالات=2 · كيانات=1 · ردود=0 · دفعات=0 · GATE_C=ABSENT.",
+    "security_boundary_ar": "بيانات مهنية عامة لمكتبٍ سبق تسجيله (رقم المكتب الثابت المنشور)؛ لا بيانات شخصية جديدة ولا سرّ.",
+    "rollback_ar": "git revert للدفعة؛ السجلّ مُلحَق-فقط فالتراجع إزالةٌ للصفّ الأخير وإعادة اشتقاق."
   },
   "commercial_trace": {
     "offer_ids": [
       "fr-be-einvoicing-referential-cleansing"
     ],
-    "customer_problem_ar": "main أحمر يوقف كلّ دمجٍ لاحق، ومنها عمل الأطروحة النشطة؛ والأحمر هنا ليس عطباً في الكود بل سقفٌ بلا هامش.",
-    "value_hypothesis_ar": "استعادة main أخضر صادقاً تعيد قابلية الدمج دون إضعاف أيّ اختبار.",
-    "foreign_currency_path_ar": "لا إيراد ولا يُدّعى؛ تغييرٌ في البنية التحتية للتكامل المستمرّ فقط.",
-    "foundation_exception_ar": "إصلاح أساس (CI) مسموحٌ تحت ENGINEERING_CONSTITUTION §5.1؛ لا ميزة ولا ترقية قدرة."
+    "customer_problem_ar": "السجلّ كان يقول إن المكالمة لم تُجرَ، فكانت غرفة القرار توصي بمكالمةٍ أُجريت فعلاً.",
+    "value_hypothesis_ar": "سجلٌّ صادق يجعل الفعل التالي صحيحاً: الهدف المسمّى التالي بدل تكرار الاتصال.",
+    "foreign_currency_path_ar": "لا إيراد ولا يُدّعى؛ GATE_C = ABSENT.",
+    "foundation_exception_ar": "تسجيل فعلٍ تجاري في مصدر الحقيقة الوحيد (D-300)؛ لا ميزة ولا ترقية قدرة."
   },
   "deletions": {
     "count": 0,
@@ -58,12 +57,11 @@
   "verification": {
     "result": "PASS",
     "commands": [
-      "check_ci_workflow_hygiene — PASS (17 ملفّاً؛ الرمز محروس ومنطوق الغياب، ولا تكامل خارجي في required-ci)",
-      "check_engineering_governance (GOVERNANCE_BASE_SHA=origin/main) — PASS (سجلّ التعديل D-316 موجود)",
-      "run_fitness_gates.py (CODE_ACCEPTANCE_BASE_SHA=GOVERNANCE_BASE_SHA=origin/main) — كلّ البوّابات خضراء",
-      "runtime_truth.py --check · git diff --check — PASS",
-      "الأداة نفسها محلياً (sha256 مطابق للمنشور): check يقبل --coverage-files وحده، ويخرج بـ1 عند خطأ المصادقة",
-      "الدليل على العطب: check run 112247837361 (PR #2595) timed_out بعد 6 ساعات «No valid coverage report found in the build pipeline»، وسجلّ job 112454859769: «CodeScene only analyse the following branches: (\"main\")»"
+      "python3 scripts/research/hard_currency_scorecard.py && --check — PASS (صفوف=2 · اتصالات=2 · دفعات=0 · GATE_C=ABSENT)",
+      "python3 scripts/fitness/check_outbound_before_research.py — PASS",
+      "python3 scripts/research/value_chain.py && python3 scripts/fitness/check_value_chain.py — PASS",
+      "pytest --noconftest tests/fitness/test_check_outbound_before_research.py tests/fitness/test_check_value_chain.py tests/shared/test_economic_truth.py — 66 passed (بلا conftest الجذر: بيئة الجلسة بلا fastapi/jwt)",
+      "decision_chamber.chamber(today=2026-10-07) — primary_action=NEXT_CONTACT · entities_contacted=1/30 · entities_replied=0"
     ]
   },
   "curriculum": {
@@ -159,26 +157,20 @@
   "git_change_snapshot": {
     "base_ref": "origin/main",
     "changed_paths_excluding_packet": [
-      ".github/workflows/ci.yml",
-      ".memory/README.md",
-      ".memory/code_quality_truth.md",
-      ".memory/decisions.md",
-      ".runtime/truth_table.lock.json",
-      "README.ar.md",
-      "README.md",
-      "docs/DOCUMENTATION_INDEX.md",
-      "docs/governance/amendments/D-316-CODESCENE-PR-COVERAGE-CHECK.md"
+      "docs/commercial/HARD_CURRENCY_SCORECARD.json",
+      "docs/commercial/VALUE_CHAIN.json",
+      "docs/commercial/outreach/CONTACT_LEDGER.csv"
     ],
-    "content_sha256_excluding_packet": "b1d78f7cdf0a5ba249bcb7a37e6f4530226a7dc140e3cdb1dc2097d5c26da08c",
-    "refreshed_on": "2026-10-06",
+    "content_sha256_excluding_packet": "d1e14df5d094a96b503f52e988befec0461d9678961515a9e8a1becce87f5949",
+    "refreshed_on": "2026-10-07",
     "refresh_command": "python3 scripts/research/refresh_acceptance_diff_snapshot.py"
   },
   "repository_microscope": {
     "mode": "FULL_REPOSITORY_BYTE_CENSUS_EXCLUDING_PACKET",
     "file_count_excluding_packet": 3475,
-    "total_bytes_excluding_packet": 50783352,
-    "total_newlines_excluding_packet": 888319,
-    "sha256_excluding_packet": "4d7129714c228414de314e2e1cd2f3d5b643f9dea02b1551aae35b781a0c4e6c",
+    "total_bytes_excluding_packet": 50783636,
+    "total_newlines_excluding_packet": 888320,
+    "sha256_excluding_packet": "19ea5a08c496687eb4162c66021d790a0fe8a691ca709137e999610e613f587d",
     "largest_file_excluding_packet": {
       "path": "Introduction to Agents.pdf",
       "bytes": 9473606
@@ -194,51 +186,47 @@
     "operator_attestation_ar": "هذا ليس ادعاء فهم شامل بذاته؛ إنه شرط مجهر آلي يسبق التحليل البشري والمصفوفة، ويجعل تجاهل القديم مرئياً."
   },
   "pre_modification": {
-    "current_state": "TESTED: main عند 9ec9994 (بعد دمج PR #2597) وكلّ فحوص Actions على PR #2597 خضراء؛ لكنّ فحص CodeScene Code Coverage الخارجي لا يكتمل على أيّ PR (timed_out بعد 6 ساعات على PR #2595).",
+    "current_state": "TESTED: main عند bc9da58؛ السجلّ صفّ واحد EMAIL_SENT (2026-09-22) وملاحظته تقول إن المتابعة الهاتفية المقرّرة في 2026-09-24 لم تُجرَ.",
     "architecture_and_boundaries": [
-      ".github/workflows/ci.yml — وظيفة codescene-coverage وحدها؛ required-ci وكلّ وظيفةٍ أخرى لا تُمسّ.",
-      "مسارٌ محميّ تحت ENGINEERING_GOVERNANCE_POLICY ⇒ سجلّ تعديلٍ دستوري جديد بانتظار مراجعةٍ مستقلّة.",
-      "إعدادات مشروع CodeScene (الفروع المُحلَّلة وعتبات البوّابة) سلطةٌ خارجية يملكها المالك لا هذا المستودع."
+      "docs/commercial/outreach/CONTACT_LEDGER.csv مُلحَق-فقط بعقد shared/research/contact_ledger.py؛ الصفّ القديم لا يُمسّ.",
+      "اللوحة وكتلة derived في VALUE_CHAIN.json مشتقّتان بسكربتين ولا تُحرَّران يدوياً (D-192)."
     ],
     "existing_failures_and_old_debt": [
-      "FOUND: codescene-coverage يشغّل upload على فروع الـPR فتقبله CodeScene ولا تستعمله؛ فحص تغطية الـPR لم يكتمل قطّ منذ D-234 والوظيفة خضراء.",
-      "FOUND: بطء الحزمة (db_lifecycle) — متابعة D-315 المستحقّة، خارج هذا التغيير.",
+      "FOUND: البريد المرسل في 2026-09-22 (نصّه في BALAGUE_FIRST_CLIENT_KIT §3) يذكر مكالمةً سابقة؛ لا يُعدَّل الأرشيف هنا.",
       "REMAINS OPEN: R1–R3 في PROJECT_REMEDIATION_PLAN.json؛ هذا التغيير لا يغلق شيئاً منها."
     ],
     "dependency_path": [
-      "ci.yml:codescene-coverage → cs-coverage check → فحص CodeScene Code Coverage على رأس الـPR → علامة الـPR الخضراء"
+      "CONTACT_LEDGER.csv → hard_currency_scorecard.py → HARD_CURRENCY_SCORECARD.json → economic_truth.build_snapshot → economic_decision.build_brief → غرفة القرار"
     ],
     "foundational_frontier": {
       "status": "REPAIRED_OR_CONTAINED_BEFORE_EXTENSION",
       "relevant_defects": [
-        "R3 (reproducible tests) OPEN — غير مُمسوس؛ هذا تغييرٌ في توصيل تقرير التغطية لا في الاختبارات.",
-        "وظيفةٌ خضراء لا تفعل شيئاً (D-235) — مُصلَحة هنا للـPR."
+        "لا عيب أساس ممسوس؛ تسجيل فعلٍ في السجلّ وحده."
       ],
-      "decision": "إصلاح أساس CI مسموحٌ تحت §5.1؛ لا ميزة ولا ترقية قدرة."
+      "decision": "تسجيلٌ تجاري مسموح تحت D-300؛ لا ميزة ولا ترقية قدرة."
     },
-    "root_cause": "الأمر الخطأ للحدث: upload يغذّي الفرع المُحلَّل (main) وحده، وبوّابة الـPR تُغذّى بـcheck؛ والخطوة تخرج بـ0 فيخفي الأخضرُ العطل.",
-    "intended_change": "في codescene-coverage: check على pull_request مع CS_PROJECT_URL، وupload على push فقط؛ مع تعليقٍ يروي الجذر وسجلّ تعديل وقرار D-316.",
+    "root_cause": "فعلٌ حدث خارج المستودع (مكالمة بلا ردّ في 2026-09-22) ولم يُسجَّل، فكانت اللوحة وغرفة القرار تقرآن أقلّ مما حدث.",
+    "intended_change": "إلحاق صفّ CALL_MADE واحد وإعادة اشتقاق اللوحة وسلسلة القيمة.",
     "affected_invariants": [
-      "الأخضر لا يعني «لم يفعل شيئاً» (D-235).",
-      "خدمةٌ خارجية لا تحجب الدمج (D-234).",
-      "الرمز على مستوى الوظيفة بحارسين، والغياب يُعلَن (check_ci_workflow_hygiene)."
+      "السجلّ مُلحَق-فقط ومجموعة الأفعال مغلقة (D-297).",
+      "اللوحة مشتقّة بالبايت من السجلّ (D-192).",
+      "لا يُدّعى ردٌّ ولا مال: GATE_C = ABSENT."
     ],
     "test_plan": [
-      "سلبي: check_ci_workflow_hygiene أخضر بعد التعديل؛ والأداة تخرج بـ1 عند خطأ المصادقة فلا صمت.",
-      "إيجابي/حيّ: فحص CodeScene Code Coverage يكتمل على رأس الـPR الجديد بدل المهلة، وupload يبقى على main بعد الدمج."
+      "سلبي: check_outbound_before_research يرفض صفّاً بفعلٍ خارج القائمة أو تاريخٍ مستقبلي (اختبارات tests/fitness قائمة).",
+      "إيجابي: اللوحة --check تمرّ، وغرفة القرار تُرجع NEXT_CONTACT."
     ],
-    "rollback_strategy": "git revert للدفعة؛ يعيد خطوة upload الوحيدة.",
+    "rollback_strategy": "git revert للدفعة ثمّ إعادة الاشتقاق.",
     "verification_strategy": [
-      "python scripts/fitness/check_ci_workflow_hygiene.py",
-      "python scripts/fitness/check_engineering_governance.py",
-      "python scripts/run_fitness_gates.py",
-      "مراقبة codescene-coverage وفحص CodeScene Code Coverage على رأس الـPR"
+      "python scripts/fitness/check_outbound_before_research.py",
+      "python scripts/research/hard_currency_scorecard.py --check",
+      "python scripts/fitness/check_value_chain.py"
     ],
     "claim_statuses": {
       "current_state": "TESTED",
-      "ci_change": "IMPLEMENTED",
-      "codescene_pr_check": "UNKNOWN",
-      "branch_protection_live_state": "UNKNOWN"
+      "ledger_row": "IMPLEMENTED",
+      "call_happened": "ASSUMED",
+      "voicemail_left": "UNKNOWN"
     }
   }
 }
