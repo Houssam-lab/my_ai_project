@@ -1,9 +1,9 @@
 {
   "$schema_version": 1,
-  "packet_id": "CAP-2026-10-07-ledger-balague-call-2026-09-22",
+  "packet_id": "CAP-2026-10-07-ledger-balague-closure-and-real-calendar-tests",
   "status": "READY_FOR_GATE",
   "decision": "D-277",
-  "decision_of_change": "D-300 (السجلّ هو الحقيقة التجارية الوحيدة) · D-297 · D-314: المالك صرّح في 2026-10-07 أنه اتّصل هاتفياً بـBalagué Expertise في 2026-09-22 ولم يُجِب أحد. يُلحَق صفٌّ واحد CALL_MADE بالسجلّ المُلحَق-فقط، وتُعاد اشتقاق اللوحة وكتلة derived في سلسلة القيمة. لا كود ولا وثيقة بحث.",
+  "decision_of_change": "D-300 (السجلّ هو الحقيقة التجارية الوحيدة) · D-297 · D-314: المالك صرّح في 2026-10-07 بمكالمةٍ بلا ردّ لـBalagué Expertise في 2026-09-22 وبإرسال بريد الإغلاق في 2026-10-07. تُلحَق ثلاثة صفوف (CALL_MADE · EMAIL_SENT · CLOSED_NO_REPLY) وتُعاد اشتقاق اللوحة وسلسلة القيمة. وإصلاح عيبٍ كشفه التسجيل: اختبارات السجلّ الحقيقي في tests/shared/test_economic_truth.py كانت تقرؤه بتاريخٍ مثبَّت (2026-10-02) فيُرفض كلّ صفٍّ لاحق، ويقرأ build_snapshot سجلّاً فارغاً بصمت.",
   "standards": [
     "clean-code-book"
   ],
@@ -18,25 +18,26 @@
       "paths": [
         "docs/commercial/outreach/CONTACT_LEDGER.csv",
         "docs/commercial/HARD_CURRENCY_SCORECARD.json",
-        "docs/commercial/VALUE_CHAIN.json"
+        "docs/commercial/VALUE_CHAIN.json",
+        "tests/shared/test_economic_truth.py"
       ],
-      "gate": "python scripts/fitness/check_outbound_before_research.py && python scripts/research/hard_currency_scorecard.py --check && python scripts/fitness/check_value_chain.py && git diff --check",
-      "application_ar": "أصغر تغييرٍ ممكن: صفٌّ مُلحَق واحد بفعلٍ من القائمة المغلقة، والملفّان المشتقّان يُولَّدان بسكربتيهما لا باليد."
+      "gate": "python scripts/fitness/check_outbound_before_research.py && python scripts/research/hard_currency_scorecard.py --check && python scripts/fitness/check_value_chain.py && pytest tests/shared/test_economic_truth.py && git diff --check",
+      "application_ar": "أصغر تغييرٍ ممكن: صفوفٌ مُلحَقة بأفعالٍ من القائمة المغلقة، والمشتقّات تُولَّد بسكربتيها؛ وفي الاختبار سطرٌ يجعل التقويم حقيقياً لاختبارات السجلّ الحقيقي وحدها، وتأكيدٌ يمنع القراءة الفارغة الصامتة."
     }
   ],
   "production": {
     "owner": "repository-owner",
     "status": "LEDGER_ROW_ONLY",
     "interfaces": [
-      "docs/commercial/outreach/CONTACT_LEDGER.csv: صفّ CALL_MADE (phone) لـFR_EINVOICING_TARGETS_2026-09-21.csv#id=7 بتاريخ 2026-09-22",
-      "غرفة القرار /admin/api/hard-currency/chamber: الفعل الأساسي ينتقل من FOLLOW_UP_CALL إلى NEXT_CONTACT"
+      "docs/commercial/outreach/CONTACT_LEDGER.csv: CALL_MADE (2026-09-22) · EMAIL_SENT و CLOSED_NO_REPLY (2026-10-07) لـFR_EINVOICING_TARGETS_2026-09-21.csv#id=7",
+      "غرفة القرار /admin/api/hard-currency/chamber: الفعل الأساسي NEXT_CONTACT (الهدف المسمّى التالي)"
     ],
     "runtime_evidence_paths": [
       "docs/commercial/outreach/CONTACT_LEDGER.csv",
       "docs/commercial/HARD_CURRENCY_SCORECARD.json"
     ],
     "failure_behavior_ar": "صفٌّ مخالف لعقد shared/research/contact_ledger.py يُرفض عند القراءة فتحمرّ check_outbound_before_research؛ واللوحة المنحرفة تحمرّ --check.",
-    "observability_ar": "اللوحة المشتقّة: صفوف=2 · اتصالات=2 · كيانات=1 · ردود=0 · دفعات=0 · GATE_C=ABSENT.",
+    "observability_ar": "اللوحة المشتقّة: صفوف=4 · اتصالات=3 · ردود=0 · دفعات=0 · GATE_C=ABSENT.",
     "security_boundary_ar": "بيانات مهنية عامة لمكتبٍ سبق تسجيله (رقم المكتب الثابت المنشور)؛ لا بيانات شخصية جديدة ولا سرّ.",
     "rollback_ar": "git revert للدفعة؛ السجلّ مُلحَق-فقط فالتراجع إزالةٌ للصفّ الأخير وإعادة اشتقاق."
   },
@@ -44,7 +45,7 @@
     "offer_ids": [
       "fr-be-einvoicing-referential-cleansing"
     ],
-    "customer_problem_ar": "السجلّ كان يقول إن المكالمة لم تُجرَ، فكانت غرفة القرار توصي بمكالمةٍ أُجريت فعلاً.",
+    "customer_problem_ar": "السجلّ لم يكن يعكس المكالمة ولا الإغلاق، واختبارٌ مثبَّت التاريخ كان سيُحمِّر CI عند تسجيل أيّ فعلٍ تجاري بعد 2026-10-02.",
     "value_hypothesis_ar": "سجلٌّ صادق يجعل الفعل التالي صحيحاً: الهدف المسمّى التالي بدل تكرار الاتصال.",
     "foreign_currency_path_ar": "لا إيراد ولا يُدّعى؛ GATE_C = ABSENT.",
     "foundation_exception_ar": "تسجيل فعلٍ تجاري في مصدر الحقيقة الوحيد (D-300)؛ لا ميزة ولا ترقية قدرة."
@@ -57,11 +58,13 @@
   "verification": {
     "result": "PASS",
     "commands": [
-      "python3 scripts/research/hard_currency_scorecard.py && --check — PASS (صفوف=2 · اتصالات=2 · دفعات=0 · GATE_C=ABSENT)",
+      "python3 scripts/research/hard_currency_scorecard.py && --check — PASS (صفوف=4 · اتصالات=3 · دفعات=0 · GATE_C=ABSENT)",
       "python3 scripts/fitness/check_outbound_before_research.py — PASS",
       "python3 scripts/research/value_chain.py && python3 scripts/fitness/check_value_chain.py — PASS",
       "pytest --noconftest tests/fitness/test_check_outbound_before_research.py tests/fitness/test_check_value_chain.py tests/shared/test_economic_truth.py — 66 passed (بلا conftest الجذر: بيئة الجلسة بلا fastapi/jwt)",
-      "decision_chamber.chamber(today=2026-10-07) — primary_action=NEXT_CONTACT · entities_contacted=1/30 · entities_replied=0"
+      "سلبي: REAL_TODAY = date(2026, 10, 2) ⇒ 5 errors من تأكيد ledger_problems == [] — الفارض يحجب",
+      "قبل الإصلاح: test_real_ceiling_is_the_value_chain_derivation أحمر بـ«سطر 4: تاريخٌ في المستقبل (2026-10-07 > 2026-10-02)»",
+      "ruff check · ruff format --check على الاختبار — PASS"
     ]
   },
   "curriculum": {
@@ -159,18 +162,19 @@
     "changed_paths_excluding_packet": [
       "docs/commercial/HARD_CURRENCY_SCORECARD.json",
       "docs/commercial/VALUE_CHAIN.json",
-      "docs/commercial/outreach/CONTACT_LEDGER.csv"
+      "docs/commercial/outreach/CONTACT_LEDGER.csv",
+      "tests/shared/test_economic_truth.py"
     ],
-    "content_sha256_excluding_packet": "d1e14df5d094a96b503f52e988befec0461d9678961515a9e8a1becce87f5949",
+    "content_sha256_excluding_packet": "fe6be8a27bbb09f9edc3a17730594d2865305239eba0e94209c08cd20a012e17",
     "refreshed_on": "2026-10-07",
     "refresh_command": "python3 scripts/research/refresh_acceptance_diff_snapshot.py"
   },
   "repository_microscope": {
     "mode": "FULL_REPOSITORY_BYTE_CENSUS_EXCLUDING_PACKET",
     "file_count_excluding_packet": 3475,
-    "total_bytes_excluding_packet": 50783636,
-    "total_newlines_excluding_packet": 888320,
-    "sha256_excluding_packet": "19ea5a08c496687eb4162c66021d790a0fe8a691ca709137e999610e613f587d",
+    "total_bytes_excluding_packet": 50784689,
+    "total_newlines_excluding_packet": 888327,
+    "sha256_excluding_packet": "04d731018fc4d9d31f4d3d738de9fc8de0b0265799322042f37ffab8510a4cf4",
     "largest_file_excluding_packet": {
       "path": "Introduction to Agents.pdf",
       "bytes": 9473606
@@ -186,12 +190,14 @@
     "operator_attestation_ar": "هذا ليس ادعاء فهم شامل بذاته؛ إنه شرط مجهر آلي يسبق التحليل البشري والمصفوفة، ويجعل تجاهل القديم مرئياً."
   },
   "pre_modification": {
-    "current_state": "TESTED: main عند bc9da58؛ السجلّ صفّ واحد EMAIL_SENT (2026-09-22) وملاحظته تقول إن المتابعة الهاتفية المقرّرة في 2026-09-24 لم تُجرَ.",
+    "current_state": "TESTED: main عند bc9da58؛ السجلّ صفّ واحد EMAIL_SENT (2026-09-22)؛ واختبارات السجلّ الحقيقي تقرؤه بتاريخ 2026-10-02 المثبَّت.",
     "architecture_and_boundaries": [
       "docs/commercial/outreach/CONTACT_LEDGER.csv مُلحَق-فقط بعقد shared/research/contact_ledger.py؛ الصفّ القديم لا يُمسّ.",
-      "اللوحة وكتلة derived في VALUE_CHAIN.json مشتقّتان بسكربتين ولا تُحرَّران يدوياً (D-192)."
+      "اللوحة وكتلة derived في VALUE_CHAIN.json مشتقّتان بسكربتين ولا تُحرَّران يدوياً (D-192).",
+      "tests/shared/ خارج المسارات المحمية في ENGINEERING_GOVERNANCE_POLICY؛ الاختبارات التركيبية تبقى على TODAY المثبَّت."
     ],
     "existing_failures_and_old_debt": [
+      "FOUND: tests/shared/test_economic_truth.py يقرأ السجلّ الحقيقي بتاريخٍ مثبَّت؛ كلّ صفٍّ بعده خطأ تحليل، وbuild_snapshot يبتلعه فيقرأ سجلّاً فارغاً — أُصلح هنا.",
       "FOUND: البريد المرسل في 2026-09-22 (نصّه في BALAGUE_FIRST_CLIENT_KIT §3) يذكر مكالمةً سابقة؛ لا يُعدَّل الأرشيف هنا.",
       "REMAINS OPEN: R1–R3 في PROJECT_REMEDIATION_PLAN.json؛ هذا التغيير لا يغلق شيئاً منها."
     ],
@@ -205,27 +211,31 @@
       ],
       "decision": "تسجيلٌ تجاري مسموح تحت D-300؛ لا ميزة ولا ترقية قدرة."
     },
-    "root_cause": "فعلٌ حدث خارج المستودع (مكالمة بلا ردّ في 2026-09-22) ولم يُسجَّل، فكانت اللوحة وغرفة القرار تقرآن أقلّ مما حدث.",
-    "intended_change": "إلحاق صفّ CALL_MADE واحد وإعادة اشتقاق اللوحة وسلسلة القيمة.",
+    "root_cause": "أفعالٌ حدثت خارج المستودع ولم تُسجَّل؛ واختبارٌ يقرأ بيانات حيّة بتاريخٍ ثابت فيصير كلّ تسجيلٍ لاحق إمّا أحمر أو قراءةً فارغة صامتة.",
+    "intended_change": "إلحاق ثلاثة صفوف وإعادة الاشتقاق؛ واختبارات السجلّ الحقيقي على date.today() مع تأكيد ledger_problems == [].",
     "affected_invariants": [
       "السجلّ مُلحَق-فقط ومجموعة الأفعال مغلقة (D-297).",
       "اللوحة مشتقّة بالبايت من السجلّ (D-192).",
-      "لا يُدّعى ردٌّ ولا مال: GATE_C = ABSENT."
+      "لا يُدّعى ردٌّ ولا مال: GATE_C = ABSENT.",
+      "الفارض لا يشهد بما لم يقرأ (D-208): سجلٌّ لا يُحلَّل يُفشِل الاختبار لا يمرّ فارغاً."
     ],
     "test_plan": [
-      "سلبي: check_outbound_before_research يرفض صفّاً بفعلٍ خارج القائمة أو تاريخٍ مستقبلي (اختبارات tests/fitness قائمة).",
-      "إيجابي: اللوحة --check تمرّ، وغرفة القرار تُرجع NEXT_CONTACT."
+      "سلبي: REAL_TODAY مثبَّتاً على 2026-10-02 ⇒ الاختبار يفشل (5 errors) بدل المرور على سجلٍّ فارغ.",
+      "إيجابي: 66 اختباراً تمرّ، واللوحة --check تمرّ، وغرفة القرار تُرجع NEXT_CONTACT."
     ],
     "rollback_strategy": "git revert للدفعة ثمّ إعادة الاشتقاق.",
     "verification_strategy": [
       "python scripts/fitness/check_outbound_before_research.py",
       "python scripts/research/hard_currency_scorecard.py --check",
-      "python scripts/fitness/check_value_chain.py"
+      "python scripts/fitness/check_value_chain.py",
+      "pytest tests/shared/test_economic_truth.py"
     ],
     "claim_statuses": {
       "current_state": "TESTED",
-      "ledger_row": "IMPLEMENTED",
+      "ledger_rows": "IMPLEMENTED",
+      "test_fix": "TESTED",
       "call_happened": "ASSUMED",
+      "closing_mail_sent": "ASSUMED",
       "voicemail_left": "UNKNOWN"
     }
   }
