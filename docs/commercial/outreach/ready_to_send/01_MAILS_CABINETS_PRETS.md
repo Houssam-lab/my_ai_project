@@ -4,7 +4,8 @@
 ---
 
 ## ✉️ 1. GROUPE T2F (T2F-BEA) — Toulouse
-**À :** contact@groupe-t2f.eu
+**À :** info@groupe-t2f.fr
+> ⚠️ `contact@groupe-t2f.eu` يُرفَض (550 5.7.64 · 2026-10-07)؛ العنوان المنشور في groupe-t2f.eu/contact هو `info@groupe-t2f.fr`.
 **Objet :** Référentiels clients facturation électronique — diagnostic sous 24 h
 
 ```

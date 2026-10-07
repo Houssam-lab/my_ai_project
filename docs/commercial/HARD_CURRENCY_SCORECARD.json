@@ -3,12 +3,12 @@
   "decision": "D-297",
   "purpose_ar": "لوحة العملة الصعبة (التوجيه §35): كلّ رقمٍ مُشتقٌّ من سجلّ الاتصال الخارجي، والغائبُ null بسببٍ لا صفرٌ يُقرأ خسارة.",
   "source": "docs/commercial/outreach/CONTACT_LEDGER.csv",
-  "source_sha256": "fa4780d7ecfe51a56a7a7b497e420f45fab26c4534b7588744ad5ec2651b9a58",
+  "source_sha256": "0b5a80dee67b8f707d5f60364e788b5bbdc61730b08420028691dc8675fc6d7c",
   "as_of": "2026-10-07",
-  "rows": 5,
+  "rows": 4,
   "funnel": {
-    "contacts_sent": 4,
-    "entities_contacted": 2,
+    "contacts_sent": 3,
+    "entities_contacted": 1,
     "replies_received": 0,
     "samples_delivered": 0,
     "quotes_sent": 0,
@@ -20,11 +20,11 @@
   "conversion": {
     "reply_rate": {
       "value": 0.0,
-      "basis": "كياناتٌ ردّت / كياناتٌ اتُّصل بها: 0/2"
+      "basis": "كياناتٌ ردّت / كياناتٌ اتُّصل بها: 0/1"
     },
     "sample_rate": {
       "value": 0.0,
-      "basis": "كياناتٌ تسلّمت عيّنة / اتُّصل بها: 0/2"
+      "basis": "كياناتٌ تسلّمت عيّنة / اتُّصل بها: 0/1"
     },
     "quote_rate": {
       "value": null,
