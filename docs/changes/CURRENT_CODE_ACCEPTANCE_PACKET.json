@@ -3,7 +3,7 @@
   "packet_id": "CAP-2026-10-09-turing-application-opp03-session-log-last-event-fix",
   "status": "READY_FOR_GATE",
   "decision": "D-277",
-  "decision_of_change": "D-300 (السجلّ هو الحقيقة التجارية الوحيدة) · D-297 · D-305 · D-282 (OPP-03 قناة تمويل شخصية): المالك قدّم في 2026-10-08 طلباً على work.turing.com لدور «AI - Analyst | Photographer - Arabic» وحالته Shortlisted، فيُلحَق صفّ FORM_SUBMITTED واحد (قناة platform) ويُعلَن ملفّ أهداف المنصّات مساراً تحت OPP-03. وطلب المالك سجلّاً كاملاً للجلسة بلا بيانات شخصية (المستودع عامّ) فيُضاف سجلٌّ تحت outreach/ ومصادر HTML للعيّنتين مع بصمات الملفّات المسلَّمة بلا أيّ ملفٍّ ثنائي. وإصلاح عيبٍ كشفه الصفّ: last_event في economic_truth كان يُحسب على كلّ الصفوف بينما الأدلّة على صفوف الأطروحة فقط، فاستشهدت جملةٌ بـLEDGER:7 غير الموجود في الأدلّة.",
+  "decision_of_change": "D-300 (السجلّ هو الحقيقة التجارية الوحيدة) · D-297 · D-305 · D-282 (OPP-03 قناة تمويل شخصية): المالك قدّم في 2026-10-08 طلباً على work.turing.com لدور «AI - Analyst | Photographer - Arabic» وحالته Shortlisted، فيُلحَق صفّ FORM_SUBMITTED واحد (قناة platform) ويُعلَن ملفّ أهداف المنصّات مساراً تحت OPP-03. وطلب المالك سجلّاً كاملاً للجلسة بلا بيانات شخصية (المستودع عامّ) فيُضاف سجلٌّ تحت outreach/ ومصادر HTML للعيّنتين مع بصمات الملفّات المسلَّمة بلا أيّ ملفٍّ ثنائي. وإصلاح عيبٍ كشفه الصفّ: last_event في economic_truth كان يُحسب على كلّ الصفوف بينما الأدلّة على صفوف الأطروحة فقط، فاستشهدت جملةٌ بـLEDGER:7 غير الموجود في الأدلّة. ثمّ في 2026-10-09 ظهر الطلب نفسه في قسم Archived على لوحة Turing بلا سببٍ معروض، فيُلحَق صفّ CLOSED_DECLINED (شرطه فعلُ اتصالٍ سابق للكيان نفسه: FORM_SUBMITTED) ويُحدَّث صفّ الأهداف إلى ARCHIVED، دون ادّعاء سببٍ للإغلاق.",
   "standards": [
     "clean-code-book"
   ],
@@ -35,8 +35,8 @@
     "owner": "repository-owner",
     "status": "LEDGER_ROW_ONLY",
     "interfaces": [
-      "docs/commercial/outreach/CONTACT_LEDGER.csv: Turing — FORM_SUBMITTED (2026-10-08، platform، Shortlisted)",
-      "docs/commercial/AI_EVAL_PLATFORM_TARGETS_2026-10-08.csv: id=1 Turing (SHORTLISTED) · id=2 OpenTrain (PROFILE_LIVE)",
+      "docs/commercial/outreach/CONTACT_LEDGER.csv: Turing — FORM_SUBMITTED (2026-10-08، platform، Shortlisted) ثمّ CLOSED_DECLINED (2026-10-09، Archived، بلا سببٍ معروض)",
+      "docs/commercial/AI_EVAL_PLATFORM_TARGETS_2026-10-08.csv: id=1 Turing (ARCHIVED 2026-10-09) · id=2 OpenTrain (PROFILE_LIVE)",
       "docs/commercial/VALUE_CHAIN.json: OPP-03.ledger_routes = [AI_EVAL_PLATFORM_TARGETS_2026-10-08.csv]",
       "shared/research/economic_truth.py: last_event من صفوف الأطروحة وحدها"
     ],
@@ -45,7 +45,7 @@
       "docs/commercial/HARD_CURRENCY_SCORECARD.json"
     ],
     "failure_behavior_ar": "صفٌّ مخالف لعقد contact_ledger يُرفض فتحمرّ check_outbound_before_research؛ وصفٌّ بلا مسار يُحمّر check_value_chain؛ وجملةٌ تستشهد بدليلٍ غائب يُحمّرها test_real_every_sentence_stays_within_its_evidence.",
-    "observability_ar": "اللوحة المشتقّة: صفوف=6 · اتصالات=5 · كيانات=4 · ردود=0 · دفعات=0 · GATE_C=ABSENT. قمع الأطروحة (OPP-01/02) لا يتغيّر.",
+    "observability_ar": "اللوحة المشتقّة: صفوف=7 · اتصالات=5 · كيانات=4 · ردود=0 · دفعات=0 · مغلقة برفض=1 · GATE_C=ABSENT. قمع الأطروحة (OPP-01/02) لا يتغيّر.",
     "security_boundary_ar": "المستودع عامّ: لا هاتف ولا بريد شخصي ولا بنك ولا هوية ولا ولاية إقامة ولا رابط Drive ولا سيرة ذاتية؛ ولا ملفّ ثنائي (الصور والـPDF خارج المستودع ببصماتها فقط).",
     "rollback_ar": "git revert للدفعات؛ السجلّ مُلحَق-فقط فالتراجع إزالةٌ للصفّ الأخير وإعادة اشتقاق."
   },
@@ -66,7 +66,7 @@
   "verification": {
     "result": "PASS",
     "commands": [
-      "python3 scripts/research/hard_currency_scorecard.py && --check — PASS (صفوف=6 · اتصالات=5 · دفعات=0 · GATE_C=ABSENT)",
+      "python3 scripts/research/hard_currency_scorecard.py && --check — PASS (صفوف=7 · اتصالات=5 · دفعات=0 · closed_declined=1 · GATE_C=ABSENT)",
       "python3 scripts/research/value_chain.py && --check && python3 scripts/fitness/check_value_chain.py — PASS",
       "CODE_ACCEPTANCE_BASE_SHA=origin/main python3 scripts/fitness/check_outbound_before_research.py — PASS",
       "pytest --noconftest tests/fitness/test_check_outbound_before_research.py tests/fitness/test_check_value_chain.py tests/shared/test_economic_truth.py — 67 passed",
@@ -182,16 +182,16 @@
       "shared/research/economic_truth.py",
       "tests/shared/test_economic_truth.py"
     ],
-    "content_sha256_excluding_packet": "09b74577cea4fe5fe1c6b03bd6fb6262c4c758dcd8c1c1344436fa3030809d94",
+    "content_sha256_excluding_packet": "ccc781590d3ee49292fff155d737d383090a4d2adea52e372dd6a7e2b8e3b7ae",
     "refreshed_on": "2026-10-09",
     "refresh_command": "python3 scripts/research/refresh_acceptance_diff_snapshot.py"
   },
   "repository_microscope": {
     "mode": "FULL_REPOSITORY_BYTE_CENSUS_EXCLUDING_PACKET",
     "file_count_excluding_packet": 3480,
-    "total_bytes_excluding_packet": 50827158,
-    "total_newlines_excluding_packet": 888732,
-    "sha256_excluding_packet": "e99497491d67f360c4309c598a9d066260629475809f4fc49f808f1b2ba9fc01",
+    "total_bytes_excluding_packet": 50829823,
+    "total_newlines_excluding_packet": 888744,
+    "sha256_excluding_packet": "43cce60e1230d7a703d6309d831aca9d8188625928aeeba5eb95bd431793af4c",
     "largest_file_excluding_packet": {
       "path": "Introduction to Agents.pdf",
       "bytes": 9473606
@@ -255,6 +255,7 @@
       "last_event_fix": "TESTED",
       "turing_application_submitted": "ASSUMED",
       "turing_status_shortlisted": "ASSUMED",
+      "turing_application_archived": "ASSUMED",
       "ai_trials_three_wrong_answers": "ASSUMED",
       "essg_ground_truth_decree_17_88": "TESTED",
       "no_personal_data_committed": "TESTED"
