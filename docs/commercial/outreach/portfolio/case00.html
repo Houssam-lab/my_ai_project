@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>Case 00 - QA postmortem</title>
+<style>
+@page { size: A4; margin: 9mm 12mm; }
+body { font-family: "DejaVu Sans", sans-serif; font-size: 8.3pt; line-height: 1.26; color: #15191f; margin: 0; }
+h1 { font-size: 13.5pt; margin: 0 0 2px; }
+.sub { color: #4a5361; margin-bottom: 6px; }
+h2 { font-size: 9pt; text-transform: uppercase; letter-spacing: .06em; color: #1f4fd1; border-bottom: 1px solid #d7dce4; margin: 7px 0 3px; padding-bottom: 2px; }
+.box { background: #f3f5f8; border-left: 3px solid #1f4fd1; padding: 4px 8px; }
+.bad { background: #fbf0ef; border-left: 3px solid #b3261e; padding: 4px 8px; }
+img { width: 100%; border: 1px solid #d7dce4; }
+.grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; width: 62%; margin: 0 auto; }
+.cap { font-size: 7.6pt; color: #4a5361; }
+ol, ul { margin: 2px 0; padding-left: 16px; } li { margin-bottom: 1px; }
+td { vertical-align: top; padding: 1px 8px 1px 0; } td:first-child { font-weight: bold; white-space: nowrap; }
+</style></head><body>
+<h1>Case 00: QA postmortem of a masked-landmark task that fails</h1>
+<div class="sub">Independent demonstration (not a Turing or client task) · Houssam Benmerah · 7 October 2026</div>
+
+<div class="grid">
+  <div><img src="01_masked_image.jpg"><div class="cap">Image given to the agent (sign hidden)</div></div>
+  <div><img src="02_original_image.jpg"><div class="cap">Original (CC BY-SA 4.0, Habib kaki, Wikimedia Commons)</div></div>
+</div>
+
+<h2>The task as first built</h2>
+<table>
+<tr><td>Prompt</td><td>This photo was taken in August 2016. A sign on the building has been hidden. Identify the building and the town where it stands, as of August 2016. Give the building's full name and the town in one sentence.</td></tr>
+<tr><td>Rubric</td><td>The response identifies the building as the headquarters of the Wilaya (province) of El Tarf, located in the town of El Tarf, Algeria.</td></tr>
+<tr><td>Ground truth</td><td>Headquarters of the Wilaya of El Tarf (مقر ولاية الطارف), El Tarf, north-east Algeria. The masked sign reads «ولاية الطارف».</td></tr>
+</table>
+
+<h2>Attack: can the task be solved by the wrong method?</h2>
+<div class="bad"><b>Yes.</b> The unmasked original is public on Wikimedia Commons and is the infobox image of the French Wikipedia article "Wilaya d'El Tarf". An exact-match reverse image search can reach the identity in one step (image → Commons page → caption "siège de la wilaya"), without using any of the visible clues. The task therefore does not measure the multi-step research it claims to measure.</div>
+
+<h2>Other weaknesses found</h2>
+<ul>
+<li><b>Clues are not discriminative.</b> The flag gives Algeria and the architecture suggests a government building, but no visible clue singles out El Tarf among dozens of similar provincial buildings. Only the exact match does.</li>
+<li><b>Difficulty not calibrated.</b> I first wrote "medium" with no human or agent trial behind it. Correct label: <i>not calibrated</i>.</li>
+<li><b>Time condition isolates nothing.</b> The building's function did not change after 2016, so "as of August 2016" adds no measured capability.</li>
+</ul>
+
+<h2>Failure modes a valid version should expose</h2>
+<ul>
+<li>Stops at the country ("a government building in Algeria").</li>
+<li>Confuses levels of government: names El Tarf town hall (APC) or a daïra seat instead of the wilaya seat.</li>
+<li>Picks a similar building elsewhere (El Kala, Annaba, another wilaya).</li>
+<li>Gives the right name with no supporting evidence, or with evidence that does not match the image.</li>
+<li>Reaches the answer only through an exact-match shortcut.</li>
+</ul>
+
+<h2>Verdict and redesign rules (applied to Task 001)</h2>
+<div class="box"><b>Rejected as a production task; kept as a documented negative example.</b> Rules for the redesign:
+<ol>
+<li>Use an unpublished original photo, so no exact match exists online.</li>
+<li>Strip EXIF/GPS metadata and use neutral file names.</li>
+<li>Hide the direct identifier but keep secondary clues that narrow the candidates (skyline, street layout, nearby landmarks).</li>
+<li>Run a reverse image search on the masked image before accepting the task, and record the result.</li>
+<li>List the failure modes in the solution notes; label difficulty "not calibrated" until a trial is run.</li>
+</ol></div>
+
+<h2>Image provenance and licence</h2>
+<table>
+<tr><td>Source</td><td>Wikimedia Commons, File: El tarf الطارف - مقر الولاية.jpg (photo by Habib kaki, own work, 20 August 2016)</td></tr>
+<tr><td>Licence</td><td>CC BY-SA 4.0, checked on the file page on 7 October 2026. Changes: sign masked with a grey box, resized to 1920 px. The modified image is shared under CC BY-SA 4.0.</td></tr>
+</table>
+</body></html>
