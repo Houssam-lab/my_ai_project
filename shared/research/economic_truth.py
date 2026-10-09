@@ -819,7 +819,9 @@ def build_snapshot(
             ),
         }
 
-    last = max(rows, key=lambda r: (r.date, r.line_no), default=None)
+    # The thesis's own last event: evidence lists only thesis rows, so a later row on another
+    # path would make this sentence cite a ledger line the evidence does not hold.
+    last = max(rows_in_thesis, key=lambda r: (r.date, r.line_no), default=None)
     offer = _thesis_offer(catalog)
 
     contradictions: list[dict[str, object]] = []

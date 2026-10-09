@@ -188,6 +188,17 @@ def test_snapshot_is_deterministic_and_reads_no_clock(tmp_path) -> None:
     assert _snap(tmp_path, ONE_EMAIL) == _snap(tmp_path, ONE_EMAIL)
 
 
+def test_a_newer_row_outside_the_thesis_is_not_its_last_event(tmp_path) -> None:
+    # Evidence lists only thesis rows, so a later row on another path must not become the
+    # "last event" — its sentence would cite a ledger line the evidence does not hold.
+    other_path = "2026-09-30,OTHER.csv#id=1,Platform X,US,platform,FORM_SUBMITTED,,,"
+    snapshot = _snap(tmp_path, _ledger(_row("2026-09-22", "Cabinet A", "EMAIL_SENT"), other_path))
+    assert snapshot["last_event"]["entity"] == "Cabinet A"
+    assert snapshot["days_since_last_event"] == 10
+    sentences = render_sentences(snapshot, build_brief(snapshot))
+    assert sentence_problems(sentences, snapshot["evidence"]) == []
+
+
 # ── each stage picks its bottleneck and one lawful action ─────────────────────
 
 
