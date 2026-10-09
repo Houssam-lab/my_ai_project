@@ -1022,7 +1022,7 @@
     }
   ],
   "derived": {
-    "as_of": "2026-10-08",
+    "as_of": "2026-10-09",
     "as_of_basis": "آخر تاريخٍ في CONTACT_LEDGER.csv — لا ساعة النظام",
     "paths_total": 25,
     "by_classification": {
