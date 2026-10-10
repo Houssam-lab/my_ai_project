@@ -51,6 +51,10 @@ from shared.research.value_chain import compute_derived
 from tools.hard_currency_engine.buyer_claims import classify, findings
 
 TODAY = date(2026, 10, 2)
+# The real ledger rejects rows dated after "today", and the gate and the scorecard read it
+# with the real calendar. A pinned date here turns every row logged after it into a
+# parse error, and build_snapshot then reads an empty ledger without failing.
+REAL_TODAY = date.today()
 ROUTE = "TARGETS.csv"
 HEADER = ",".join(COLUMNS)
 CATALOG = {
@@ -127,7 +131,8 @@ ONE_EMAIL = _ledger(_row("2026-09-22", "Cabinet A", "EMAIL_SENT"))
 @pytest.fixture(scope="module")
 def real() -> dict[str, object]:
     inputs = load_inputs(REPO_ROOT)
-    snapshot = build_snapshot(**inputs, root=REPO_ROOT, today=TODAY, wording=_lint)
+    snapshot = build_snapshot(**inputs, root=REPO_ROOT, today=REAL_TODAY, wording=_lint)
+    assert snapshot["ledger_problems"] == []
     return {"inputs": inputs, "snapshot": snapshot, "brief": build_brief(snapshot)}
 
 
@@ -147,7 +152,7 @@ def test_real_every_cited_evidence_exists_on_disk(real) -> None:
 
 def test_real_ceiling_is_the_value_chain_derivation(real) -> None:
     inputs, snapshot = real["inputs"], real["snapshot"]
-    rows = parse_ledger(inputs["ledger_text"], today=TODAY)
+    rows = parse_ledger(inputs["ledger_text"], today=REAL_TODAY)
     derived = compute_derived(inputs["chain_doc"], rows)
     thesis_ids = {p["id"] for p in snapshot["thesis"]["paths"]}
     reached = max(p["reached"] for p in derived["paths"] if p["id"] in thesis_ids)
@@ -181,6 +186,17 @@ def test_active_thesis_and_kill_conditions_are_quoted_from_d300() -> None:
 
 def test_snapshot_is_deterministic_and_reads_no_clock(tmp_path) -> None:
     assert _snap(tmp_path, ONE_EMAIL) == _snap(tmp_path, ONE_EMAIL)
+
+
+def test_a_newer_row_outside_the_thesis_is_not_its_last_event(tmp_path) -> None:
+    # Evidence lists only thesis rows, so a later row on another path must not become the
+    # "last event" — its sentence would cite a ledger line the evidence does not hold.
+    other_path = "2026-09-30,OTHER.csv#id=1,Platform X,US,platform,FORM_SUBMITTED,,,"
+    snapshot = _snap(tmp_path, _ledger(_row("2026-09-22", "Cabinet A", "EMAIL_SENT"), other_path))
+    assert snapshot["last_event"]["entity"] == "Cabinet A"
+    assert snapshot["days_since_last_event"] == 10
+    sentences = render_sentences(snapshot, build_brief(snapshot))
+    assert sentence_problems(sentences, snapshot["evidence"]) == []
 
 
 # ── each stage picks its bottleneck and one lawful action ─────────────────────

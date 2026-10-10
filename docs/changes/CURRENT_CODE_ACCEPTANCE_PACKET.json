@@ -1,9 +1,9 @@
 {
   "$schema_version": 1,
-  "packet_id": "CAP-2026-10-06-d316-codescene-pr-coverage-check",
+  "packet_id": "CAP-2026-10-09-turing-application-opp03-session-log-last-event-fix",
   "status": "READY_FOR_GATE",
   "decision": "D-277",
-  "decision_of_change": "D-316 (قرار المالك 2026-10-06: «يجب أن تظهر علامة الصحّ الخضراء في الفروع الحالية أوّلاً»): فحص CodeScene Code Coverage الخارجي ينتهي timed_out بعد 6 ساعات على كلّ PR لأنّ وظيفة codescene-coverage تشغّل upload، وCodeScene تقبل بيانات الفروع غير main ولا تستعملها؛ بوّابة الـPR تُغذّى بـcs-coverage check. على pull_request يُشغَّل check مع CS_PROJECT_URL، ويبقى upload على push إلى main؛ والوظيفة خارج required-ci كما كانت.",
+  "decision_of_change": "D-300 (السجلّ هو الحقيقة التجارية الوحيدة) · D-297 · D-305 · D-282 (OPP-03 قناة تمويل شخصية): المالك قدّم في 2026-10-08 طلباً على work.turing.com لدور «AI - Analyst | Photographer - Arabic» وحالته Shortlisted، فيُلحَق صفّ FORM_SUBMITTED واحد (قناة platform) ويُعلَن ملفّ أهداف المنصّات مساراً تحت OPP-03. وطلب المالك سجلّاً كاملاً للجلسة بلا بيانات شخصية (المستودع عامّ) فيُضاف سجلٌّ تحت outreach/ ومصادر HTML للعيّنتين مع بصمات الملفّات المسلَّمة بلا أيّ ملفٍّ ثنائي. وإصلاح عيبٍ كشفه الصفّ: last_event في economic_truth كان يُحسب على كلّ الصفوف بينما الأدلّة على صفوف الأطروحة فقط، فاستشهدت جملةٌ بـLEDGER:7 غير الموجود في الأدلّة. ثمّ في 2026-10-09 ظهر الطلب نفسه في قسم Archived على لوحة Turing بلا سببٍ معروض، فيُلحَق صفّ CLOSED_DECLINED (شرطه فعلُ اتصالٍ سابق للكيان نفسه: FORM_SUBMITTED) ويُحدَّث صفّ الأهداف إلى ARCHIVED، دون ادّعاء سببٍ للإغلاق.",
   "standards": [
     "clean-code-book"
   ],
@@ -16,54 +16,63 @@
     {
       "standard": "clean-code-book",
       "paths": [
-        ".github/workflows/ci.yml",
-        "docs/governance/amendments/D-316-CODESCENE-PR-COVERAGE-CHECK.md",
-        ".memory/decisions.md",
-        ".memory/code_quality_truth.md"
+        "docs/commercial/outreach/CONTACT_LEDGER.csv",
+        "docs/commercial/HARD_CURRENCY_SCORECARD.json",
+        "docs/commercial/VALUE_CHAIN.json",
+        "docs/commercial/AI_EVAL_PLATFORM_TARGETS_2026-10-08.csv",
+        "docs/commercial/outreach/AI_EVAL_PLATFORM_LOG_2026-10-08.md",
+        "docs/commercial/outreach/portfolio/MANIFEST.md",
+        "docs/commercial/outreach/portfolio/case00.html",
+        "docs/commercial/outreach/portfolio/task001.html",
+        "shared/research/economic_truth.py",
+        "tests/shared/test_economic_truth.py"
       ],
-      "gate": "python scripts/fitness/check_engineering_governance.py && python scripts/fitness/check_ci_workflow_hygiene.py && python scripts/run_fitness_gates.py && git diff --check",
-      "application_ar": "تغييرٌ أصغر ما يمكن: خطوةٌ جديدة واحدة مشروطة بالحدث (check على pull_request) وتقييد خطوة upload بـpush؛ لا وظيفة أخرى ولا required-ci ولا اختبار يتغيّر."
+      "gate": "python scripts/fitness/check_outbound_before_research.py && python scripts/research/hard_currency_scorecard.py --check && python scripts/fitness/check_value_chain.py && pytest tests/shared/test_economic_truth.py && git diff --check",
+      "application_ar": "أصغر تغييرٍ ممكن: صفٌّ مُلحَق بفعلٍ من القائمة المغلقة، ومسارٌ واحد مُعلَن تحت OPP-03، والمشتقّات تُولَّد بسكربتيها؛ والسجلّ نصٌّ تحت outreach/ المستثنى من تجميد البحث؛ والإصلاح سطرٌ واحد يجعل last_event يقرأ صفوف الأطروحة كما يقرؤها القمع والادّعاءات والكيانات، مع اختبارٍ تركيبي يفشل قبله."
     }
   ],
   "production": {
-    "owner": "ci-maintainers",
-    "status": "CI_PR_COVERAGE_CHECK_ONLY",
+    "owner": "repository-owner",
+    "status": "LEDGER_ROW_ONLY",
     "interfaces": [
-      "CI job codescene-coverage: pull_request ⇒ cs-coverage check --verbose --coverage-files coverage.xml (CS_PROJECT_URL=https://api.codescene.io/v2/projects/83387)",
-      "CI job codescene-coverage: push ⇒ cs-coverage upload كما كان حرفياً"
+      "docs/commercial/outreach/CONTACT_LEDGER.csv: Turing — FORM_SUBMITTED (2026-10-08، platform، Shortlisted) ثمّ CLOSED_DECLINED (2026-10-09، Archived، بلا سببٍ معروض)",
+      "docs/commercial/AI_EVAL_PLATFORM_TARGETS_2026-10-08.csv: id=1 Turing (ARCHIVED 2026-10-09) · id=2 OpenTrain (PROFILE_LIVE)",
+      "docs/commercial/VALUE_CHAIN.json: OPP-03.ledger_routes = [AI_EVAL_PLATFORM_TARGETS_2026-10-08.csv]",
+      "shared/research/economic_truth.py: last_event من صفوف الأطروحة وحدها"
     ],
     "runtime_evidence_paths": [
-      ".github/workflows/ci.yml",
-      "docs/governance/amendments/D-316-CODESCENE-PR-COVERAGE-CHECK.md"
+      "docs/commercial/outreach/CONTACT_LEDGER.csv",
+      "docs/commercial/HARD_CURRENCY_SCORECARD.json"
     ],
-    "failure_behavior_ar": "فشل check (مصادقة أو بوّابة راسبة) يخرج بـ1 فتصير الخطوة حمراء ظاهرة؛ والوظيفة خارج required-ci فلا تحجب الدمج (D-234).",
-    "observability_ar": "ملخّص الخطوة يقول أيّ المسارين جرى (PR gate checked أو uploaded)، وحكم البوّابة نفسه هو فحص CodeScene Code Coverage على الـPR.",
-    "security_boundary_ar": "الرمز CS_ACCESS_TOKEN باقٍ على مستوى الوظيفة بحارسَي != '' و== ''؛ CS_PROJECT_URL مُعرِّفٌ عامّ لا سرّ؛ المُثبِّت يُنزَّل إلى ملفّ لا curl|sh؛ لا صلاحية ولا تبعية جديدة.",
-    "rollback_ar": "git revert للدفعة يعيد خطوة upload الوحيدة لكلّ حدث (ومعها المهلة على الـPR)."
+    "failure_behavior_ar": "صفٌّ مخالف لعقد contact_ledger يُرفض فتحمرّ check_outbound_before_research؛ وصفٌّ بلا مسار يُحمّر check_value_chain؛ وجملةٌ تستشهد بدليلٍ غائب يُحمّرها test_real_every_sentence_stays_within_its_evidence.",
+    "observability_ar": "اللوحة المشتقّة: صفوف=7 · اتصالات=5 · كيانات=4 · ردود=0 · دفعات=0 · مغلقة برفض=1 · GATE_C=ABSENT. قمع الأطروحة (OPP-01/02) لا يتغيّر.",
+    "security_boundary_ar": "المستودع عامّ: لا هاتف ولا بريد شخصي ولا بنك ولا هوية ولا ولاية إقامة ولا رابط Drive ولا سيرة ذاتية؛ ولا ملفّ ثنائي (الصور والـPDF خارج المستودع ببصماتها فقط).",
+    "rollback_ar": "git revert للدفعات؛ السجلّ مُلحَق-فقط فالتراجع إزالةٌ للصفّ الأخير وإعادة اشتقاق."
   },
   "commercial_trace": {
     "offer_ids": [
       "fr-be-einvoicing-referential-cleansing"
     ],
-    "customer_problem_ar": "main أحمر يوقف كلّ دمجٍ لاحق، ومنها عمل الأطروحة النشطة؛ والأحمر هنا ليس عطباً في الكود بل سقفٌ بلا هامش.",
-    "value_hypothesis_ar": "استعادة main أخضر صادقاً تعيد قابلية الدمج دون إضعاف أيّ اختبار.",
-    "foreign_currency_path_ar": "لا إيراد ولا يُدّعى؛ تغييرٌ في البنية التحتية للتكامل المستمرّ فقط.",
-    "foundation_exception_ar": "إصلاح أساس (CI) مسموحٌ تحت ENGINEERING_CONSTITUTION §5.1؛ لا ميزة ولا ترقية قدرة."
+    "customer_problem_ar": "عملٌ حقيقي على منصّات تقييم الذكاء الاصطناعي (OPP-03) لم يكن له موطن في السجلّ، فكان سيُفقد أو يُسقَط صامتاً؛ وصفّه الأوّل كشف عيباً في غرفة القرار.",
+    "value_hypothesis_ar": "تسجيلٌ صادق لقناة التمويل الشخصية بجانب الأطروحة، دون أن يلوّث قمع الأطروحة أو يدّعي دخلاً.",
+    "foreign_currency_path_ar": "لا إيراد ولا يُدّعى؛ GATE_C = ABSENT؛ وطريق الدفع من Turing إلى الجزائر غير مؤكَّد.",
+    "foundation_exception_ar": "تسجيل فعلٍ في مصدر الحقيقة الوحيد (D-300) وإصلاحُ عيبٍ في اشتقاقه؛ لا ميزة ولا ترقية قدرة."
   },
   "deletions": {
     "count": 0,
     "paths": [],
-    "policy_ar": "صفر حذف: خطوةٌ جديدة وشروطٌ وتعليقاتٌ في ci.yml، وسجلّ تعديلٍ جديد، وقرارٌ مُلحَق."
+    "policy_ar": "صفر حذف: صفٌّ مُلحَق، ومسارٌ مُضاف، وملفّات جديدة، وسطرٌ مُعدَّل في economic_truth.py."
   },
   "verification": {
     "result": "PASS",
     "commands": [
-      "check_ci_workflow_hygiene — PASS (17 ملفّاً؛ الرمز محروس ومنطوق الغياب، ولا تكامل خارجي في required-ci)",
-      "check_engineering_governance (GOVERNANCE_BASE_SHA=origin/main) — PASS (سجلّ التعديل D-316 موجود)",
-      "run_fitness_gates.py (CODE_ACCEPTANCE_BASE_SHA=GOVERNANCE_BASE_SHA=origin/main) — كلّ البوّابات خضراء",
-      "runtime_truth.py --check · git diff --check — PASS",
-      "الأداة نفسها محلياً (sha256 مطابق للمنشور): check يقبل --coverage-files وحده، ويخرج بـ1 عند خطأ المصادقة",
-      "الدليل على العطب: check run 112247837361 (PR #2595) timed_out بعد 6 ساعات «No valid coverage report found in the build pipeline»، وسجلّ job 112454859769: «CodeScene only analyse the following branches: (\"main\")»"
+      "python3 scripts/research/hard_currency_scorecard.py && --check — PASS (صفوف=7 · اتصالات=5 · دفعات=0 · closed_declined=1 · GATE_C=ABSENT)",
+      "python3 scripts/research/value_chain.py && --check && python3 scripts/fitness/check_value_chain.py — PASS",
+      "CODE_ACCEPTANCE_BASE_SHA=origin/main python3 scripts/fitness/check_outbound_before_research.py — PASS",
+      "pytest --noconftest tests/fitness/test_check_outbound_before_research.py tests/fitness/test_check_value_chain.py tests/shared/test_economic_truth.py — 67 passed",
+      "قبل الإصلاح: test_real_every_sentence_stays_within_its_evidence أحمر بـ«جملة 5: مُعرِّفات دليلٍ غير موجودة [LEDGER:7]»، والاختبار الجديد test_a_newer_row_outside_the_thesis_is_not_its_last_event أحمر",
+      "ruff check · ruff format --check على الملفّين — PASS؛ git diff --check نظيف؛ check_documentation_contract — PASS",
+      "grep خصوصية على الملفّات الجديدة (هاتف · بريد شخصي · بنك · Drive · ولاية إقامة) — لا نتيجة"
     ]
   },
   "curriculum": {
@@ -145,40 +154,44 @@
     "owner": "curriculum-governance"
   },
   "changed_paths": [
-    ".github/workflows/ci.yml",
-    ".memory/README.md",
-    ".memory/code_quality_truth.md",
-    ".memory/decisions.md",
-    ".runtime/truth_table.lock.json",
-    "README.ar.md",
-    "README.md",
-    "docs/DOCUMENTATION_INDEX.md",
-    "docs/changes/CURRENT_CODE_ACCEPTANCE_PACKET.json",
-    "docs/governance/amendments/D-316-CODESCENE-PR-COVERAGE-CHECK.md"
+    "docs/commercial/outreach/CONTACT_LEDGER.csv",
+    "docs/commercial/HARD_CURRENCY_SCORECARD.json",
+    "docs/commercial/VALUE_CHAIN.json",
+    "docs/commercial/AI_EVAL_PLATFORM_TARGETS_2026-10-08.csv",
+    "docs/commercial/outreach/AI_EVAL_PLATFORM_LOG_2026-10-08.md",
+    "docs/commercial/outreach/portfolio/MANIFEST.md",
+    "docs/commercial/outreach/portfolio/case00.html",
+    "docs/commercial/outreach/portfolio/task001.html",
+    "shared/research/economic_truth.py",
+    "tests/shared/test_economic_truth.py",
+    "docs/changes/CURRENT_CODE_ACCEPTANCE_PACKET.json"
   ],
   "git_change_snapshot": {
     "base_ref": "origin/main",
     "changed_paths_excluding_packet": [
-      ".github/workflows/ci.yml",
-      ".memory/README.md",
-      ".memory/code_quality_truth.md",
-      ".memory/decisions.md",
-      ".runtime/truth_table.lock.json",
-      "README.ar.md",
-      "README.md",
-      "docs/DOCUMENTATION_INDEX.md",
-      "docs/governance/amendments/D-316-CODESCENE-PR-COVERAGE-CHECK.md"
+      "docs/commercial/AI_EVAL_PLATFORM_TARGETS_2026-10-08.csv",
+      "docs/commercial/FR_EINVOICING_TARGETS_V2_2026-10-04.csv",
+      "docs/commercial/HARD_CURRENCY_SCORECARD.json",
+      "docs/commercial/VALUE_CHAIN.json",
+      "docs/commercial/outreach/AI_EVAL_PLATFORM_LOG_2026-10-08.md",
+      "docs/commercial/outreach/CONTACT_LEDGER.csv",
+      "docs/commercial/outreach/portfolio/MANIFEST.md",
+      "docs/commercial/outreach/portfolio/case00.html",
+      "docs/commercial/outreach/portfolio/task001.html",
+      "docs/commercial/outreach/ready_to_send/01_MAILS_CABINETS_PRETS.md",
+      "shared/research/economic_truth.py",
+      "tests/shared/test_economic_truth.py"
     ],
-    "content_sha256_excluding_packet": "b1d78f7cdf0a5ba249bcb7a37e6f4530226a7dc140e3cdb1dc2097d5c26da08c",
-    "refreshed_on": "2026-10-06",
+    "content_sha256_excluding_packet": "ccc781590d3ee49292fff155d737d383090a4d2adea52e372dd6a7e2b8e3b7ae",
+    "refreshed_on": "2026-10-09",
     "refresh_command": "python3 scripts/research/refresh_acceptance_diff_snapshot.py"
   },
   "repository_microscope": {
     "mode": "FULL_REPOSITORY_BYTE_CENSUS_EXCLUDING_PACKET",
-    "file_count_excluding_packet": 3475,
-    "total_bytes_excluding_packet": 50783352,
-    "total_newlines_excluding_packet": 888319,
-    "sha256_excluding_packet": "4d7129714c228414de314e2e1cd2f3d5b643f9dea02b1551aae35b781a0c4e6c",
+    "file_count_excluding_packet": 3480,
+    "total_bytes_excluding_packet": 50829823,
+    "total_newlines_excluding_packet": 888744,
+    "sha256_excluding_packet": "43cce60e1230d7a703d6309d831aca9d8188625928aeeba5eb95bd431793af4c",
     "largest_file_excluding_packet": {
       "path": "Introduction to Agents.pdf",
       "bytes": 9473606
@@ -194,51 +207,58 @@
     "operator_attestation_ar": "هذا ليس ادعاء فهم شامل بذاته؛ إنه شرط مجهر آلي يسبق التحليل البشري والمصفوفة، ويجعل تجاهل القديم مرئياً."
   },
   "pre_modification": {
-    "current_state": "TESTED: main عند 9ec9994 (بعد دمج PR #2597) وكلّ فحوص Actions على PR #2597 خضراء؛ لكنّ فحص CodeScene Code Coverage الخارجي لا يكتمل على أيّ PR (timed_out بعد 6 ساعات على PR #2595).",
+    "current_state": "TESTED: main عند bc9da58؛ الفرع يحمل 15 دفعة (Balagué · T2F · ARCOEX · إصلاح التقويم الحقيقي)؛ السجلّ 5 صفوف كلّها تحت OPP-01؛ OPP-03 بلا ledger_routes.",
     "architecture_and_boundaries": [
-      ".github/workflows/ci.yml — وظيفة codescene-coverage وحدها؛ required-ci وكلّ وظيفةٍ أخرى لا تُمسّ.",
-      "مسارٌ محميّ تحت ENGINEERING_GOVERNANCE_POLICY ⇒ سجلّ تعديلٍ دستوري جديد بانتظار مراجعةٍ مستقلّة.",
-      "إعدادات مشروع CodeScene (الفروع المُحلَّلة وعتبات البوّابة) سلطةٌ خارجية يملكها المالك لا هذا المستودع."
+      "docs/commercial/outreach/CONTACT_LEDGER.csv مُلحَق-فقط بعقد shared/research/contact_ledger.py؛ الصفوف القديمة لا تُمسّ.",
+      "اللوحة وكتلة derived في VALUE_CHAIN.json مشتقّتان بسكربتين ولا تُحرَّران يدوياً (D-192).",
+      "docs/commercial/outreach/ مستثنى من تجميد البحث (D-297)؛ ولا ملفّ ثنائي فلا مساس بـdocs/governance/ASSET_LICENSE_CLEARANCE.json المحمي.",
+      "shared/research/ خارج المسارات المحمية؛ الإصلاح لا يغيّر واجهة build_snapshot."
     ],
     "existing_failures_and_old_debt": [
-      "FOUND: codescene-coverage يشغّل upload على فروع الـPR فتقبله CodeScene ولا تستعمله؛ فحص تغطية الـPR لم يكتمل قطّ منذ D-234 والوظيفة خضراء.",
-      "FOUND: بطء الحزمة (db_lifecycle) — متابعة D-315 المستحقّة، خارج هذا التغيير.",
+      "FOUND: economic_truth.build_snapshot يحسب last_event على كلّ الصفوف والأدلّة على صفوف الأطروحة فقط — أُصلح هنا مع اختبارٍ يفشل قبله.",
+      "FOUND: OPP-03 بلا ledger_routes فأيّ صفٍّ لمنصّةٍ كان يُرفض «بلا مسار» — أُضيف المسار.",
       "REMAINS OPEN: R1–R3 في PROJECT_REMEDIATION_PLAN.json؛ هذا التغيير لا يغلق شيئاً منها."
     ],
     "dependency_path": [
-      "ci.yml:codescene-coverage → cs-coverage check → فحص CodeScene Code Coverage على رأس الـPR → علامة الـPR الخضراء"
+      "CONTACT_LEDGER.csv → hard_currency_scorecard.py → HARD_CURRENCY_SCORECARD.json → economic_truth.build_snapshot (last_event من rows_in_thesis) → economic_decision.build_brief → غرفة القرار"
     ],
     "foundational_frontier": {
       "status": "REPAIRED_OR_CONTAINED_BEFORE_EXTENSION",
       "relevant_defects": [
-        "R3 (reproducible tests) OPEN — غير مُمسوس؛ هذا تغييرٌ في توصيل تقرير التغطية لا في الاختبارات.",
-        "وظيفةٌ خضراء لا تفعل شيئاً (D-235) — مُصلَحة هنا للـPR."
+        "last_event خارج الأطروحة — أُصلح قبل الاعتماد على الصفّ الجديد."
       ],
-      "decision": "إصلاح أساس CI مسموحٌ تحت §5.1؛ لا ميزة ولا ترقية قدرة."
+      "decision": "تسجيلٌ تجاري مسموح تحت D-300؛ لا ميزة ولا ترقية قدرة."
     },
-    "root_cause": "الأمر الخطأ للحدث: upload يغذّي الفرع المُحلَّل (main) وحده، وبوّابة الـPR تُغذّى بـcheck؛ والخطوة تخرج بـ0 فيخفي الأخضرُ العطل.",
-    "intended_change": "في codescene-coverage: check على pull_request مع CS_PROJECT_URL، وupload على push فقط؛ مع تعليقٍ يروي الجذر وسجلّ تعديل وقرار D-316.",
+    "root_cause": "فعلٌ حدث خارج المستودع (طلب Turing) بلا مسارٍ مُعلَن لـOPP-03؛ وحين سُجِّل ظهر أنّ last_event يُحسب على مجموعةٍ أوسع من الأدلّة التي تُبرهنه.",
+    "intended_change": "إلحاق صفّ FORM_SUBMITTED لـTuring؛ ملفّ أهداف المنصّات مساراً لـOPP-03؛ إعادة الاشتقاق؛ سجلّ الجلسة ومصادر المعرض بلا بيانات شخصية؛ وlast_event من صفوف الأطروحة.",
     "affected_invariants": [
-      "الأخضر لا يعني «لم يفعل شيئاً» (D-235).",
-      "خدمةٌ خارجية لا تحجب الدمج (D-234).",
-      "الرمز على مستوى الوظيفة بحارسين، والغياب يُعلَن (check_ci_workflow_hygiene)."
+      "السجلّ مُلحَق-فقط ومجموعة الأفعال مغلقة (D-297).",
+      "اللوحة مشتقّة بالبايت من السجلّ (D-192).",
+      "لا يُدّعى ردٌّ ولا مال: GATE_C = ABSENT.",
+      "كلّ جملةٍ في الموجز تستشهد بدليلٍ موجود في الأدلّة (D-314).",
+      "لا بيانات شخصية في مستودعٍ عامّ."
     ],
     "test_plan": [
-      "سلبي: check_ci_workflow_hygiene أخضر بعد التعديل؛ والأداة تخرج بـ1 عند خطأ المصادقة فلا صمت.",
-      "إيجابي/حيّ: فحص CodeScene Code Coverage يكتمل على رأس الـPR الجديد بدل المهلة، وupload يبقى على main بعد الدمج."
+      "سلبي: قبل الإصلاح يفشل test_a_newer_row_outside_the_thesis_is_not_its_last_event وtest_real_every_sentence_stays_within_its_evidence.",
+      "إيجابي: 67 اختباراً تمرّ، واللوحة --check وcheck_value_chain وcheck_outbound_before_research تمرّ."
     ],
-    "rollback_strategy": "git revert للدفعة؛ يعيد خطوة upload الوحيدة.",
+    "rollback_strategy": "git revert للدفعات ثمّ إعادة الاشتقاق.",
     "verification_strategy": [
-      "python scripts/fitness/check_ci_workflow_hygiene.py",
-      "python scripts/fitness/check_engineering_governance.py",
-      "python scripts/run_fitness_gates.py",
-      "مراقبة codescene-coverage وفحص CodeScene Code Coverage على رأس الـPR"
+      "python scripts/fitness/check_outbound_before_research.py",
+      "python scripts/research/hard_currency_scorecard.py --check",
+      "python scripts/fitness/check_value_chain.py",
+      "pytest tests/shared/test_economic_truth.py"
     ],
     "claim_statuses": {
       "current_state": "TESTED",
-      "ci_change": "IMPLEMENTED",
-      "codescene_pr_check": "UNKNOWN",
-      "branch_protection_live_state": "UNKNOWN"
+      "ledger_row": "IMPLEMENTED",
+      "last_event_fix": "TESTED",
+      "turing_application_submitted": "ASSUMED",
+      "turing_status_shortlisted": "ASSUMED",
+      "turing_application_archived": "ASSUMED",
+      "ai_trials_three_wrong_answers": "ASSUMED",
+      "essg_ground_truth_decree_17_88": "TESTED",
+      "no_personal_data_committed": "TESTED"
     }
   }
 }

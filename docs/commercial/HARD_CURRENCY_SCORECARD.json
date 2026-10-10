@@ -3,28 +3,28 @@
   "decision": "D-297",
   "purpose_ar": "لوحة العملة الصعبة (التوجيه §35): كلّ رقمٍ مُشتقٌّ من سجلّ الاتصال الخارجي، والغائبُ null بسببٍ لا صفرٌ يُقرأ خسارة.",
   "source": "docs/commercial/outreach/CONTACT_LEDGER.csv",
-  "source_sha256": "1bb6974d07f8de89e6657b6ce4f8d7c6c4cf7ce346fb14b4e56a7921c818f285",
-  "as_of": "2026-09-22",
-  "rows": 1,
+  "source_sha256": "7830c84ad4e9ed11c084c8140b3b6b608767f752ae128b175eb778b95f868012",
+  "as_of": "2026-10-09",
+  "rows": 7,
   "funnel": {
-    "contacts_sent": 1,
-    "entities_contacted": 1,
+    "contacts_sent": 5,
+    "entities_contacted": 4,
     "replies_received": 0,
     "samples_delivered": 0,
     "quotes_sent": 0,
     "deposits_received": 0,
     "payments_settled": 0,
-    "closed_no_reply": 0,
-    "closed_declined": 0
+    "closed_no_reply": 1,
+    "closed_declined": 1
   },
   "conversion": {
     "reply_rate": {
       "value": 0.0,
-      "basis": "كياناتٌ ردّت / كياناتٌ اتُّصل بها: 0/1"
+      "basis": "كياناتٌ ردّت / كياناتٌ اتُّصل بها: 0/4"
     },
     "sample_rate": {
       "value": 0.0,
-      "basis": "كياناتٌ تسلّمت عيّنة / اتُّصل بها: 0/1"
+      "basis": "كياناتٌ تسلّمت عيّنة / اتُّصل بها: 0/4"
     },
     "quote_rate": {
       "value": null,

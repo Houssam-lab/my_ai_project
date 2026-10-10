@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>Task 001 - Annaba</title>
+<style>
+@page { size: A4; margin: 9mm 11mm; }
+body { font-family: "DejaVu Sans", sans-serif; font-size: 7.7pt; line-height: 1.2; color: #15191f; margin: 0; }
+h1 { font-size: 13pt; margin: 0 0 2px; }
+.sub { color: #4a5361; margin-bottom: 5px; }
+h2 { font-size: 8.6pt; text-transform: uppercase; letter-spacing: .06em; color: #1f4fd1; border-bottom: 1px solid #d7dce4; margin: 6px 0 3px; padding-bottom: 2px; }
+.box { background: #f3f5f8; border-left: 3px solid #1f4fd1; padding: 4px 7px; }
+img { width: 100%; border: 1px solid #d7dce4; }
+.grid { display: grid; grid-template-columns: 1.15fr 1fr; gap: 8px; width: 74%; margin: 0 auto; }
+.cap { font-size: 7.2pt; color: #4a5361; }
+ul, ol { margin: 2px 0; padding-left: 15px; } li { margin-bottom: 1px; }
+table { border-collapse: collapse; width: 100%; }
+td, th { vertical-align: top; padding: 2px 6px 2px 0; text-align: left; }
+.t th { border-bottom: 1px solid #d7dce4; font-size: 7.5pt; color: #4a5361; }
+.t td { border-bottom: 1px solid #eef0f3; }
+.kv td:first-child { font-weight: bold; white-space: nowrap; }
+.bad { color: #b3261e; font-weight: bold; } .ok { color: #1b7f3b; font-weight: bold; }
+</style></head><body>
+<h1>Task 001: identify the institution in a masked street photo, Annaba (Algeria)</h1>
+<div class="sub">Independent demonstration (not a Turing or client task) · Original photos by Houssam Benmerah, 8 October 2026 · CC BY 4.0</div>
+
+<div class="grid">
+  <div><img src="task001_eval.jpg"><div class="cap">Image given to the agent (taken 18:08:12)</div></div>
+  <div><img src="task001_ground_truth.jpg"><div class="cap">Ground truth, not shown to the agent (same building, 18:13:56): sign "ÉCOLE SUPÉRIEURE DES SCIENCES DE GESTION – ANNABA"</div></div>
+</div>
+
+<h2>Prompt</h2>
+<div class="box">This photo was taken in October 2026. Identify the specific institution housed in the white building with arched windows on the right side of the photo. Use the visual clues and web search. Give the institution's official name as of October 2026 and its city, and explain your evidence.</div>
+
+<h2>Rubric (one criterion)</h2>
+<div class="box">The response names the École Supérieure des Sciences de Gestion d'Annaba (ESSG Annaba) as the institution and Annaba, Algeria, as the city.</div>
+
+<h2>Capability, failure modes, success criterion</h2>
+<table class="kv">
+<tr><td>Capability</td><td>Move from visual style and context to the specific institution that occupies a historic building today, verified by web research.</td></tr>
+<tr><td>Failure modes</td><td>Wrong city (similar colonial buildings exist in every Algerian city) · right city, wrong institution · assumes a town hall or provincial seat (category prior) · invents evidence (architect, dates, square names) · gives a former name of the building instead of the current one.</td></tr>
+<tr><td>Success</td><td>The rubric sentence is true. Evidence should match what is visible in the image.</td></tr>
+</table>
+
+<h2>Observed trials (8 October 2026)</h2>
+<table class="t">
+<tr><th>#</th><th>System</th><th>Time</th><th>Answer</th><th>City</th><th>Institution</th></tr>
+<tr><td>1</td><td>Google AI (image query; text not recorded)</td><td>20:55</td><td>Siège de la Wilaya d'Alger, Bd Zighout Youcef, Algiers</td><td class="bad">wrong</td><td class="bad">wrong</td></tr>
+<tr><td>2</td><td>Google AI Overview, query «ما هذا المبنى»</td><td>20:57</td><td>Old town hall of Annaba (مقر بلدية عنابة العتيق)</td><td class="ok">right</td><td class="bad">wrong</td></tr>
+<tr><td>3</td><td>Gemini, "Pro Extended" mode, prompt above</td><td>21:02</td><td>APC (town hall) of Mostaganem; cites an architect and a 1927 date</td><td class="bad">wrong</td><td class="bad">wrong</td></tr>
+</table>
+<p style="margin:3px 0 0">3 runs, 3 different answers, 0 correct. All three assumed a municipal or provincial seat. Run 1: the school lies on Bd Zighout Youcef in Annaba, and the Algiers wilaya seat is at 16 Bd Zighoud-Youcef in Algiers (name collision). Run 2: Annaba's town hall is a real building about 200 m south, built 1884–1888 in an eclectic style, not this one.</p>
+
+<h2>Ground truth and research path</h2>
+<ul>
+<li><b>Identity:</b> legal name "école supérieure des sciences de gestion à Annaba" (المدرسة العليا في علوم التسيير بعنابة), executive decree n° 17-88 of 15 Feb 2017, JORADP n° 12. It replaced the École préparatoire created by decree n° 10-164 of 28 June 2010.</li>
+<li><b>Why "as of October 2026" matters:</b> the building opened in 1910 as the girls' college of Bône, later became the Lycée Ernest Mercier, then the Lycée Pierre et Marie Curie, has housed the École préparatoire since 2010 and the ESSG since 2017. A former name is a wrong answer.</li>
+<li><b>Intended path:</b> colonial Moorish-style school architecture → multi-coloured high-rise on the right (very probably the Hôtel Seybouse International, about 200 m away) → central Annaba → former Lycée Pierre et Marie Curie → ESSG Annaba → confirm on essg-annaba.dz (its official 360° tour shows the same façade with the sign).</li>
+</ul>
+
+<h2>Masking, leakage check and limitations</h2>
+<ul>
+<li><b>Done:</b> the ESSG sign is out of frame; a lit hotel name in the distance (an OCR shortcut to the city) is masked; two plates and one passer-by are blurred; metadata removed; neutral file name.</li>
+<li><b>Limitation 1:</b> the school's official 360° tour (Dec 2023) shows the façade from the same plaza, so a strong reverse-image search could match it. None of the three runs did.</li>
+<li><b>Colonnaded building at left:</b> most likely the Grande Poste d'Annaba (Algérie Poste), about 70 m away per OpenStreetMap; run 3 read its sign as "بريد الجزائر". Run 2's "BEA bank agency" is unsupported.</li>
+<li><b>Limitation 2:</b> three runs only, so difficulty is not calibrated. The run-1 query text was not recorded.</li>
+</ul>
+
+<h2>Sources</h2>
+<table class="kv">
+<tr><td>Decree 17-88</td><td>joradp.dz/FTP/jo-francais/2017/F2017012.pdf (Arabic: jo-arabe/2017/A2017012.pdf)</td></tr>
+<tr><td>School</td><td>essg-annaba.dz (address: Boulevard de la Révolution du 24 Février 1956) · essg-annaba.dz/visite_virtuelle/</td></tr>
+<tr><td>History</td><td>P. Spiteri, L'enseignement à Bône 1832-1962 (clan-r.org) · annaba-patrimoine.org/lycee-pierre-marie-curie/</td></tr>
+<tr><td>Photos</td><td>Samsung Galaxy S10, 8 Oct 2026, 18:08:12 and 18:13:56. Changes: cropped, one sign masked, plates and a passer-by blurred, metadata removed.</td></tr>
+</table>
+</body></html>
